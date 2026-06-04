@@ -1,1 +1,1317 @@
-// test
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seiko — A Curated Caliber Family Tree 1956–2025</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%231a1a1a' d='M 8 8 L 56 8 L 56 16 L 36 16 L 36 48 L 58 48 L 58 56 L 6 56 L 6 48 L 28 48 L 28 16 L 8 16 Z'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@300;400;500;600&family=Noto+Serif:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   FONTS — loaded from Google Fonts above. Three families are used:
+   ───────────────────────────────────────────────────────────────────────
+     • Cormorant Garamond  — main title + popup serif (warm, editorial)
+     • IBM Plex Mono       — eyebrow + UI labels + node text (technical)
+     • Noto Serif          — intro prose (clean readable serif)
+   Want to swap a font? Update the <link rel="stylesheet"> in <head>
+   AND the matching `font-family:` declaration further down in this
+   stylesheet (search for the font name to find every use).
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COLOUR VARIABLES — also exposed to JavaScript via the `C` object
+   (SECTION 1 in the script below). Keep these two in sync.
+   ───────────────────────────────────────────────────────────────────────
+   The semantic colour names below (--suwa, --gs, --diver, etc.) drive
+   both the container box backgrounds and the node border/badge colours.
+   Tweak any of them and the whole diagram updates consistently.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root{--suwa:#1e3a5f;--kameido:#7a2332;--diver:#0d6651;--chrono:#9e6b00;--bell:#6d3a7a;--world:#2d7a53;--seiko5:#3d6d1e;--gs:#1a4a6a;--ks:#5a2a4a;--modern:#4a3a1e;--prospex:#0a5a4a;--presage:#3a2a5e;--icon:#b8942e;--coll:#2d8a3e;--bg:#faf9f7;--paper:#fff;--ink:#1a1a1a;--muted:#8a8780;--rule:#e0ddd6;--hibeat:#c92a2a;--springdrive:#1c7ed6;--quartz:#9e9e9e}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);font-family:'IBM Plex Mono',monospace;color:var(--ink)}
+#app{width:100vw;display:flex;flex-direction:column}
+#header{padding:14px 20px 12px;border-bottom:1px solid var(--rule);background:var(--paper);z-index:20;flex-shrink:0;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}
+#header .eyebrow{font-size:8px;letter-spacing:4px;color:var(--muted);text-transform:uppercase}
+#header h1{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--ink);letter-spacing:.5px;line-height:1.2}
+#header .spacer{flex:1}
+#intro-short{margin:8px 0 0}
+#intro-detail{display:none;margin:4px 0 0}
+#intro-detail.show{display:block}
+#intro-toggle{font-family:'Noto Serif',Georgia,serif;font-size:13px;color:var(--ink);background:none;border:1px solid var(--rule);border-radius:3px;padding:5px 14px;cursor:pointer;margin-top:8px;opacity:.7;transition:opacity .15s}
+#intro-toggle:hover{opacity:1}
+.filters{display:flex;gap:3px;flex-wrap:wrap}
+.filters button{font-family:'IBM Plex Mono',monospace;font-size:8px;padding:3px 8px;background:transparent;color:var(--muted);border:1px solid var(--rule);border-radius:2px;cursor:pointer;letter-spacing:.3px;transition:all .15s}
+.filters button.active{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.filters button:hover:not(.active){border-color:var(--muted);color:var(--ink)}
+.filters .filter-sep{width:1px;height:14px;background:var(--rule);margin:auto 4px;align-self:center}
+#toolbar{padding:5px 20px;border-bottom:1px solid var(--rule);background:var(--paper);z-index:20;flex-shrink:0;display:flex;align-items:center;gap:10px;position:sticky;top:0}
+#toolbar label{font-size:8px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+#zoom-slider{-webkit-appearance:none;appearance:none;width:180px;height:3px;background:var(--rule);border-radius:2px;outline:none;cursor:pointer}
+#zoom-slider::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--ink);cursor:pointer;border:2px solid var(--paper);box-shadow:0 1px 2px rgba(0,0,0,.2)}
+#zoom-slider::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:var(--ink);cursor:pointer;border:2px solid var(--paper)}
+#zoom-val{font-size:9px;color:var(--muted);min-width:28px}
+#toolbar .sep{width:1px;height:14px;background:var(--rule)}
+.tbtn{font-family:'IBM Plex Mono',monospace;font-size:8px;padding:2px 7px;background:transparent;color:var(--muted);border:1px solid var(--rule);border-radius:2px;cursor:pointer}
+.tbtn:hover{border-color:var(--ink);color:var(--ink)}
+#legend{background:var(--paper);border-top:1px solid var(--rule);padding:8px 16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;flex-shrink:0}
+#legend .item{display:flex;align-items:center;gap:3px}
+#legend .dot{width:7px;height:7px;border-radius:1px}
+#legend span{font-size:9px;color:var(--muted);letter-spacing:.3px;user-select:none}
+#legend .sep{width:1px;height:10px;background:var(--rule);margin:0 2px}
+#canvas-wrap{height:70vh;min-height:500px;overflow:hidden;position:relative;cursor:grab;touch-action:none;background:var(--bg);background-image:radial-gradient(circle,#d8d5ce .4px,transparent .4px);background-size:20px 20px}
+#canvas-wrap.dragging{cursor:grabbing}
+#canvas{position:absolute;transform-origin:0 0}
+.section-bg{position:absolute;border-radius:4px;pointer-events:none}
+.section-bg .label{position:absolute;top:-8px;left:10px;font-size:10px;letter-spacing:2px;font-weight:600;background:var(--bg);padding:0 6px;text-transform:uppercase}
+.section-bg.sub .label{font-size:7px;letter-spacing:1px;top:-6px;left:6px;font-weight:500}
+.node{position:absolute;width:124px;min-height:42px;background:var(--paper);border-radius:3px;padding:5px 6px;display:flex;flex-direction:column;justify-content:center;align-items:center;cursor:default;transition:opacity .2s,border-color .2s,box-shadow .2s;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.node:focus{outline:none;box-shadow:0 0 0 2px var(--icon),0 1px 2px rgba(0,0,0,.05)}
+.node:focus:not(:focus-visible){box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.node:focus-visible{outline:none;box-shadow:0 0 0 2px var(--icon),0 1px 2px rgba(0,0,0,.05)}
+.node .text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:8.5px;color:var(--ink);line-height:1.25;text-align:center;white-space:pre-line;transition:font-size .15s;text-decoration:none}
+.node.icon{border-width:2px!important}
+.node.icon .text{font-weight:600}
+.node .star-badge{position:absolute;top:-1px;right:5px;background:var(--icon);color:var(--paper);font-size:6px;padding:0 3px;border-radius:0 0 2px 2px;font-weight:500}
+.node .coll-badge{position:absolute;top:-1px;left:5px;background:var(--coll);color:var(--paper);font-size:5.5px;padding:0 3px;border-radius:0 0 2px 2px;font-weight:500;text-transform:uppercase}
+.node:hover{box-shadow:0 2px 10px rgba(184,148,46,.12)}
+.node.dimmed{opacity:.08}
+.node.hidden-filter{opacity:.04;pointer-events:none}
+.node.locked-node{background:#fff4cc!important;border-color:var(--icon)!important;border-width:3px!important;box-shadow:0 0 0 4px rgba(184,148,46,.35),0 0 24px rgba(184,148,46,.55),0 4px 20px rgba(0,0,0,.15)!important;z-index:10;animation:lock-pulse 1.8s ease-in-out infinite}
+.node.locked-node .text{color:#5a4a10!important;font-weight:600!important}
+@keyframes lock-pulse{
+  0%,100%{box-shadow:0 0 0 4px rgba(184,148,46,.35),0 0 24px rgba(184,148,46,.55),0 4px 20px rgba(0,0,0,.15)}
+  50%{box-shadow:0 0 0 7px rgba(184,148,46,.45),0 0 36px rgba(184,148,46,.75),0 6px 24px rgba(0,0,0,.2)}
+}
+.tech-badge{position:absolute;bottom:3px;right:4px;width:9px;height:9px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:5px;font-weight:700;color:#fff;box-shadow:0 0 3px rgba(0,0,0,.15);transition:opacity .2s}
+.tech-badge.beat10{background:var(--hibeat)}
+.tech-badge.beat8{background:#d97706}
+.tech-badge.springdrive{background:linear-gradient(135deg,#1971c2,#22b8cf);animation:sd-pulse 3s ease-in-out infinite}
+.tech-badge.quartz{background:var(--quartz)}
+@keyframes sd-pulse{0%,100%{box-shadow:0 0 3px rgba(28,126,214,.2)}50%{box-shadow:0 0 8px rgba(28,126,214,.5)}}
+#canvas.zoom-far .node .text{font-size:7px}
+#canvas.zoom-far .tech-badge{opacity:0}
+#canvas.zoom-far .coll-badge{opacity:0}
+#canvas.zoom-far .star-badge{font-size:5px;padding:0 2px}
+#canvas.zoom-far .section-bg.sub{opacity:.3}
+#minimap{position:absolute;bottom:8px;right:10px;z-index:15;background:var(--paper);border:1px solid var(--rule);border-radius:3px;box-shadow:0 1px 6px rgba(0,0,0,.06);overflow:hidden;cursor:pointer}
+#minimap canvas{display:block}
+#minimap .viewport{position:absolute;border:1.5px solid var(--icon);background:rgba(184,148,46,.08);border-radius:1px;pointer-events:none}
+#watch-popup{position:fixed;z-index:50;pointer-events:none;background:var(--paper);border:1px solid var(--rule);border-radius:4px;box-shadow:0 4px 20px rgba(0,0,0,.12);padding:0;opacity:0;transition:opacity .15s;width:280px;display:none;overflow:hidden}
+#watch-popup.visible{opacity:1;display:block}
+#watch-popup img{width:100%;height:160px;object-fit:cover;display:none;background:#f0ede6}
+#watch-popup img.loaded{display:block}
+#watch-popup .popup-body{padding:12px 14px 11px}
+#watch-popup .popup-name{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--ink);font-weight:600;line-height:1.25;margin-bottom:3px}
+#watch-popup .popup-era{font-size:9.5px;color:var(--muted);letter-spacing:.6px;text-transform:uppercase;margin-bottom:6px}
+#watch-popup .popup-desc{font-size:14px;color:#333;line-height:1.5;font-family:'Cormorant Garamond',serif}
+#watch-popup .popup-tag{display:inline-block;font-size:8.5px;padding:2px 6px;border-radius:2px;margin-top:5px;margin-right:3px;font-weight:500;letter-spacing:.3px}
+#watch-popup .popup-tag.t-diver{background:#0d665118;color:#0d6651}
+#watch-popup .popup-tag.t-chrono{background:#9e6b0018;color:#9e6b00}
+#watch-popup .popup-tag.t-gs{background:#1a4a6a18;color:#1a4a6a}
+#watch-popup .popup-tag.t-ks{background:#5a2a4a18;color:#5a2a4a}
+#watch-popup .popup-tag.t-icon{background:#b8942e18;color:#b8942e}
+#watch-popup .popup-tag.t-sd{background:#1c7ed618;color:#1c7ed6}
+#watch-popup .popup-tag.t-hb{background:#c92a2a18;color:#c92a2a}
+#watch-popup .popup-tag.t-coll{background:#2d8a3e18;color:#2d8a3e}
+#edges-svg{position:absolute;top:0;left:0;pointer-events:none}
+#edges-svg path[data-desc]{pointer-events:stroke;cursor:crosshair;stroke-linecap:round}
+#edge-tip{position:fixed;z-index:55;pointer-events:none;background:var(--paper);border:1px solid var(--rule);border-radius:3px;box-shadow:0 2px 10px rgba(0,0,0,.1);padding:7px 10px;display:none;max-width:320px}
+#edge-tip.show{display:block}
+#edge-tip .et-type{font-size:8.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+#edge-tip .et-desc{font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--ink);line-height:1.45}
+@media (max-width:768px){
+  #header{padding:10px 12px 8px}
+  #header h1{font-size:16px}
+  #header .eyebrow{font-size:7px;letter-spacing:2.5px}
+  #header > div > div{font-size:11.5px!important;max-width:none!important}
+  #intro-toggle{font-size:11px;padding:4px 10px}
+  .filters{width:100%;margin-top:6px}
+  .filters button{font-size:9px;padding:4px 8px;flex:1;min-width:auto}
+  .filters .filter-sep{display:none}
+  #toolbar{padding:5px 10px;gap:6px;flex-wrap:wrap}
+  #toolbar label{font-size:7px}
+  #zoom-slider{width:100px}
+  #toolbar > span:last-child{display:none}
+  #canvas-wrap{height:65vh;min-height:400px}
+  #minimap{bottom:4px;right:4px;transform:scale(.7);transform-origin:bottom right}
+  #watch-popup{width:240px}
+  #watch-popup img{height:130px}
+  #watch-popup .popup-name{font-size:15px}
+  #watch-popup .popup-desc{font-size:13px}
+  #legend{padding:5px 8px;gap:5px;overflow-x:auto;white-space:nowrap;flex-wrap:nowrap;justify-content:flex-start}
+  #legend .item{flex-shrink:0}
+  #edge-tip{max-width:240px}
+  #edge-tip .et-desc{font-size:13px}
+  .node{width:110px;min-height:38px}
+  /* Intro-short fold on mobile: hide all but first paragraph until expanded */
+  #intro-short:not(.expanded) > p:not(:first-child){display:none}
+  #intro-short:not(.expanded)::after{content:'';display:block;height:0}
+  #intro-short-toggle{display:inline-block;font-family:'Noto Serif',Georgia,serif;font-size:12px;color:var(--ink);background:none;border:none;padding:0;cursor:pointer;opacity:.75;text-decoration:underline;margin-top:2px}
+  #intro-short-toggle:hover{opacity:1}
+}
+@media (min-width:769px){
+  #intro-short-toggle{display:none}
+  #intro-short > p{display:block!important}
+}
+@media (max-width:480px){
+  #header h1{font-size:14px}
+  .filters button{font-size:8px;padding:3px 6px}
+  #canvas-wrap{height:60vh;min-height:380px}
+  #minimap{transform:scale(.55)}
+  #watch-popup{width:220px}
+  #watch-popup img{height:110px}
+}
+#search-box{position:relative;display:inline-flex;align-items:center;gap:4px}
+#search-input{font-family:'IBM Plex Mono',monospace;font-size:10px;border:1px solid var(--rule);border-radius:3px;padding:3px 7px;background:var(--paper);color:var(--ink);width:140px;outline:none}
+#search-input:focus{border-color:var(--ink)}
+#search-input::placeholder{color:var(--muted);font-style:italic}
+#search-results{position:absolute;top:100%;left:0;margin-top:2px;background:var(--paper);border:1px solid var(--rule);border-radius:3px;box-shadow:0 4px 18px rgba(0,0,0,.12);max-height:240px;overflow-y:auto;width:280px;z-index:60;display:none}
+#search-results.open{display:block}
+#search-results .sr-item{padding:6px 10px;cursor:pointer;border-bottom:1px solid var(--rule);font-family:'Cormorant Garamond',serif}
+#search-results .sr-item:last-child{border-bottom:none}
+#search-results .sr-item:hover,#search-results .sr-item.active{background:#f5f3ee}
+#search-results .sr-name{font-size:13px;color:var(--ink);line-height:1.25}
+#search-results .sr-meta{font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:.4px;margin-top:1px}
+#search-results .sr-empty{padding:10px 12px;font-size:11px;color:var(--muted);font-style:italic;font-family:'Cormorant Garamond',serif}
+@media (max-width:768px){
+  #search-input{width:100px;font-size:9px}
+  #search-results{width:240px}
+}
+#tour-launcher{position:fixed;top:calc(100vh - 56px);right:20px;z-index:30;background:var(--paper);border:1px solid var(--rule);border-radius:20px;box-shadow:0 2px 10px rgba(0,0,0,.08);padding:8px 14px;font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s}
+#tour-launcher:hover{box-shadow:0 3px 14px rgba(184,148,46,.2);border-color:var(--icon)}
+#tour-launcher .tl-icon{color:var(--icon);font-size:14px}
+#tour-menu{position:fixed;top:calc(100vh - 56px);right:20px;z-index:31;transform:translateY(-100%);margin-top:-8px;background:var(--paper);border:1px solid var(--rule);border-radius:6px;box-shadow:0 6px 24px rgba(0,0,0,.12);padding:8px;min-width:260px;display:none}
+#tour-menu.open{display:block}
+#tour-menu .tm-title{font-size:8px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;padding:4px 8px 6px}
+#tour-menu .tm-item{padding:8px 10px;cursor:pointer;border-radius:3px;font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--ink);line-height:1.3;transition:background .15s}
+#tour-menu .tm-item:hover{background:#f5f3ee}
+#tour-menu .tm-item .tm-sub{font-size:10px;color:var(--muted);margin-top:2px;font-style:italic}
+#tour-panel{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:32;background:var(--paper);border:1px solid var(--rule);border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.15);padding:14px 18px 12px;width:min(520px,calc(100vw - 40px));display:none}
+#tour-panel.open{display:block}
+#tour-panel .tp-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;gap:10px}
+#tour-panel .tp-title{font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--ink);font-weight:600}
+#tour-panel .tp-progress{font-size:9px;color:var(--muted);letter-spacing:1px;white-space:nowrap}
+#tour-panel .tp-stop-name{font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--icon);font-style:italic;margin-bottom:4px}
+#tour-panel .tp-narration{font-family:'Cormorant Garamond',serif;font-size:12.5px;color:var(--ink);line-height:1.5;margin-bottom:10px}
+#tour-panel .tp-controls{display:flex;justify-content:space-between;align-items:center;gap:8px;border-top:1px solid var(--rule);padding-top:10px}
+#tour-panel .tp-btn{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:4px 10px;background:transparent;color:var(--muted);border:1px solid var(--rule);border-radius:3px;cursor:pointer;letter-spacing:.5px;text-transform:uppercase;transition:all .15s}
+#tour-panel .tp-btn:hover:not(:disabled){border-color:var(--ink);color:var(--ink)}
+#tour-panel .tp-btn:disabled{opacity:.35;cursor:not-allowed}
+#tour-panel .tp-btn.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+#tour-panel .tp-btn.primary:hover{background:#000}
+#tour-panel .tp-dots{display:flex;gap:4px;flex:1;justify-content:center}
+#tour-panel .tp-dot{width:6px;height:6px;border-radius:50%;background:var(--rule);cursor:pointer;transition:background .15s}
+#tour-panel .tp-dot.active{background:var(--icon)}
+#tour-panel .tp-dot.visited{background:var(--muted)}
+@media (max-width:480px){
+  #tour-launcher{right:10px;padding:6px 12px;font-size:12px}
+  #tour-panel{padding:12px 14px 10px}
+  #tour-panel .tp-title{font-size:13px}
+  #tour-panel .tp-narration{font-size:11.5px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="header">
+  <div>
+    <div class="eyebrow">精工 · Caliber Genealogy · 1956–2025 · Two Factories</div>
+    <h1>Seiko — A Curated Caliber Family Tree</h1>
+    <div style="font-family:'Noto Serif',Georgia,serif;font-size:15.5px;color:#3f3d38;line-height:1.7;max-width:1100px">
+      <div id="intro-short" style="margin:8px 0 0">
+        <p style="margin:0 0 10px">A companion to the model-family tree — here mapping the <strong style="color:var(--ink)">movements</strong> themselves. Calibers are grouped by their two parallel manufacturing lineages and read left-to-right across three eras.</p>
+        <p style="margin:0 0 10px"><strong style="color:var(--ink)">Suwa Seikosha → Seiko Epson</strong> (top) is the Nagano lineage: the Marvel/Crown/Grand Seiko manual calibers, the Seikomatic 62xx automatics, the 613x chronographs — and, in the modern era, the <strong style="color:var(--ink)">Spring Drive</strong> family (7R → 9R / 5R) built at the Shinshu Watch Studio.</p>
+        <p style="margin:0 0 10px"><strong style="color:var(--ink)">Daini Seikosha (Kameido) → Seiko Instruments / Morioka</strong> (bottom) is the King Seiko lineage: the Cronos 54A, the 44/45 manuals, the 52KS automatic re-engineered into the 4S — plus the high-volume 7S → 4R / 6R workhorses, the SII 6S → 8R chronographs, and the hand-built <strong style="color:var(--ink)">9S</strong> mechanical and 8L "secret Grand Seiko" calibers from the Shizukuishi studio.</p>
+        <p style="margin:0;font-size:13px;opacity:.65;font-style:italic">Factory and era boundaries are editorial. Caliber numbers do <em>not</em> follow chronological order. Solid lines <span style="display:inline-block;width:16px;height:0;border-top:2px solid #aaa;vertical-align:middle;margin:0 2px"></span> mark direct technical descent or re-engineering; thinner <span style="display:inline-block;width:16px;height:0;border-top:1px solid #aaa;vertical-align:middle;margin:0 2px"></span> or dashed <span style="display:inline-block;width:16px;height:0;border-top:1px dashed #aaa;vertical-align:middle;margin:0 2px"></span> lines mark looser platform-succession or interpretive links. A curated model, not an official Seiko genealogy.</p>
+        <button id="intro-short-toggle" onclick="const s=document.getElementById('intro-short');s.classList.toggle('expanded');this.textContent=s.classList.contains('expanded')?'Show less':'Show full intro ▼'">Show full intro ▼</button>
+      </div>
+      <div id="intro-detail">
+        <hr style="border:none;border-top:1px solid var(--rule);margin:12px 0">
+        <p style="margin:0 0 4px"><strong style="color:var(--ink);font-size:16.5px;font-weight:600">Reading the tree</strong></p>
+        <p style="margin:0 0 12px">Each horizontal lane is a thematic caliber line (foundation/manual, automatic, diver, chronograph, Spring Drive, volume automatic, GS mechanical, 8L). Position left→right encodes era: vintage (1956–1988), transition (1988–2004), modern (2004–2025). Badges mark frequency and technology: <strong>10B</strong> = 36,000 vph Hi-Beat, <strong>8B</strong> = 28,800 vph, <strong>SD</strong> = Spring Drive.</p>
+        <p style="margin:0 0 4px"><strong style="color:var(--ink);font-size:16.5px;font-weight:600">Two factories, one catalogue</strong></p>
+        <p style="margin:0 0 12px">Many modern calibers share a brand but not a birthplace: Grand Seiko's <strong>9R</strong> Spring Drive is built by Epson at Shinshu (Suwa lineage), while its <strong>9S</strong> mechanical and the 8L are built at Shizukuishi/Morioka (Daini → Seiko Instruments lineage). The volume 7S/4R/6R workhorses and the 8R chronograph also descend from the Daini/SII side. This split is the organising axis of the tree.</p>
+        <p style="margin:0;font-size:13px;opacity:.7">Coverage is a curated ~50-caliber selection, not exhaustive — sub-variants (e.g. 8L45, 9R02, 9R31, 9S25/27, 6R64) and quartz/Kinetic lines are omitted for clarity. Corrections and additions welcome; this is a v1.</p>
+      </div>
+      <button id="intro-toggle" onclick="const d=document.getElementById('intro-detail');d.classList.toggle('show');this.textContent=d.classList.contains('show')?'Show less ▲':'Read more — how to read this ▼'">Read more — how to read this ▼</button>
+    </div>
+  </div>
+  <div class="spacer"></div>
+  <div class="filters" id="filters"></div>
+</div>
+<div id="toolbar">
+  <div id="search-box">
+    <input id="search-input" type="text" placeholder="Search calibers…" autocomplete="off" aria-label="Search calibers">
+    <div id="search-results"></div>
+  </div>
+  <div class="sep"></div>
+  <label>Zoom</label>
+  <input type="range" id="zoom-slider" min="15" max="120" value="40">
+  <span id="zoom-val">40%</span>
+  <div class="sep"></div>
+  <button class="tbtn" id="btn-fit">Fit Width</button>
+  <button class="tbtn" id="btn-100">100%</button>
+  <div class="sep"></div>
+  <span style="font-size:8px;color:var(--muted)">Search · Scroll to zoom · Drag to pan · Click node to trace · Esc to clear</span>
+</div>
+<div id="watch-popup">
+  <img id="popup-img" src="" alt="">
+  <div class="popup-body">
+    <div class="popup-name" id="popup-name"></div>
+    <div class="popup-era" id="popup-era"></div>
+    <div class="popup-desc" id="popup-desc"></div>
+    <div id="popup-tags"></div>
+  </div>
+</div>
+<div id="edge-tip"><div class="et-type"></div><div class="et-desc"></div></div>
+<div id="canvas-wrap">
+  <div id="canvas"><svg id="edges-svg"></svg></div>
+  <div id="minimap"><canvas id="minimap-canvas"></canvas><div class="viewport" id="mm-viewport"></div></div>
+</div>
+<div id="legend"></div>
+<div id="tour-launcher"><span class="tl-icon">❦</span><span>Guided Tours</span></div>
+<div id="tour-menu">
+  <div class="tm-title">Curated journeys</div>
+  <div class="tm-items" id="tour-menu-items"></div>
+</div>
+<div id="tour-panel">
+  <div class="tp-header">
+    <div class="tp-title" id="tp-title"></div>
+    <div class="tp-progress" id="tp-progress"></div>
+  </div>
+  <div class="tp-stop-name" id="tp-stop-name"></div>
+  <div class="tp-narration" id="tp-narration"></div>
+  <div class="tp-controls">
+    <button class="tp-btn" id="tp-exit">✕ Exit</button>
+    <div class="tp-dots" id="tp-dots"></div>
+    <button class="tp-btn" id="tp-prev">◀ Prev</button>
+    <button class="tp-btn primary" id="tp-next">Next ▶</button>
+  </div>
+</div>
+</div>
+<script>
+/* ╔══════════════════════════════════════════════════════════════════════╗
+   ║  SEIKO MECHANICAL FAMILY TREE — Interactive Visualization            ║
+   ║  ────────────────────────────────────────────────────────────────────║
+   ║  A curated genealogy of Seiko mechanical watch families, 1960–2025.  ║
+   ║  Single-file HTML — no build step, no dependencies.                  ║
+   ║                                                                      ║
+   ║  CONTENTS                                                            ║
+   ║   1. COLOUR PALETTE         (visual grouping colours)                ║
+   ║   2. TECH BADGES            (10B/8B/SD/Q badges on nodes)            ║
+   ║   3. COLLECTION OWNERSHIP   (personal "In Collection" markers)       ║
+   ║   4. WATCH DATA             (popupData — descriptions, eras, tags)   ║
+   ║   5. LAYOUT                 (declarative grid; node x/y auto-comp.)  ║
+   ║   6. RELATIONSHIPS          (edges — lines between nodes)            ║
+   ║   7. FILTER TAGS            (nodeTags — for category filtering)      ║
+   ║   8. RENDERING & INTERACTION (the engine — usually no need to edit)  ║
+   ║   9. GUIDED TOURS           (the narrated walk-throughs)             ║
+   ║                                                                      ║
+   ║  Container boxes are auto-generated by the engine from Section 5;    ║
+   ║  no separate "sections" array to maintain.                           ║
+   ║                                                                      ║
+   ║  HOW TO ADD A WATCH                                                  ║
+   ║   1. Pick a unique id  (lowercase, snake_case, e.g. "ks_special_72") ║
+   ║   2. Add an entry to popupData (Section 4) — description & tags      ║
+   ║   3. Add the id to a grid cell in Section 5\u2019s LAYOUT.families:        ║
+   ║       — find the right family, put the id at (row, column)           ║
+   ║       — use `_` for empty cells; section box auto-resizes            ║
+   ║   4. Add the label + icon flag to nodeLabels/iconFlags (Section 5)   ║
+   ║   5. Optionally add edges (Section 6) and filter tags (Section 7)    ║
+   ║                                                                      ║
+   ║  HOW TO ADD A GUIDED TOUR                                            ║
+   ║   Add an entry to the `tours` array (Section 9). Each stop has a     ║
+   ║   node id, a stop name, and a narration paragraph.                   ║
+   ╚══════════════════════════════════════════════════════════════════════╝ */
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SECTION 1 · COLOUR PALETTE
+   ═══════════════════════════════════════════════════════════════════════
+   These colours group nodes visually. Each node and each container box
+   references one of these keys. Changing a value here updates the whole
+   diagram consistently. Hex values can also be edited in the :root CSS
+   block in the <style> section near the top of the file — keep them in
+   sync if you change anything here.
+   ═══════════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════
+   SECTION 1 · COLOUR PALETTE
+   ═══════════════════════════════════════════════════════════════════════ */
+const C = {
+  suwa:"#1e3a5f", epson:"#1c5f7a", daini:"#7a2332", sii:"#9e4a32",
+  gs:"#1a4a6a", ks:"#5a2a4a", diver:"#0d6651", chrono:"#9e6b00",
+  sd:"#1c7ed6", modern:"#4a3a1e", seiko5:"#3d6d1e", era:"#9a958c",
+  highlight:"#b8942e", collection:"#2d8a3e",
+};
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SECTION 2 · TECH BADGES  (beat10 / beat8 / springdrive)
+   ═══════════════════════════════════════════════════════════════════════ */
+const techMap = {
+  c_5740: "beat10",
+  c_6145: "beat10",
+  c_56xx: "beat8",
+  c_6159: "beat10",
+  c_sd_concept: "springdrive",
+  c_7r68: "springdrive",
+  c_7r88: "springdrive",
+  c_5r65: "springdrive",
+  c_9r65: "springdrive",
+  c_9r66: "springdrive",
+  c_9r86: "springdrive",
+  c_9r01: "springdrive",
+  c_9ra5: "springdrive",
+  c_9rb2: "springdrive",
+  c_4500: "beat10",
+  c_5245: "beat8",
+  c_4s: "beat8",
+  c_9s55: "beat8",
+  c_9s65: "beat8",
+  c_9s85: "beat10",
+  c_9s86: "beat10",
+  c_9sa5: "beat10",
+  c_8l35: "beat8",
+  c_8l55: "beat10",
+};
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SECTION 3 · COLLECTION OWNERSHIP
+   ═══════════════════════════════════════════════════════════════════════ */
+const inCollection = new Set([]);
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SECTION 4 · CALIBER DATA — popupData
+   ═══════════════════════════════════════════════════════════════════════ */
+const popupData={
+  c_marvel:{n:"Marvel Cal. (1st in-house)",era:"1956-62",d:"Suwa Seikosha's first fully in-house movement, introducing the Diashock anti-shock system. The technical root of every Suwa caliber that followed — directly evolved into the chronometer-grade Crown Cal. 560.",tags:["icon"]},
+  c_crown:{n:"Cal. 560 Crown",era:"1959-65",d:"Seiko's first chronometer-grade movement: larger balance, increased barrel torque, improved Diashock. Its architecture became the foundation for the first Grand Seiko caliber a year later.",tags:[]},
+  c_3180:{n:"Cal. 3180 First Grand Seiko",era:"1960-64",d:"The first Grand Seiko movement. 25-jewel hand-wound, 18,000 vph, regulated to a precision standard on par with the best Swiss chronometers of the day. The genesis of the GS caliber line.",tags:["icon", "gs"]},
+  c_5740:{n:"Cal. 5740 Lord Marvel 36000",era:"1967-70s",d:"Japan's first 36,000 vph Hi-Beat wristwatch movement (hand-wound). Suwa's response to the industry's frequency race — the starting point of Seiko's Hi-Beat era.",tags:["icon", "hb"]},
+  c_5722:{n:"Cal. 5722 57GS",era:"1963-67",d:"Chronometer-grade hand-wound Grand Seiko caliber from Suwa, continuing the manual GS line after the 3180 with refined regulation.",tags:["gs"]},
+  c_603:{n:"Cal. 603 Seikomatic",era:"1960-63",d:"Suwa's first automatic movement, with the Magic Lever winding system that became a Seiko signature. The seed of the 62xx automatic platform.",tags:[]},
+  c_62xx:{n:"Cal. 62xx Seikomatic family",era:"1961-70",d:"Suwa's mainstream automatic platform of the 1960s (6205/6206/6215/6217/6218). Powered the Weekdater, Silverwave and the 62MAS diver, and evolved into the chronometer-grade 6245/6246.",tags:[]},
+  c_6245:{n:"Cal. 6245/6246 62GS",era:"1966-68",d:"Chronometer-grade automatic from the 62xx family — the movement that became the first automatic Grand Seiko (62GS).",tags:["gs"]},
+  c_6145:{n:"Cal. 6145/6146 61GS Hi-Beat",era:"1968-75",d:"Suwa's automatic Hi-Beat at 36,000 vph in Grand Seiko form. The VFA variant was individually regulated to ±2 sec/day. Set the automatic-hi-beat template that survives in today's 9S85.",tags:["icon", "gs", "hb"]},
+  c_56xx:{n:"Cal. 56xx thin automatic",era:"1968-78",d:"Suwa's slim 28,800 vph automatic platform (5606 etc.), used across Lord Matic, 56GS and the Suwa-built 56KS. A high-volume, thin, day-date workhorse of the 1970s.",tags:[]},
+  c_6217d:{n:"Cal. 6217 62MAS diver",era:"1965-68",d:"The 62xx variant inside the 62MAS — Japan's first professional diver's watch (150m). The technical root of Seiko's entire diver caliber lineage.",tags:["icon", "diver"]},
+  c_6105:{n:"Cal. 6105 diver auto",era:"1968-77",d:"Automatic diver caliber with revised case sealing; the movement of the cushion-case 'Willard'. The recreational-diver branch successor to the 6217.",tags:["diver"]},
+  c_6159:{n:"Cal. 6159 Hi-Beat 300m diver",era:"1968-78",d:"36,000 vph Hi-Beat professional-diver movement (300m), derived from the 61xx hi-beat platform. Powered the 6159-7000 pro diver and the first 'Grandfather' Tuna.",tags:["icon", "diver", "hb"]},
+  c_6306:{n:"Cal. 6306/6309 diver auto",era:"1976-88",d:"Robust 21,600 vph automatic diver caliber — the cost-down successor that powered the cushion-case 'Turtle'. Bridges the vintage diver era toward the 7002.",tags:["diver"]},
+  c_6139:{n:"Cal. 6139 auto chronograph",era:"1969-79",d:"Integrated column-wheel / vertical-clutch automatic chronograph — part of the landmark 1969 race for the first automatic chronograph. Single elapsed-minutes register. Carried the Pogue worn aboard Skylab.",tags:["icon", "chrono"]},
+  c_6138:{n:"Cal. 6138 dual-register chrono",era:"1970-79",d:"The 6138 added a 12-hour register to the 6139, creating Seiko's bi-compax automatic chronograph (Kakume, Panda, Bullhead).",tags:["chrono"]},
+  c_sd_concept:{n:"Spring Drive R&D Akahane",era:"1977-97",d:"Yoshikazu Akahane's two-decade project at Suwa: a mainspring-powered movement with quartz-grade accuracy. Hundreds of prototypes and a large patent portfolio around the tri-synchro regulator.",tags:["sd"]},
+  c_7r68:{n:"Cal. 7R68 first Spring Drive",era:"1999-",d:"The first commercial Spring Drive caliber: manual-wind, launched under Credor. Realised Akahane's vision (he died in 1998, months before launch).",tags:["icon", "sd"]},
+  c_7r88:{n:"Cal. 7R88 auto Spring Drive",era:"2002-",d:"The first automatic Spring Drive, released under Credor — the bridge from Spring-Drive-as-novelty to Spring-Drive-as-core-platform.",tags:["sd"]},
+  c_5r65:{n:"Cal. 5R65 Seiko Spring Drive",era:"2005-",d:"The Seiko-grade Spring Drive family (a 9R65 with less refined finishing), bringing Spring Drive to the main Seiko / Prospex line at lower price points.",tags:["sd"]},
+  c_9r65:{n:"Cal. 9R65 GS Spring Drive",era:"2004-",d:"The first Grand Seiko Spring Drive: 72-hour reserve, ±1 sec/day, the glide-motion seconds hand. Made at the Shinshu Watch Studio. The base of the entire 9R family.",tags:["icon", "gs", "sd"]},
+  c_9r66:{n:"Cal. 9R66 Spring Drive GMT",era:"2005-",d:"9R65 plus a true GMT complication (independent second time zone) — the GS Spring Drive sports/GMT movement.",tags:["gs", "sd"]},
+  c_9r86:{n:"Cal. 9R86 Spring Drive chrono",era:"2007-",d:"Spring Drive chronograph with column wheel, GMT and power reserve, holding its 72-hour reserve even with the chronograph running. Grand Seiko's only chronograph caliber.",tags:["icon", "gs", "sd", "chrono"]},
+  c_9r01:{n:"Cal. 9R01 8-day Spring Drive",era:"2016-",d:"Manual-wind Spring Drive with three barrels and a 192-hour (8-day) power reserve, ±10 sec/month. Hand-assembled by the Micro Artist Studio.",tags:["icon", "gs", "sd"]},
+  c_9ra5:{n:"Cal. 9RA5 Advanced Spring Drive",era:"2020-",d:"Next-generation Spring Drive: twin-barrel 5-day (120h) reserve, ±10 sec/month, slimmer 5.18mm profile. Platform for the GMT 9RA2 and the U.F.A.",tags:["icon", "gs", "sd"]},
+  c_9rb2:{n:"Cal. 9RB2 Spring Drive U.F.A.",era:"2025-",d:"Ultra Fine Accuracy: ±20 seconds per year — Grand Seiko's most accurate mainspring-powered caliber to date, extending the Spring Drive concept first realised in the 7R68.",tags:["icon", "gs", "sd"]},
+  c_54a:{n:"Cal. 54A Cronos",era:"1958-62",d:"Daini's thin, high-precision base movement (Cronos). Officially cited by Seiko as the architecture inherited by King Seiko and the 44GS. The root of the Daini high-grade line.",tags:["icon"]},
+  c_ks1:{n:"Cal. 54xx King Seiko 1st",era:"1961-63",d:"The first King Seiko caliber, derived directly from the Cronos 54A with extra jewels and finer regulation — Daini's high-grade riposte to Grand Seiko.",tags:["ks"]},
+  c_4420:{n:"Cal. 4420 44KS / 44GS",era:"1964-68",d:"Hand-wound Daini caliber behind the 44KS and the 1967 44GS — the watch that established the Grammar of Design. A landmark manual movement of 1960s Japan.",tags:["icon", "ks", "gs"]},
+  c_4500:{n:"Cal. 4500/4502 45KS / 45GS Hi-Beat",era:"1968-75",d:"Daini's 36,000 vph manual Hi-Beat behind the 45KS and 45GS — the ultimate hand-wound King/Grand Seiko of the vintage era.",tags:["icon", "ks", "gs", "hb"]},
+  c_5245:{n:"Cal. 5245/5246 52KS automatic",era:"1971-75",d:"Daini's 28,800 vph automatic Hi-Beat King Seiko caliber. Its architecture was later re-engineered into the modern 4S family.",tags:["icon", "ks"]},
+  c_4s:{n:"Cal. 4S15/25/35 revived mechanical",era:"1992-2005",d:"Higher-grade mechanical caliber re-engineered from the 1970s 52KS (52xx) architecture, partly with retired Daini engineers. Powered 1990s JDM Alpinist/SUS — the bridge between the vintage and modern mechanical eras.",tags:["ks"]},
+  c_70xx:{n:"Cal. 701x Daini chronograph",era:"1970-77",d:"Daini's compact automatic chronograph family (7015/7016/7017/7018), several with flyback. The Kameido parallel to Suwa's 613x chronographs.",tags:["chrono"]},
+  c_6s:{n:"Cal. 6S28/6S37 SII auto chrono",era:"1998-2014",d:"Seiko Instruments' automatic column-wheel chronograph of the late-1990s/2000s — the modern revival of in-house mechanical-chronograph capability and the predecessor of the 8R.",tags:["chrono"]},
+  c_8r:{n:"Cal. 8R28/8R48 modern auto chrono",era:"2014-",d:"Seiko's modern automatic chronograph: column wheel plus vertical clutch, three-register. Powers the Prospex Speedtimer mechanical (2021), reconnecting to the 1969 chronograph heritage.",tags:["icon", "chrono"]},
+  c_4006:{n:"Cal. 4006 Bell-Matic",era:"1966-78",d:"Seiko's landmark automatic alarm caliber: twin barrels (timekeeping + alarm), inner rotating alarm disk. One of Daini's most distinctive 1960s-70s complications.",tags:["icon"]},
+  c_7002:{n:"Cal. 7002 volume automatic",era:"1988-96",d:"Affordable automatic diver/sports caliber that preceded the 7S — the immediate ancestor of the 7S26 workhorse.",tags:[]},
+  c_7s26:{n:"Cal. 7S26 workhorse automatic",era:"1996-2019",d:"Seiko's entry-level automatic workhorse: 21,600 vph, ~41h, no hacking or hand-winding. Powered the SKX and became Seiko's highest-volume mechanical caliber.",tags:["icon"]},
+  c_7s36:{n:"Cal. 7S36 +4 jewels",era:"1996-",d:"A 7S26 with four extra jewels, used in the 5 Sports line. Same non-hacking, non-hand-winding architecture as its sibling.",tags:[]},
+  c_6r15:{n:"Cal. 6R15 mid-grade automatic",era:"2006-19",d:"A re-engineered 7S base adding hacking, hand-winding and a Spron 510 mainspring (50h reserve). The mid-grade workhorse behind the SARB line and many divers.",tags:[]},
+  c_4r36:{n:"Cal. 4R35/4R36 hacking workhorse",era:"2010-",d:"The 7S36 brought up to modern spec — adding hacking and hand-winding (4R35 date; 4R36 day-date). Powers the modern Seiko 5 Sports and Turtle reissues.",tags:["icon"]},
+  c_nh3x:{n:"Cal. NH35/NH36 Time Module (3rd-party)",era:"2011-",d:"The unbranded Time Module versions of the 4R35/4R36, sold to third parties — the backbone of the microbrand and modding world.",tags:[]},
+  c_6r35:{n:"Cal. 6R35 70-hour automatic",era:"2019-",d:"The 6R15 with one extra jewel and a longer 70-hour reserve. The no-date variant powered the 2022 King Seiko relaunch.",tags:[]},
+  c_9s55:{n:"Cal. 9S55 GS mechanical revival",era:"1998-2009",d:"The first modern Grand Seiko mechanical caliber after a 23-year break — 28,800 vph, hand-assembled at Shizukuishi (Morioka). The base of the entire 9S family and of the 8L.",tags:["icon", "gs"]},
+  c_9s65:{n:"Cal. 9S65 3-day automatic",era:"2010-",d:"Standard 28,800 vph GS automatic with a 72-hour (3-day) power reserve via the SPRON 510 mainspring — the everyday workhorse of the 9S family.",tags:["gs"]},
+  c_9s85:{n:"Cal. 9S85 Hi-Beat 36000",era:"2009-",d:"Grand Seiko's modern 36,000 vph Hi-Beat automatic, 55-hour reserve, +5/−3 sec/day — the core high-beat caliber and the predecessor of the 9SA5.",tags:["icon", "gs", "hb"]},
+  c_9s86:{n:"Cal. 9S86 Hi-Beat GMT",era:"2014-",d:"The 9S85 with a GMT complication — 36,000 vph Hi-Beat plus an independent second time zone.",tags:["gs", "hb"]},
+  c_9sa5:{n:"Cal. 9SA5 Dual Impulse Hi-Beat",era:"2020-",d:"Grand Seiko's clean-sheet Hi-Beat: the Dual Impulse Escapement and a free-sprung balance deliver 36,000 vph AND an 80-hour reserve simultaneously, in a slimmer 5.18mm movement.",tags:["icon", "gs", "hb"]},
+  c_8l35:{n:"Cal. 8L35 'secret GS' diver",era:"2000-",d:"An undecorated, unadjusted version of the GS 9S55, hand-assembled at Shizukuishi for professional divers (Marinemaster 300m). 26 jewels, 28,800 vph.",tags:["icon", "diver"]},
+  c_8l55:{n:"Cal. 8L55 Hi-Beat diver",era:"2009-",d:"The Hi-Beat 8L: a diver-optimised version of the GS 9S85, 36,000 vph, 55-hour reserve, used in high-end Prospex Hi-Beat divers.",tags:["diver", "hb"]},
+};
+
+/* ═══════════════════════════════════════════════════════════════════════
+   NODE LABELS
+   ═══════════════════════════════════════════════════════════════════════ */
+const nodeLabels = {
+  c_marvel: "Marvel Cal.\n(1st in-house)",
+  c_crown: "Cal. 560\nCrown",
+  c_3180: "Cal. 3180\nFirst Grand Seiko",
+  c_5740: "Cal. 5740\nLord Marvel 36000",
+  c_5722: "Cal. 5722\n57GS",
+  c_603: "Cal. 603\nSeikomatic",
+  c_62xx: "Cal. 62xx\nSeikomatic family",
+  c_6245: "Cal. 6245/6246\n62GS",
+  c_6145: "Cal. 6145/6146\n61GS Hi-Beat",
+  c_56xx: "Cal. 56xx\nthin automatic",
+  c_6217d: "Cal. 6217\n62MAS diver",
+  c_6105: "Cal. 6105\ndiver auto",
+  c_6159: "Cal. 6159\nHi-Beat 300m diver",
+  c_6306: "Cal. 6306/6309\ndiver auto",
+  c_6139: "Cal. 6139\nauto chronograph",
+  c_6138: "Cal. 6138\ndual-register chrono",
+  c_sd_concept: "Spring Drive R&D\nAkahane",
+  c_7r68: "Cal. 7R68\nfirst Spring Drive",
+  c_7r88: "Cal. 7R88\nauto Spring Drive",
+  c_5r65: "Cal. 5R65\nSeiko Spring Drive",
+  c_9r65: "Cal. 9R65\nGS Spring Drive",
+  c_9r66: "Cal. 9R66\nSpring Drive GMT",
+  c_9r86: "Cal. 9R86\nSpring Drive chrono",
+  c_9r01: "Cal. 9R01\n8-day Spring Drive",
+  c_9ra5: "Cal. 9RA5\nAdvanced Spring Drive",
+  c_9rb2: "Cal. 9RB2\nSpring Drive U.F.A.",
+  c_54a: "Cal. 54A\nCronos",
+  c_ks1: "Cal. 54xx\nKing Seiko 1st",
+  c_4420: "Cal. 4420\n44KS / 44GS",
+  c_4500: "Cal. 4500/4502\n45KS / 45GS Hi-Beat",
+  c_5245: "Cal. 5245/5246\n52KS automatic",
+  c_4s: "Cal. 4S15/25/35\nrevived mechanical",
+  c_70xx: "Cal. 701x\nDaini chronograph",
+  c_6s: "Cal. 6S28/6S37\nSII auto chrono",
+  c_8r: "Cal. 8R28/8R48\nmodern auto chrono",
+  c_4006: "Cal. 4006\nBell-Matic",
+  c_7002: "Cal. 7002\nvolume automatic",
+  c_7s26: "Cal. 7S26\nworkhorse automatic",
+  c_7s36: "Cal. 7S36\n+4 jewels",
+  c_6r15: "Cal. 6R15\nmid-grade automatic",
+  c_4r36: "Cal. 4R35/4R36\nhacking workhorse",
+  c_nh3x: "Cal. NH35/NH36\nTime Module (3rd-party)",
+  c_6r35: "Cal. 6R35\n70-hour automatic",
+  c_9s55: "Cal. 9S55\nGS mechanical revival",
+  c_9s65: "Cal. 9S65\n3-day automatic",
+  c_9s85: "Cal. 9S85\nHi-Beat 36000",
+  c_9s86: "Cal. 9S86\nHi-Beat GMT",
+  c_9sa5: "Cal. 9SA5\nDual Impulse Hi-Beat",
+  c_8l35: "Cal. 8L35\n'secret GS' diver",
+  c_8l55: "Cal. 8L55\nHi-Beat diver",
+};
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ICON / LANDMARK FLAGS
+   ═══════════════════════════════════════════════════════════════════════ */
+const iconFlags = {
+  c_marvel: 1,
+  c_3180: 1,
+  c_5740: 1,
+  c_6145: 1,
+  c_6217d: 1,
+  c_6159: 1,
+  c_6139: 1,
+  c_7r68: 1,
+  c_9r65: 1,
+  c_9r86: 1,
+  c_9r01: 1,
+  c_9ra5: 1,
+  c_9rb2: 1,
+  c_54a: 1,
+  c_4420: 1,
+  c_4500: 1,
+  c_5245: 1,
+  c_8r: 1,
+  c_4006: 1,
+  c_7s26: 1,
+  c_4r36: 1,
+  c_9s55: 1,
+  c_9s85: 1,
+  c_9sa5: 1,
+  c_8l35: 1,
+};
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SECTION 5 · DECLARATIVE LAYOUT (14-col grid · factory lineage × era)
+   ═══════════════════════════════════════════════════════════════════════ */
+const _ = null;
+
+const LAYOUT = {
+  parents: [
+    {l:"SUWA SEIKOSHA → SEIKO EPSON · Shinshu Watch Studio (Spring Drive · 9R · vintage Suwa)", x:5, y:78, w:2405, h:628, c:C.suwa},
+    {l:"DAINI SEIKOSHA (KAMEIDO) → SEIKO INSTRUMENTS / MORIOKA · Shizukuishi (9S · 8L · volume mechanical)", x:5, y:732, w:2405, h:748, c:C.daini},
+  ],
+  families: [
+    {label:"FOUNDATION · MANUAL (Marvel → Crown → first Grand Seiko)", color:C.suwa, grid:"g14", sectionX:15, sectionY:108, sectionW:2385, topPad:20, botPad:14, rows:[
+      ["c_marvel", "c_crown", "c_3180", "c_5740", "c_5722"],
+    ]},
+    {label:"AUTOMATIC · SEIKOMATIC 62xx → GS · HI-BEAT 61xx · THIN 56xx", color:C.suwa, grid:"g14", sectionX:15, sectionY:200, sectionW:2385, topPad:20, botPad:14, rows:[
+      ["c_603", "c_62xx", "c_6245", "c_6145"],
+      [_, _, "c_56xx"],
+    ]},
+    {label:"⚓ DIVER CALIBERS · 6217 → 6105 / 6159 → 6309", color:C.diver, grid:"g14", sectionX:15, sectionY:356, sectionW:2385, topPad:20, botPad:14, rows:[
+      [_, "c_6217d", "c_6105", "c_6159", "c_6306"],
+    ]},
+    {label:"⏱ CHRONOGRAPH · 613x (Suwa)", color:C.chrono, grid:"g14", sectionX:15, sectionY:448, sectionW:2385, topPad:20, botPad:14, rows:[
+      [_, _, "c_6139", "c_6138"],
+    ]},
+    {label:"SPRING DRIVE · Akahane → Credor 7R → Grand Seiko 9R / Seiko 5R", color:C.sd, grid:"g14", sectionX:15, sectionY:540, sectionW:2385, topPad:20, botPad:14, rows:[
+      [_, _, _, _, _, _, "c_sd_concept", "c_7r68", "c_9r65", "c_9r86", "c_9r01", "c_9ra5", "c_9rb2"],
+      [_, _, _, _, _, _, _, "c_7r88", "c_5r65", "c_9r66"],
+    ]},
+    {label:"FOUNDATION · KING SEIKO MANUAL (Cronos 54A → 44/45)", color:C.ks, grid:"g14", sectionX:15, sectionY:762, sectionW:2385, topPad:20, botPad:14, rows:[
+      ["c_54a", "c_ks1", "c_4420", "c_4500"],
+    ]},
+    {label:"KING SEIKO AUTOMATIC · 52xx → revived 4S", color:C.ks, grid:"g14", sectionX:15, sectionY:854, sectionW:2385, topPad:20, botPad:14, rows:[
+      [_, _, _, "c_5245", _, _, "c_4s"],
+    ]},
+    {label:"⏱ CHRONOGRAPH · 70xx → 6S → 8R (Daini / SII)", color:C.chrono, grid:"g14", sectionX:15, sectionY:946, sectionW:2385, topPad:20, botPad:14, rows:[
+      [_, _, "c_70xx", _, _, _, _, "c_6s", _, _, "c_8r"],
+    ]},
+    {label:"🔔 ALARM · Bell-Matic", color:C.modern, grid:"g14", sectionX:15, sectionY:1038, sectionW:2385, topPad:20, botPad:14, rows:[
+      [_, _, "c_4006"],
+    ]},
+    {label:"VOLUME AUTOMATIC · 7002 → 7S → 4R / NH · 6R (Seiko Instruments / Time Module)", color:C.seiko5, grid:"g14", sectionX:15, sectionY:1130, sectionW:2385, topPad:20, botPad:14, rows:[
+      [_, _, _, _, _, _, "c_7002", "c_7s26", "c_6r15", "c_4r36", "c_6r35"],
+      [_, _, _, _, _, _, _, "c_7s36", _, "c_nh3x"],
+    ]},
+    {label:"GRAND SEIKO MECHANICAL · 9S (Shizukuishi)", color:C.gs, grid:"g14", sectionX:15, sectionY:1286, sectionW:2385, topPad:20, botPad:14, rows:[
+      [_, _, _, _, _, _, _, "c_9s55", "c_9s65", "c_9s85", "c_9s86", "c_9sa5"],
+    ]},
+    {label:"8L · 'SECRET GRAND SEIKO' DIVER (Shizukuishi)", color:C.diver, grid:"g14", sectionX:15, sectionY:1378, sectionW:2385, topPad:20, botPad:14, rows:[
+      [_, _, _, _, _, _, _, "c_8l35", _, "c_8l55"],
+    ]},
+  ],
+  legacyNodes: [],
+  prospexSubSubs: [
+    {l:"◀ VINTAGE FACTORY ERA · 1956–1988", x:8, y:22, w:968, h:40, c:C.era},
+    {l:"TRANSITION · 1988–2004", x:988, y:22, w:372, h:40, c:C.era},
+    {l:"MODERN ERA · 2004–2025 ▶", x:1372, y:22, w:1040, h:40, c:C.era},
+  ],
+};
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SECTION 6 · RELATIONSHIPS — edges
+   ═══════════════════════════════════════════════════════════════════════ */
+const edges=[
+  ["c_marvel", "c_crown", "strong", "The Crown evolved the Marvel into Seiko's first chronometer-grade movement"],
+  ["c_crown", "c_3180", "strong", "Cal. 560's architecture became the foundation for the first Grand Seiko Cal. 3180"],
+  ["c_3180", "c_5722", "medium", "57GS continued the hand-wound chronometer-grade Grand Seiko line"],
+  ["c_marvel", "c_5740", "weak", "Lord Marvel 36000 was Suwa's premium hand-wound line pushed to Hi-Beat"],
+  ["c_603", "c_62xx", "strong", "Seikomatic 603 grew into the 62xx automatic platform"],
+  ["c_62xx", "c_6245", "strong", "The 62xx evolved into the chronometer-grade 6245/6246 (62GS)"],
+  ["c_62xx", "c_6217d", "strong", "The 6217 diver caliber is a 62xx variant (62MAS)"],
+  ["c_62xx", "c_56xx", "weak", "The thin 56xx succeeded the 62xx as Suwa's volume automatic"],
+  ["c_6245", "c_6145", "strong", "62GS advanced into the automatic Hi-Beat 61xx (61GS)"],
+  ["c_6217d", "c_6105", "strong", "The 6105 succeeded the 6217 as Suwa's diver caliber"],
+  ["c_6105", "c_6306", "strong", "The 6306/6309 was the cost-down automatic-diver successor to the 6105"],
+  ["c_6145", "c_6159", "medium", "The 6159 applied 61xx Hi-Beat to a 300m professional diver"],
+  ["c_6139", "c_6138", "strong", "The 6138 added a 12-hour register to the 6139, creating the dual-register branch"],
+  ["c_6139", "c_9r86", "weak", "Suwa's automatic-chronograph heritage echoes in the Spring Drive chronograph"],
+  ["c_sd_concept", "c_7r68", "strong", "Akahane's R&D reached production as the manual-wind 7R68"],
+  ["c_7r68", "c_7r88", "strong", "The 7R88 added automatic winding to the Spring Drive concept"],
+  ["c_7r88", "c_9r65", "medium", "Automatic Spring Drive matured into the Grand Seiko 9R65 platform"],
+  ["c_9r65", "c_9r66", "strong", "9R66 added a GMT complication to the 9R65"],
+  ["c_9r65", "c_9r86", "strong", "9R86 added a column-wheel chronograph and GMT to the 9R platform"],
+  ["c_9r65", "c_5r65", "strong", "5R65 is the Seiko-grade version of the 9R65"],
+  ["c_9r65", "c_9r01", "medium", "The 9R01 extended Spring Drive to an 8-day, three-barrel reserve"],
+  ["c_9r65", "c_9ra5", "strong", "9RA5 is the next-generation, twin-barrel evolution of the 9R platform"],
+  ["c_9ra5", "c_9rb2", "strong", "The U.F.A. 9RB2 refined the Advanced Spring Drive to ±20 sec/year"],
+  ["c_54a", "c_ks1", "strong", "The first King Seiko caliber was derived directly from the Cronos 54A"],
+  ["c_ks1", "c_4420", "strong", "King Seiko advanced into the 4420 (44KS / 44GS Grammar of Design)"],
+  ["c_4420", "c_4500", "strong", "The 4500 brought 36,000 vph Hi-Beat to the manual King/Grand Seiko"],
+  ["c_ks1", "c_5245", "medium", "The 52KS 52xx was Daini's automatic Hi-Beat King Seiko"],
+  ["c_5245", "c_4s", "strong", "The 4S family was re-engineered from the 52KS 52xx architecture"],
+  ["c_4s", "c_9s55", "weak", "The KS-derived 4S bridges toward the modern GS mechanical revival"],
+  ["c_70xx", "c_6s", "weak", "Daini's automatic-chronograph capability re-emerged in the SII 6S"],
+  ["c_6s", "c_8r", "strong", "The 8R is the modern column-wheel + vertical-clutch successor to the 6S"],
+  ["c_7002", "c_7s26", "strong", "The 7S26 directly succeeded the 7002 as Seiko's volume automatic"],
+  ["c_7s26", "c_7s36", "strong", "The 7S36 is a 7S26 with four extra jewels"],
+  ["c_7s26", "c_6r15", "strong", "The 6R15 re-engineered the 7S base with hacking, hand-winding and Spron 510"],
+  ["c_7s36", "c_4r36", "strong", "The 4R36 brought the 7S36 up to spec with hacking and hand-winding"],
+  ["c_6r15", "c_4r36", "medium", "The 4R took its hacking and hand-winding from the 6R, added to the 7S base"],
+  ["c_4r36", "c_nh3x", "strong", "NH35/NH36 are the unbranded Time Module versions of the 4R35/4R36"],
+  ["c_6r15", "c_6r35", "strong", "The 6R35 added a jewel and a 70-hour reserve to the 6R15"],
+  ["c_9s55", "c_9s65", "strong", "9S65 extended the 9S55 to a 3-day reserve"],
+  ["c_9s55", "c_9s85", "strong", "9S85 brought 36,000 vph Hi-Beat to the 9S family"],
+  ["c_9s85", "c_9s86", "strong", "9S86 added GMT to the Hi-Beat 9S85"],
+  ["c_9s85", "c_9sa5", "strong", "9SA5 succeeded the 9S85 as GS's core Hi-Beat, with a new escapement"],
+  ["c_9s55", "c_8l35", "strong", "8L35 is the undecorated, unadjusted diver version of the 9S55"],
+  ["c_9s85", "c_8l55", "strong", "8L55 is the diver version of the Hi-Beat 9S85"],
+];
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SECTION 7 · FILTER TAGS — nodeTags
+   ═══════════════════════════════════════════════════════════════════════ */
+const nodeTags = {
+  c_3180: ["gs"],
+  c_5740: ["beat10"],
+  c_5722: ["gs"],
+  c_6245: ["gs"],
+  c_6145: ["gs", "beat10"],
+  c_6217d: ["diver"],
+  c_6105: ["diver"],
+  c_6159: ["diver", "beat10"],
+  c_6306: ["diver"],
+  c_6139: ["chrono"],
+  c_6138: ["chrono"],
+  c_sd_concept: ["springdrive"],
+  c_7r68: ["springdrive"],
+  c_7r88: ["springdrive"],
+  c_5r65: ["springdrive"],
+  c_9r65: ["gs", "springdrive"],
+  c_9r66: ["gs", "springdrive"],
+  c_9r86: ["gs", "chrono", "springdrive"],
+  c_9r01: ["gs", "springdrive"],
+  c_9ra5: ["gs", "springdrive"],
+  c_9rb2: ["gs", "springdrive"],
+  c_ks1: ["ks"],
+  c_4420: ["ks", "gs"],
+  c_4500: ["ks", "gs", "beat10"],
+  c_5245: ["ks"],
+  c_4s: ["ks"],
+  c_70xx: ["chrono"],
+  c_6s: ["chrono"],
+  c_8r: ["chrono"],
+  c_9s55: ["gs"],
+  c_9s65: ["gs"],
+  c_9s85: ["gs", "beat10"],
+  c_9s86: ["gs", "beat10"],
+  c_9sa5: ["gs", "beat10"],
+  c_8l35: ["diver"],
+  c_8l55: ["diver", "beat10"],
+};
+
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SECTION 8 · RENDERING & INTERACTION ENGINE
+   ═══════════════════════════════════════════════════════════════════════
+   The diagram's runtime: builds the DOM, draws SVG edges, handles
+   zoom/pan/clicks/keyboard, manages the minimap and filters, and
+   renders popups + edge tooltips.
+
+   You usually do NOT need to edit anything below this line. Everything
+   above (Sections 1–9) drives what's shown.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+
+/* ─── Layout engine: deklarativ LAYOUT → flat nodes + sections arrays ───
+   Called once at startup. Consumes Section 5's LAYOUT and produces the
+   data structures the rest of the engine expects. Pure function; no
+   side effects beyond returning. */
+function buildLayout(L) {
+  // Column-grid x-positions used inside families.
+  const GRID_XS = {
+    g14: [50, 210, 370, 530, 690, 850, 1050, 1210, 1430, 1590, 1750, 1910, 2070, 2230]
+  };
+
+  const nodes = [];
+  const sections = [];
+
+  // Parent boxes (eras, factories) — drawn as outer containers.
+  for (const p of L.parents) sections.push(p);
+
+  // Family sub-sections + their nodes.
+  for (const f of L.families) {
+    const xs = GRID_XS[f.grid];
+    const topPad = f.topPad ?? 20;
+    const botPad = f.botPad ?? 20;
+    const strides = f.rowStrides;                    // optional per-row strides
+    const NH = L.canvas?.NH ?? 42;
+    
+    // Determine each row's y position
+    const rowYs = [];
+    let y = f.sectionY + topPad;
+    for (let r = 0; r < f.rows.length; r++) {
+      rowYs.push(y);
+      const stride = strides ? strides[r] : 65;       // default 65px stride
+      y += stride ?? 65;
+    }
+    
+    // Compute section height from rows + padding
+    const lastRowBottom = rowYs[rowYs.length - 1] + NH;
+    const sectionH = (lastRowBottom + botPad) - f.sectionY;
+    
+    // Emit the family section box
+    sections.push({
+      l: f.label,
+      x: f.sectionX,
+      y: f.sectionY,
+      w: f.sectionW,
+      h: sectionH,
+      c: f.color,
+      sub: 1
+    });
+    
+    // Emit each cell as a node (using its label from popupData)
+    for (let r = 0; r < f.rows.length; r++) {
+      const row = f.rows[r];
+      for (let c = 0; c < row.length; c++) {
+        const id = row[c];
+        if (id == null) continue;                     // empty cell
+        if (c >= xs.length) {
+          console.warn(`[layout] cell out of grid: ${id} at family ${f.label} col ${c}`);
+          continue;
+        }
+        nodes.push([id, nodeLabels[id] || id, xs[c], rowYs[r], f.color, iconFlags[id] || 0]);
+      }
+    }
+  }
+  
+  // Standalone nodes (e.g. Legacy Transition has no family sub-boxes)
+  for (const n of L.legacyNodes) {
+    nodes.push([n.id, nodeLabels[n.id] || n.id, n.x, n.y, n.color, iconFlags[n.id] || 0]);
+  }
+  
+  // Nested sub-sub-sections (e.g. inside Prospex)
+  for (const s of L.prospexSubSubs) sections.push(s);
+  
+  return {nodes, sections};
+}
+
+
+/* Build nodes and sections from the declarative LAYOUT above */
+LAYOUT.canvas = {NW:124, NH:42, CW:2420, CH:1500};
+const _built = buildLayout(LAYOUT);
+const nodes = _built.nodes;
+const sections = _built.sections;
+
+
+const popup=document.getElementById('watch-popup');
+const popupImg=document.getElementById('popup-img');
+const popupName=document.getElementById('popup-name');
+const popupEra=document.getElementById('popup-era');
+const popupDesc=document.getElementById('popup-desc');
+const popupTags=document.getElementById('popup-tags');
+
+let popupTimer=null;
+const imgCache={};
+function showPopup(nodeId,e){
+  const d=popupData[nodeId];
+  if(!d||scale<0.35)return;
+  clearTimeout(popupTimer);
+  popupName.textContent=d.n;
+  popupEra.textContent=d.era;
+  popupDesc.textContent=d.d;
+  const tagMap={icon:'★ Iconic',diver:'⚓ Diver',chrono:'⏱ Chrono',gs:'Grand Seiko',ks:'King Seiko',hb:'Hi-Beat',sd:'Spring Drive'};
+  popupTags.innerHTML=(d.tags||[]).map(t=>`<span class="popup-tag t-${t}">${tagMap[t]||t}</span>`).join('');
+  if(inCollection.has(nodeId)) popupTags.innerHTML+=`<span class="popup-tag t-coll">In Collection</span>`;
+  popupImg.classList.remove('loaded');
+  if(d.hasImg){
+    const src=`./img/${nodeId}.jpg`;
+    if(imgCache[nodeId]===true){
+      popupImg.src=src;popupImg.classList.add('loaded');
+    }else if(imgCache[nodeId]!==false){
+      const test=new Image();
+      test.onload=()=>{imgCache[nodeId]=true;popupImg.src=src;popupImg.classList.add('loaded');};
+      test.onerror=()=>{imgCache[nodeId]=false;};
+      test.src=src;
+    }
+  }
+  /* Focus-event fallback: focus events lack clientX/clientY, so anchor on node bounding box */
+  let clientX=e&&typeof e.clientX==='number'?e.clientX:null;
+  let clientY=e&&typeof e.clientY==='number'?e.clientY:null;
+  if(clientX===null||clientY===null){
+    const el=nodeEls[nodeId];
+    if(el){
+      const r=el.getBoundingClientRect();
+      clientX=r.right;
+      clientY=r.top+r.height/2;
+    }else{
+      clientX=window.innerWidth/2;
+      clientY=window.innerHeight/2;
+    }
+  }
+  const px=Math.min(clientX+16,window.innerWidth-300);
+  const py=Math.max(10,Math.min(clientY-80,window.innerHeight-340));
+  popup.style.left=px+'px';popup.style.top=py+'px';
+  popup.classList.add('visible');
+}
+function hidePopup(){
+  popupTimer=setTimeout(()=>{popup.classList.remove('visible');popupImg.classList.remove('loaded');},100);
+}
+/* Node dimensions — synced from actual CSS size on resize (mobile uses 110×38) */
+let NW=124,NH=42;
+const CW=2420,CH=1500;
+function syncNodeSize(){
+  /* Pick NW/NH to match the CSS breakpoint. The mobile media query at
+     max-width:768px shrinks .node to 110×38; otherwise it's 124×42.
+     Keeping this in sync ensures edge endpoints land on the actual node
+     borders rather than 14px past them. */
+  if(window.innerWidth<=768){NW=110;NH=38;}
+  else{NW=124;NH=42;}
+}
+
+const nodeMap={};nodes.forEach(n=>nodeMap[n[0]]=n);
+const canvas=document.getElementById('canvas'),svg=document.getElementById('edges-svg'),wrap=document.getElementById('canvas-wrap'),slider=document.getElementById('zoom-slider'),zoomVal=document.getElementById('zoom-val');
+canvas.style.width=CW+'px';canvas.style.height=CH+'px';
+svg.setAttribute('width',CW);svg.setAttribute('height',CH);
+let tx=0,ty=0,scale=.4,dragging=false,startX=0,startY=0,hovered=null,filter={cats:new Set(),mods:new Set()},locked=null,downX=0,downY=0;
+function applyTransform(){
+  canvas.style.transform=`translate(${tx}px,${ty}px) scale(${scale})`;
+  slider.value=Math.round(scale*100);zoomVal.textContent=Math.round(scale*100)+'%';
+  canvas.classList.toggle('zoom-far',scale<0.4);
+  svg.querySelectorAll('.edge-weak').forEach(p=>{p.style.display=scale<0.4?'none':'';});
+  updateMinimap();
+}
+function fitView(){const cw=wrap.clientWidth;scale=(cw/CW)*.95;tx=(cw-CW*scale)/2;ty=10;applyTransform();}
+function view100(){scale=1;tx=0;ty=0;applyTransform();}
+sections.forEach(s=>{const d=document.createElement('div');d.className='section-bg'+(s.sub?' sub':'');d.style.cssText=`left:${s.x}px;top:${s.y}px;width:${s.w}px;height:${s.h}px;border:1px solid ${s.c}${s.sub?'18':'0e'};background:${s.c}${s.sub?'06':'04'}`;d.innerHTML=`<div class="label" style="color:${s.c}99">${s.l}</div>`;canvas.appendChild(d);});
+const nodeEls={};
+nodes.forEach(n=>{const[id,label,x,y,color,isIcon]=n;const d=document.createElement('div');d.className='node'+(isIcon?' icon':'');d.style.cssText=`left:${x}px;top:${y}px;border:${isIcon?2:1}px solid ${isIcon?C.highlight+'88':color+'30'}`;d.dataset.id=id;d.setAttribute('role','button');d.setAttribute('tabindex','0');d.setAttribute('aria-label',label.replace(/\n/g,' '));let inner='';if(isIcon)inner+=`<div class="star-badge">★</div>`;if(inCollection.has(id))inner+=`<div class="coll-badge">In Collection</div>`;const tech=techMap[id];if(tech){const lb={beat10:'10B',beat8:'8B',springdrive:'SD',quartz:'Q'};inner+=`<div class="tech-badge ${tech}" title="${({beat10:'36,000 vph / 10-beat',beat8:'28,800 vph / 8-beat',springdrive:'Spring Drive',quartz:'Quartz'})[tech]||tech}">${lb[tech]}</div>`;}inner+=`<div class="text">${label}</div>`;d.innerHTML=inner;d.addEventListener('mouseenter',(e)=>{hovered=id;updateHL();showPopup(id,e);if(typeof edgeTipVisible!=='undefined'&&edgeTipVisible){document.getElementById('edge-tip').classList.remove('show');edgeTipVisible=false;}});d.addEventListener('mousemove',(e)=>{});d.addEventListener('click',(e)=>{e.stopPropagation();locked=(locked===id)?null:id;updateHL();});d.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();locked=(locked===id)?null:id;updateHL();}});d.addEventListener('focus',(e)=>{hovered=id;updateHL();showPopup(id,e);});d.addEventListener('blur',()=>{hovered=null;updateHL();hidePopup();});d.addEventListener('mouseleave',()=>{hovered=null;updateHL();hidePopup();});canvas.appendChild(d);nodeEls[id]=d;});
+/* Sync NW/NH to actual rendered node size (handles mobile breakpoints) */
+syncNodeSize();
+window.addEventListener('resize',()=>{syncNodeSize();renderEdges();});
+function getPath(fn,tn){const fcx=fn[2]+NW/2,fcy=fn[3]+NH/2,tcx=tn[2]+NW/2,tcy=tn[3]+NH/2,dx=tcx-fcx,dy=tcy-fcy;let sx,sy,ex,ey;if(Math.abs(dx)>Math.abs(dy)){sx=dx>0?fn[2]+NW:fn[2];sy=fcy;ex=dx>0?tn[2]:tn[2]+NW;ey=tcy;}else{sx=fcx;sy=dy>0?fn[3]+NH:fn[3];ex=tcx;ey=dy>0?tn[3]:tn[3]+NH;}const mx=(sx+ex)/2,my=(sy+ey)/2;if(Math.abs(dx)>Math.abs(dy)){return`M${sx},${sy} C${mx},${sy} ${mx},${ey} ${ex},${ey}`;}return`M${sx},${sy} C${sx},${my} ${ex},${my} ${ex},${ey}`;}
+function renderEdges(){let h=`<defs><marker id="a" viewBox="0 0 8 6" refX="7" refY="3" markerWidth="5" markerHeight="4" orient="auto-start-reverse"><path d="M0,0 L8,3 L0,6 Z" fill="#aaa"/></marker><marker id="ah" viewBox="0 0 8 6" refX="7" refY="3" markerWidth="5" markerHeight="4" orient="auto-start-reverse"><path d="M0,0 L8,3 L0,6 Z" fill="${C.highlight}"/></marker></defs>`;edges.forEach(([f,t,type,desc,relation])=>{const fn=nodeMap[f],tn=nodeMap[t];if(!fn||!tn)return;const cls=type==='weak'?'edge-weak':'';const d=getPath(fn,tn);h+=`<path class="${cls}" data-from="${f}" data-to="${t}" data-type="${type}" data-desc="${desc||''}" data-relation="${relation||''}" d="${d}" fill="none" stroke="#aaa" stroke-width="${type==='strong'?1.5:.8}" stroke-dasharray="${type==='weak'?'3,3':'0'}" opacity="${type==='weak'?.25:.45}" marker-end="url(#a)"/>`;});svg.innerHTML=h;}
+
+function hasTag(id,tag){return nodeTags[id]&&nodeTags[id].includes(tag);}
+function isVis(n){
+  const id=n[0];
+  if(filter.cats.size>0){
+    let ok=false;
+    /* Tag-driven filtering: a node shows under a category ONLY if it carries
+       the matching tag in nodeTags (Section 7). Box colour is NOT used —
+       colour groups visual families which don't always align with conceptual
+       categories (e.g. Vintage Suwa GS uses suwa colour; Goldfeather uses gs
+       colour but isn't a Grand Seiko). */
+    if(filter.cats.has('diver')&&hasTag(id,'diver')) ok=true;
+    if(filter.cats.has('chrono')&&hasTag(id,'chrono')) ok=true;
+    if(filter.cats.has('gs')&&hasTag(id,'gs')) ok=true;
+    if(filter.cats.has('ks')&&hasTag(id,'ks')) ok=true;
+    if(!ok)return false;
+  }
+  if(filter.mods.has('iconic')&&n[5]!==1)return false;
+  if(filter.mods.has('collection')&&!inCollection.has(id))return false;
+  if(filter.mods.has('hibeat')&&techMap[id]!=='beat10')return false;
+  if(filter.mods.has('sd')&&techMap[id]!=='springdrive')return false;
+  return true;
+}
+function getLineage(nodeId){
+  const ancestors=new Set(),descendants=new Set();
+  function walkDesc(id){edges.forEach(([f,t])=>{if(f===id&&!descendants.has(t)){descendants.add(t);walkDesc(t);}});}
+  function walkAnc(id){edges.forEach(([f,t])=>{if(t===id&&!ancestors.has(f)){ancestors.add(f);walkAnc(f);}});}
+  walkDesc(nodeId);walkAnc(nodeId);
+  return new Set([...ancestors,...descendants,nodeId]);
+}
+function updateHL(){
+  const lineage=locked?getLineage(locked):null;
+  const conn=new Set();
+  if(hovered&&!lineage)edges.forEach(([f,t])=>{if(f===hovered)conn.add(t);if(t===hovered)conn.add(f);});
+  nodes.forEach(n=>{
+    const el=nodeEls[n[0]],vis=isVis(n);
+    el.classList.toggle('hidden-filter',!vis);
+    el.classList.toggle('locked-node',locked===n[0]);
+    if(!vis){el.style.borderColor=n[5]?C.highlight+'88':n[4]+'30';el.style.borderWidth=n[5]?'2px':'1px';el.style.boxShadow='';return;}
+    if(lineage){
+      const isLocked=n[0]===locked,inLineage=lineage.has(n[0]);
+      el.classList.toggle('dimmed',!inLineage);
+      if(isLocked){/* handled by .locked-node CSS class */}
+      else if(inLineage){el.style.borderColor=C.highlight+'cc';el.style.borderWidth=n[5]?'2px':'1px';el.style.boxShadow=`0 2px 8px ${C.highlight}20`;}
+      else{el.style.borderColor=n[5]?C.highlight+'88':n[4]+'30';el.style.borderWidth=n[5]?'2px':'1px';el.style.boxShadow='';}
+    }else if(hovered){
+      const isH=n[0]===hovered,isC=conn.has(n[0]);
+      el.classList.toggle('dimmed',!isH&&!isC);
+      el.style.borderColor=isH?C.highlight:(n[5]?C.highlight+'88':n[4]+'30');
+      el.style.borderWidth=n[5]?'2px':'1px';
+      el.style.boxShadow=isH?`0 4px 16px ${C.highlight}30`:'';
+    }else{
+      el.classList.remove('dimmed');
+      el.style.borderColor=n[5]?C.highlight+'88':n[4]+'30';
+      el.style.borderWidth=n[5]?'2px':'1px';
+      el.style.boxShadow='';
+    }
+  });
+  svg.querySelectorAll('path[data-from]').forEach(p=>{
+    const f=p.dataset.from,t=p.dataset.to,type=p.dataset.type;
+    const inLineagePath=lineage&&lineage.has(f)&&lineage.has(t);
+    const inHoverPath=hovered&&!lineage&&(f===hovered||t===hovered);
+    if(inLineagePath||inHoverPath){
+      p.style.display='';
+      p.setAttribute('stroke',C.highlight);
+      p.setAttribute('opacity','.85');
+      p.setAttribute('stroke-width',type==='strong'?'2.5':'2');
+      p.setAttribute('marker-end','url(#ah)');
+    }else if(lineage){
+      /* Lock state: hide unrelated edges entirely so the lineage stands alone */
+      p.style.display='none';
+    }else if(hovered){
+      /* Hover state: dim unrelated edges but keep them visible (lighter touch) */
+      p.setAttribute('stroke','#aaa');
+      p.setAttribute('opacity','.06');
+      p.setAttribute('stroke-width','.5');
+      p.setAttribute('marker-end','url(#a)');
+    }else{
+      p.style.display='';
+      p.setAttribute('stroke','#aaa');
+      p.setAttribute('opacity',type==='weak'?'.25':'.45');
+      p.setAttribute('stroke-width',type==='strong'?'1.5':'.8');
+      p.setAttribute('marker-end','url(#a)');
+    }
+  });
+}
+const filterDef=[
+  {k:'all',l:'All',type:'clear'},
+  {k:'diver',l:'⚓ Diver',type:'cat'},
+  {k:'chrono',l:'⏱ Chrono',type:'cat'},
+  {k:'gs',l:'Grand Seiko',type:'cat'},
+  {k:'ks',l:'King Seiko',type:'cat'},
+  {type:'sep'},
+  {k:'iconic',l:'★ Iconic',type:'mod'},
+  {k:'hibeat',l:'10B Hi-Beat',type:'mod'},
+  {k:'sd',l:'SD Spring Drive',type:'mod'}
+];
+filterDef.forEach(def=>{
+  if(def.type==='sep'){
+    const s=document.createElement('div');s.className='filter-sep';
+    document.getElementById('filters').appendChild(s);return;
+  }
+  const b=document.createElement('button');
+  b.textContent=def.l;b.dataset.fk=def.k;b.dataset.ft=def.type;
+  if(def.type==='clear')b.className='active';
+  b.onclick=()=>{
+    if(def.type==='clear'){filter.cats.clear();filter.mods.clear();}
+    else if(def.type==='cat'){filter.cats.has(def.k)?filter.cats.delete(def.k):filter.cats.add(def.k);}
+    else if(def.type==='mod'){filter.mods.has(def.k)?filter.mods.delete(def.k):filter.mods.add(def.k);}
+    document.querySelectorAll('.filters button').forEach(btn=>{
+      const t=btn.dataset.ft,k=btn.dataset.fk;
+      if(t==='clear')btn.classList.toggle('active',filter.cats.size===0&&filter.mods.size===0);
+      else if(t==='cat')btn.classList.toggle('active',filter.cats.has(k));
+      else if(t==='mod')btn.classList.toggle('active',filter.mods.has(k));
+    });
+    updateHL();
+  };
+  document.getElementById('filters').appendChild(b);
+});
+const legendEl=document.getElementById('legend');
+[[C.highlight,'★ Landmark caliber'],].forEach(([c,l])=>{const d=document.createElement('div');d.className='item';d.innerHTML=`<div class="dot" style="background:${c}"></div><span>${l}</span>`;legendEl.appendChild(d);});
+const sepEl=document.createElement('div');sepEl.className='sep';legendEl.appendChild(sepEl);
+[['var(--hibeat)','10B','36,000 vph / 10-beat'],['#d97706','8B','28,800 vph / 8-beat'],['var(--springdrive)','SD','Spring Drive'],['var(--quartz)','Q','Quartz']].forEach(([bg,ab,tip])=>{const d=document.createElement('div');d.className='item';d.innerHTML=`<div class="dot" style="background:${bg};border-radius:50%;width:8px;height:8px;font-size:5px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700">${ab}</div><span>${tip}</span>`;legendEl.appendChild(d);});
+const sepEl2=document.createElement('div');sepEl2.className='sep';legendEl.appendChild(sepEl2);
+[['#888','Strong lineage','solid'],['#aaa','Medium','solid-thin'],['#bbb','Weak','dashed']].forEach(([c,l,style])=>{const d=document.createElement('div');d.className='item';d.innerHTML=`<svg width="24" height="6" style="margin-right:2px"><line x1="0" y1="3" x2="24" y2="3" stroke="${c}" stroke-width="${style==='solid'?1.8:style==='solid-thin'?1:0.9}" ${style==='dashed'?'stroke-dasharray="3,2"':''}/></svg><span>${l}</span>`;legendEl.appendChild(d);});
+const mmCanvas=document.getElementById('minimap-canvas'),mmCtx=mmCanvas.getContext('2d'),mmView=document.getElementById('mm-viewport'),mmC=document.getElementById('minimap');
+const MM_W=180,MM_SC=MM_W/CW,MM_H=Math.round(CH*MM_SC);
+mmCanvas.width=MM_W;mmCanvas.height=MM_H;mmCanvas.style.width=MM_W+'px';mmCanvas.style.height=MM_H+'px';mmC.style.width=MM_W+'px';mmC.style.height=MM_H+'px';
+function drawMM(){mmCtx.clearRect(0,0,MM_W,MM_H);mmCtx.fillStyle='#f5f4f1';mmCtx.fillRect(0,0,MM_W,MM_H);sections.forEach(s=>{mmCtx.fillStyle=s.c+'12';mmCtx.strokeStyle=s.c+'30';mmCtx.lineWidth=.5;mmCtx.fillRect(s.x*MM_SC,s.y*MM_SC,s.w*MM_SC,s.h*MM_SC);mmCtx.strokeRect(s.x*MM_SC,s.y*MM_SC,s.w*MM_SC,s.h*MM_SC);});nodes.forEach(n=>{const owned=inCollection.has(n[0]);mmCtx.fillStyle=owned?C.collection:n[4];mmCtx.globalAlpha=owned?1:.5;mmCtx.fillRect(n[2]*MM_SC,n[3]*MM_SC,NW*MM_SC,NH*MM_SC);});mmCtx.globalAlpha=1;}
+function updateMinimap(){const ww=wrap.clientWidth,wh=wrap.clientHeight,vx=(-tx)/scale,vy=(-ty)/scale,vw=ww/scale,vh=wh/scale;mmView.style.left=Math.max(0,vx*MM_SC)+'px';mmView.style.top=Math.max(0,vy*MM_SC)+'px';mmView.style.width=Math.min(MM_W,vw*MM_SC)+'px';mmView.style.height=Math.min(MM_H,vh*MM_SC)+'px';}
+mmC.addEventListener('click',e=>{const r=mmC.getBoundingClientRect(),mx=(e.clientX-r.left)/MM_SC,my=(e.clientY-r.top)/MM_SC,ww=wrap.clientWidth,wh=wrap.clientHeight;tx=-(mx-ww/(2*scale))*scale;ty=-(my-wh/(2*scale))*scale;applyTransform();});
+drawMM();
+wrap.addEventListener('pointerdown',e=>{if(e.target.closest('.node'))return;downX=e.clientX;downY=e.clientY;dragging=true;startX=e.clientX-tx;startY=e.clientY-ty;wrap.classList.add('dragging');wrap.setPointerCapture(e.pointerId);});
+wrap.addEventListener('dblclick',e=>{e.preventDefault();const r=wrap.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;if(scale>0.75){fitView();return;}const ns=Math.min(1.0,scale*1.8);tx=mx-(mx-tx)*(ns/scale);ty=my-(my-ty)*(ns/scale);scale=ns;applyTransform();});
+wrap.addEventListener('pointermove',e=>{if(!dragging)return;tx=e.clientX-startX;ty=e.clientY-startY;applyTransform();});
+wrap.addEventListener('pointerup',e=>{const moved=Math.abs(e.clientX-downX)+Math.abs(e.clientY-downY);dragging=false;wrap.classList.remove('dragging');if(moved<5&&locked){locked=null;updateHL();}});
+wrap.addEventListener('wheel',e=>{e.preventDefault();const d=e.deltaY>0?.92:1.08,ns=Math.max(.15,Math.min(1.2,scale*d)),r=wrap.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;tx=mx-(mx-tx)*(ns/scale);ty=my-(my-ty)*(ns/scale);scale=ns;applyTransform();},{passive:false});
+let lastDist=0;wrap.addEventListener('touchstart',e=>{if(e.touches.length===2){const dx=e.touches[0].clientX-e.touches[1].clientX,dy=e.touches[0].clientY-e.touches[1].clientY;lastDist=Math.sqrt(dx*dx+dy*dy);}});
+wrap.addEventListener('touchmove',e=>{if(e.touches.length===2){e.preventDefault();const dx=e.touches[0].clientX-e.touches[1].clientX,dy=e.touches[0].clientY-e.touches[1].clientY,dist=Math.sqrt(dx*dx+dy*dy);scale=Math.max(.15,Math.min(1.2,scale*(dist/lastDist)));lastDist=dist;applyTransform();}},{passive:false});
+slider.addEventListener('input',()=>{const ns=parseInt(slider.value)/100,cw=wrap.clientWidth,ch=wrap.clientHeight,cx=cw/2,cy=ch/2;tx=cx-(cx-tx)*(ns/scale);ty=cy-(cy-ty)*(ns/scale);scale=ns;applyTransform();});
+document.getElementById('btn-fit').onclick=fitView;
+document.getElementById('btn-100').onclick=view100;
+renderEdges();
+const edgeTip=document.getElementById('edge-tip');
+const etType=edgeTip.querySelector('.et-type');
+const etDesc=edgeTip.querySelector('.et-desc');
+svg.style.pointerEvents='none';
+let edgeTipVisible=false,edgeThrottle=0;
+/* Edge-tooltip proximity detection — shared logic used by both mouse and touch.
+   Returns the nearest edge path within tolerance, or null. */
+function findEdgeAt(clientX,clientY){
+  if(!edgeTip||dragging) return null;
+  const r=wrap.getBoundingClientRect();
+  const cx=(clientX-r.left-tx)/scale;
+  const cy=(clientY-r.top-ty)/scale;
+  let closest=null,closestDist=22/scale;
+  svg.querySelectorAll('path[data-desc]').forEach(p=>{
+    if(!p.dataset.desc)return;
+    const len=p.getTotalLength();
+    const steps=Math.max(6,Math.floor(len/40));
+    for(let i=0;i<=steps;i++){
+      const pt=p.getPointAtLength(i*len/steps);
+      const dx=pt.x-cx,dy=pt.y-cy;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<closestDist){closestDist=dist;closest=p;}
+    }
+  });
+  return closest;
+}
+function showEdgeTip(path,clientX,clientY){
+  const typeLabels={strong:'Direct lineage',medium:'Platform / influence',weak:'Heritage / stylistic'};
+  const relationLabels={direct_lineage:'Caliber / platform lineage',same_platform:'Same movement or platform family',market_successor:'Product succession / market successor',design_influence:'Design influence',heritage_reinterpretation:'Heritage reinterpretation',brand_revival:'Brand revival',technology_branch:'Technology branch',collection_structure:'Modern collection structure'};
+  const relation=path.dataset.relation;
+  etType.textContent=relationLabels[relation]||typeLabels[path.dataset.type]||path.dataset.type;
+  etDesc.textContent=path.dataset.desc;
+  edgeTip.style.left=Math.min(clientX+12,window.innerWidth-280)+'px';
+  edgeTip.style.top=Math.max(8,clientY-40)+'px';
+  edgeTip.classList.add('show');
+  edgeTipVisible=true;
+}
+function hideEdgeTip(){
+  if(edgeTipVisible){edgeTip.classList.remove('show');edgeTipVisible=false;}
+}
+wrap.addEventListener('mousemove',e=>{
+  const now=Date.now();
+  if(now-edgeThrottle<80)return;
+  edgeThrottle=now;
+  if(hovered){hideEdgeTip();return;}
+  const closest=findEdgeAt(e.clientX,e.clientY);
+  if(closest) showEdgeTip(closest,e.clientX,e.clientY);
+  else hideEdgeTip();
+});
+/* Touch support — tap an empty area near an edge to show its tooltip.
+   We detect a quick stationary tap (not a drag, not a pinch) and check
+   for an edge under the touch point. */
+let touchStart=null;
+wrap.addEventListener('touchstart',e=>{
+  if(e.touches.length===1){
+    touchStart={x:e.touches[0].clientX,y:e.touches[0].clientY,t:Date.now()};
+  }else{
+    touchStart=null;
+  }
+},{passive:true});
+wrap.addEventListener('touchend',e=>{
+  if(!touchStart||e.changedTouches.length!==1)return;
+  const t=e.changedTouches[0];
+  const dx=t.clientX-touchStart.x,dy=t.clientY-touchStart.y;
+  const dragged=Math.sqrt(dx*dx+dy*dy)>10;
+  const tooLong=Date.now()-touchStart.t>400;
+  touchStart=null;
+  if(dragged||tooLong)return;
+  /* If the tap landed on a node, the node's own click handler runs. We only
+     care about taps in the gaps between nodes. */
+  if(t.target.closest('.node'))return;
+  const closest=findEdgeAt(t.clientX,t.clientY);
+  if(closest){
+    showEdgeTip(closest,t.clientX,t.clientY);
+    e.preventDefault();
+  }else{
+    hideEdgeTip();
+  }
+},{passive:false});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&locked){locked=null;updateHL();}});
+
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SECTION 9 · GUIDED TOURS
+   ═══════════════════════════════════════════════════════════════════════
+   Curated narrative walk-throughs of the diagram. Each tour pans through
+   a sequence of stops with a paragraph of context for each.
+
+   Format:
+     {
+       id: "short-id",                 // url-safe, unique
+       title: "Tour Title",            // shown in menu and panel
+       sub: "Subtitle / dates",        // shown in menu
+       stops: [
+         {n:"node_id", name:"Stop name · Year", t:"Narration paragraph."},
+         { ... }
+       ]
+     }
+   ═══════════════════════════════════════════════════════════════════════ */
+
+const tours=[
+  {id:"sd",title:"Spring Drive — Akahane's Twenty-Year Pursuit",sub:"From 1977 R&D to the 2025 U.F.A.",stops:[
+    {n:"c_sd_concept",name:"Spring Drive R&D · 1977",t:"Akahane begins work at Suwa on a mainspring-powered movement with quartz-grade accuracy. Two decades, hundreds of prototypes, and the tri-synchro regulator patent portfolio follow."},
+    {n:"c_7r68",name:"Cal. 7R68 · 1999",t:"The first commercial Spring Drive — manual-wind, under Credor. Akahane died in 1998, months before the launch he had worked toward for twenty years."},
+    {n:"c_7r88",name:"Cal. 7R88 · 2002",t:"Automatic winding arrives, again under Credor. The bridge from Spring-Drive-as-curiosity to Spring-Drive-as-platform."},
+    {n:"c_9r65",name:"Cal. 9R65 · 2004",t:"Spring Drive becomes a Grand Seiko movement: 72-hour reserve, ±1 sec/day, the silent glide-motion seconds hand. Made at the Shinshu Watch Studio."},
+    {n:"c_9r86",name:"Cal. 9R86 · 2007",t:"A column-wheel Spring Drive chronograph with GMT and power reserve — and still Grand Seiko's only chronograph caliber."},
+    {n:"c_9r01",name:"Cal. 9R01 · 2016",t:"Three barrels, a 192-hour (8-day) reserve, hand-assembled by the Micro Artist Studio. One of the great mechanical feats of the century."},
+    {n:"c_9ra5",name:"Cal. 9RA5 · 2020",t:"Advanced Spring Drive: twin barrels, a 5-day reserve, ±10 sec/month, and a slimmer movement — the platform for the GMT and the U.F.A."},
+    {n:"c_9rb2",name:"Cal. 9RB2 · 2025",t:"Ultra Fine Accuracy: ±20 seconds per year, the most accurate mainspring-powered Grand Seiko caliber yet."},
+  ]},
+  {id:"gs9s",title:"Grand Seiko Mechanical — 9S55 to 9SA5",sub:"The Shizukuishi mechanical line",stops:[
+    {n:"c_9s55",name:"Cal. 9S55 · 1998",t:"After a 23-year break, mechanical Grand Seiko returns — 28,800 vph, hand-assembled at Shizukuishi. The base of the modern 9S family and of the 8L."},
+    {n:"c_9s65",name:"Cal. 9S65 · 2010",t:"A 3-day (72h) reserve standard automatic — the everyday backbone of the modern GS mechanical line."},
+    {n:"c_9s85",name:"Cal. 9S85 · 2009",t:"36,000 vph Hi-Beat, 55-hour reserve, +5/−3 sec/day — GS's core Hi-Beat caliber for over a decade."},
+    {n:"c_9sa5",name:"Cal. 9SA5 · 2020",t:"A clean-sheet Hi-Beat: the Dual Impulse Escapement delivers 36,000 vph AND an 80-hour reserve at once, in a slimmer movement. A genuine horological innovation."},
+    {n:"c_8l35",name:"Cal. 8L35 · 'secret GS'",t:"The undecorated, unadjusted 9S55 — hand-built at the same Shizukuishi studio for professional divers like the Marinemaster 300m."},
+  ]},
+  {id:"volume",title:"The People's Mechanicals — 7S to 6R",sub:"Seiko's volume automatic lineage",stops:[
+    {n:"c_7002",name:"Cal. 7002 · 1988",t:"The affordable automatic that preceded the 7S — the immediate ancestor of the workhorse to come."},
+    {n:"c_7s26",name:"Cal. 7S26 · 1996",t:"Seiko's highest-volume mechanical caliber: 21,600 vph, no hacking or hand-winding, near-indestructible. The heart of the SKX."},
+    {n:"c_6r15",name:"Cal. 6R15 · 2006",t:"A re-engineered 7S with hacking, hand-winding and a Spron 510 mainspring (50h) — the mid-grade workhorse of the SARB era."},
+    {n:"c_4r36",name:"Cal. 4R36 · 2011",t:"The 7S36 brought up to spec with hacking and hand-winding plus day-date. Powers the modern Seiko 5 Sports and Turtle reissues."},
+    {n:"c_nh3x",name:"Cal. NH35/NH36",t:"The unbranded Time Module versions of the 4R — the backbone of the entire microbrand and modding world."},
+    {n:"c_6r35",name:"Cal. 6R35 · 2019",t:"One more jewel and a 70-hour reserve over the 6R15. Its no-date variant powered the 2022 King Seiko relaunch."},
+  ]},
+  {id:"hibeat",title:"Hi-Beat 36,000 — Two Factories Race",sub:"Suwa vs Daini, 1967–2020",stops:[
+    {n:"c_5740",name:"Cal. 5740 · 1967",t:"Suwa's Lord Marvel 36000 — Japan's first 36,000 vph wristwatch movement. The Hi-Beat era begins."},
+    {n:"c_4500",name:"Cal. 4500 · 1968",t:"Daini answers with the 45KS/45GS manual Hi-Beat — the ultimate hand-wound King/Grand Seiko."},
+    {n:"c_6145",name:"Cal. 6145 · 1968",t:"Suwa combines automatic winding with Hi-Beat in the 61GS — the VFA variant regulated to ±2 sec/day."},
+    {n:"c_6159",name:"Cal. 6159 · 1968",t:"Hi-Beat goes underwater: a 36,000 vph 300m professional diver caliber."},
+    {n:"c_9s85",name:"Cal. 9S85 · 2009",t:"The modern Hi-Beat: 36,000 vph in a 9S, the direct descendant of the 1968 hi-beat template."},
+    {n:"c_9sa5",name:"Cal. 9SA5 · 2020",t:"The Dual Impulse Escapement finally breaks the old rule — 36,000 vph and an 80-hour reserve together."},
+  ]},
+];
+const tour={active:null,stop:0};
+function openTourMenu(){
+  const box=document.getElementById('tour-menu-items');
+  box.innerHTML='';
+  tours.forEach(t=>{
+    const d=document.createElement('div');d.className='tm-item';
+    d.innerHTML=`${t.title}<div class="tm-sub">${t.sub}</div>`;
+    d.onclick=()=>{document.getElementById('tour-menu').classList.remove('open');startTour(t.id);};
+    box.appendChild(d);
+  });
+  document.getElementById('tour-menu').classList.toggle('open');
+}
+function startTour(id){
+  tour.active=tours.find(t=>t.id===id);
+  tour.stop=0;
+  document.getElementById('tp-title').textContent=tour.active.title;
+  const dots=document.getElementById('tp-dots');
+  dots.innerHTML='';
+  tour.active.stops.forEach((_,i)=>{
+    const dot=document.createElement('div');dot.className='tp-dot';
+    dot.onclick=()=>{tour.stop=i;renderTourStop();};
+    dots.appendChild(dot);
+  });
+  document.getElementById('tour-panel').classList.add('open');
+  document.getElementById('tour-launcher').style.display='none';
+  renderTourStop();
+}
+function renderTourStop(){
+  if(!tour.active)return;
+  const stop=tour.active.stops[tour.stop],node=nodeMap[stop.n];
+  document.getElementById('tp-stop-name').textContent=stop.name;
+  document.getElementById('tp-narration').textContent=stop.t;
+  document.getElementById('tp-progress').textContent=`${tour.stop+1} of ${tour.active.stops.length}`;
+  document.getElementById('tp-prev').disabled=tour.stop===0;
+  document.getElementById('tp-next').textContent=tour.stop===tour.active.stops.length-1?'Finish ✓':'Next ▶';
+  document.querySelectorAll('.tp-dot').forEach((d,i)=>{
+    d.classList.toggle('active',i===tour.stop);
+    d.classList.toggle('visited',i<tour.stop);
+  });
+  if(node){
+    locked=stop.n;
+    const ns=0.65,ww=wrap.clientWidth,wh=wrap.clientHeight;
+    const targetX=node[2]+NW/2,targetY=node[3]+NH/2;
+    tx=ww/2-targetX*ns;
+    ty=wh/2-targetY*ns-80;
+    scale=ns;
+    applyTransform();
+    updateHL();
+  }
+}
+function exitTour(){
+  tour.active=null;
+  locked=null;
+  document.getElementById('tour-panel').classList.remove('open');
+  document.getElementById('tour-launcher').style.display='flex';
+  updateHL();
+}
+document.getElementById('tour-launcher').onclick=openTourMenu;
+document.getElementById('tp-prev').onclick=()=>{if(tour.stop>0){tour.stop--;renderTourStop();}};
+document.getElementById('tp-next').onclick=()=>{if(tour.stop<tour.active.stops.length-1){tour.stop++;renderTourStop();}else{exitTour();}};
+document.getElementById('tp-exit').onclick=exitTour;
+document.addEventListener('click',e=>{
+  const menu=document.getElementById('tour-menu');
+  const launcher=document.getElementById('tour-launcher');
+  if(menu.classList.contains('open')&&!menu.contains(e.target)&&!launcher.contains(e.target)){menu.classList.remove('open');}
+});
+document.addEventListener('keydown',e=>{
+  if(!tour.active)return;
+  if(e.key==='ArrowRight'){document.getElementById('tp-next').click();}
+  else if(e.key==='ArrowLeft'){document.getElementById('tp-prev').click();}
+});
+fitView();
+
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   URL HASH DEEP-LINKING
+   ═══════════════════════════════════════════════════════════════════════
+   Lets you share or bookmark a specific node or tour:
+     /seiko-tree/#node=c_9r65      → opens with 62MAS locked and centred
+     /seiko-tree/#tour=diver      → starts the Divers tour
+   ═══════════════════════════════════════════════════════════════════════ */
+function panToNode(id){
+  const n=nodeMap[id];
+  if(!n)return;
+  const ww=wrap.clientWidth,wh=wrap.clientHeight;
+  const targetScale=Math.max(scale,0.65);
+  scale=targetScale;
+  tx=ww/2-(n[2]+NW/2)*scale;
+  ty=wh/2-(n[3]+NH/2)*scale;
+  applyTransform();
+}
+function applyHash(){
+  const h=location.hash.replace(/^#/,'');
+  if(!h)return;
+  const m=h.match(/^(node|tour)=([a-z0-9_-]+)$/i);
+  if(!m)return;
+  if(m[1]==='node'&&nodeMap[m[2]]){
+    locked=m[2];
+    updateHL();
+    setTimeout(()=>panToNode(m[2]),50);
+  }else if(m[1]==='tour'&&tours.find(t=>t.id===m[2])){
+    startTour(m[2]);
+  }
+}
+/* Update URL when locking or unlocking a node. We hook into click + key events
+   by polling `locked` and `tour.active` periodically rather than instrumenting
+   every handler — simpler and less invasive. */
+let _lastHashState='';
+setInterval(()=>{
+  let want='';
+  if(tour.active)want='#tour='+tour.active.id;
+  else if(locked)want='#node='+locked;
+  if(want!==_lastHashState){
+    _lastHashState=want;
+    if(want)history.replaceState(null,'',want);
+    else history.replaceState(null,'',location.pathname+location.search);
+  }
+},300);
+window.addEventListener('hashchange',applyHash);
+/* Apply hash after initial render completes */
+setTimeout(applyHash,100);
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   FREETEXT SEARCH
+   ═══════════════════════════════════════════════════════════════════════
+   Searches the popup name, label and era fields. Highlights the matching
+   node when selected, pans to it, and locks it for lineage tracing.
+   ═══════════════════════════════════════════════════════════════════════ */
+const searchInput=document.getElementById('search-input');
+const searchResults=document.getElementById('search-results');
+let searchActiveIdx=-1;
+function buildSearchIndex(){
+  const out=[];
+  for(const id in popupData){
+    const d=popupData[id];
+    const label=(nodeLabels[id]||'').replace(/\n/g,' ');
+    out.push({id,name:d.n||id,era:d.era||'',label,searchText:((d.n||'')+' '+(d.era||'')+' '+label+' '+id).toLowerCase()});
+  }
+  return out;
+}
+const _searchIndex=buildSearchIndex();
+function runSearch(q){
+  q=q.trim().toLowerCase();
+  if(!q){searchResults.classList.remove('open');return;}
+  const hits=_searchIndex.filter(e=>e.searchText.includes(q)).slice(0,20);
+  if(hits.length===0){
+    searchResults.innerHTML='<div class="sr-empty">No matches</div>';
+    searchResults.classList.add('open');
+    return;
+  }
+  searchResults.innerHTML=hits.map((h,i)=>`<div class="sr-item${i===0?' active':''}" data-id="${h.id}"><div class="sr-name">${h.name}</div><div class="sr-meta">${h.era}${h.era&&h.id?' · ':''}${h.id}</div></div>`).join('');
+  searchActiveIdx=0;
+  searchResults.classList.add('open');
+  searchResults.querySelectorAll('.sr-item').forEach(el=>{
+    el.addEventListener('mousedown',e=>{e.preventDefault();selectSearchResult(el.dataset.id);});
+  });
+}
+function selectSearchResult(id){
+  searchInput.value='';
+  searchResults.classList.remove('open');
+  locked=id;
+  updateHL();
+  panToNode(id);
+}
+searchInput.addEventListener('input',e=>runSearch(e.target.value));
+searchInput.addEventListener('focus',()=>{if(searchInput.value)runSearch(searchInput.value);});
+searchInput.addEventListener('blur',()=>setTimeout(()=>searchResults.classList.remove('open'),150));
+searchInput.addEventListener('keydown',e=>{
+  const items=searchResults.querySelectorAll('.sr-item');
+  if(e.key==='ArrowDown'){e.preventDefault();if(items.length){searchActiveIdx=(searchActiveIdx+1)%items.length;items.forEach((el,i)=>el.classList.toggle('active',i===searchActiveIdx));items[searchActiveIdx].scrollIntoView({block:'nearest'});}}
+  else if(e.key==='ArrowUp'){e.preventDefault();if(items.length){searchActiveIdx=(searchActiveIdx-1+items.length)%items.length;items.forEach((el,i)=>el.classList.toggle('active',i===searchActiveIdx));items[searchActiveIdx].scrollIntoView({block:'nearest'});}}
+  else if(e.key==='Enter'){e.preventDefault();if(items.length&&items[searchActiveIdx])selectSearchResult(items[searchActiveIdx].dataset.id);}
+  else if(e.key==='Escape'){searchInput.value='';searchResults.classList.remove('open');searchInput.blur();}
+});
+</script>
+</body>
+</html>
+
