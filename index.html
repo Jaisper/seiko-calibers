@@ -377,7 +377,7 @@ const techMap = {
 /* ═══════════════════════════════════════════════════════════════════════
    SECTION 3 · COLLECTION OWNERSHIP
    ═══════════════════════════════════════════════════════════════════════ */
-const inCollection = new Set([]);
+const inCollection = new Set(["c_603", "c_6217d", "c_402", "c_62xx", "c_4500", "c_6105", "c_56xx", "c_4006", "c_6139", "c_6306", "c_7s26", "c_8l35", "c_6r15", "c_5r65", "c_4r36", "c_6r35"]);
 
 /* ═══════════════════════════════════════════════════════════════════════
    SECTION 4 · CALIBER DATA — popupData
@@ -388,6 +388,7 @@ const popupData={
   c_3180:{n:"Cal. 3180 First Grand Seiko",era:"1960-64",d:"The first Grand Seiko movement. 25-jewel hand-wound, 18,000 vph, regulated to a precision standard on par with the best Swiss chronometers of the day. The genesis of the GS caliber line.",tags:["icon", "gs"]},
   c_5740:{n:"Cal. 5740 Lord Marvel 36000",era:"1967-70s",d:"Japan's first 36,000 vph Hi-Beat wristwatch movement (hand-wound). Suwa's response to the industry's frequency race — the starting point of Seiko's Hi-Beat era.",tags:["icon", "hb"]},
   c_5722:{n:"Cal. 5722 57GS",era:"1963-67",d:"Chronometer-grade hand-wound Grand Seiko caliber from Suwa, continuing the manual GS line after the 3180 with refined regulation.",tags:["gs"]},
+  c_402:{n:"Cal. 402 → 6220 Skyliner / Liner",era:"1961-66",d:"A thinned, 21-jewel hand-wound movement derived from the Marvel-based 3140, used in the budget Liner and the Skyliner. Under Seiko's 1964 renaming it became Cal. 6220 (date version 6222), folding into the 62xx family — the manual-wind cousin of the Seikomatic automatics.",tags:[]},
   c_603:{n:"Cal. 603 Seikomatic",era:"1960-63",d:"Suwa's first automatic movement, with the Magic Lever winding system that became a Seiko signature. The seed of the 62xx automatic platform.",tags:[]},
   c_62xx:{n:"Cal. 62xx Seikomatic family",era:"1961-70",d:"Suwa's mainstream automatic platform of the 1960s (6205/6206/6215/6217/6218). Powered the Weekdater, Silverwave and the 62MAS diver, and evolved into the chronometer-grade 6245/6246.",tags:[]},
   c_6245:{n:"Cal. 6245/6246 62GS",era:"1966-68",d:"Chronometer-grade automatic from the 62xx family — the movement that became the first automatic Grand Seiko (62GS).",tags:["gs"]},
@@ -444,6 +445,7 @@ const nodeLabels = {
   c_3180: "Cal. 3180\nFirst Grand Seiko",
   c_5740: "Cal. 5740\nLord Marvel 36000",
   c_5722: "Cal. 5722\n57GS",
+  c_402: "Cal. 402 → 6220\nSkyliner / Liner",
   c_603: "Cal. 603\nSeikomatic",
   c_62xx: "Cal. 62xx\nSeikomatic family",
   c_6245: "Cal. 6245/6246\n62GS",
@@ -536,9 +538,9 @@ const LAYOUT = {
     {label:"FOUNDATION · MANUAL (Marvel → Crown → first Grand Seiko)", color:C.suwa, grid:"g14", sectionX:15, sectionY:108, sectionW:2385, topPad:20, botPad:14, rows:[
       ["c_marvel", "c_crown", "c_3180", "c_5740", "c_5722"],
     ]},
-    {label:"AUTOMATIC · SEIKOMATIC 62xx → GS · HI-BEAT 61xx · THIN 56xx", color:C.suwa, grid:"g14", sectionX:15, sectionY:200, sectionW:2385, topPad:20, botPad:14, rows:[
+    {label:"EARLY SUWA · LINER/SKYLINER · SEIKOMATIC 62xx → GS · HI-BEAT 61xx · THIN 56xx", color:C.suwa, grid:"g14", sectionX:15, sectionY:200, sectionW:2385, topPad:20, botPad:14, rows:[
       ["c_603", "c_62xx", "c_6245", "c_6145"],
-      [_, _, "c_56xx"],
+      ["c_402", _, "c_56xx"],
     ]},
     {label:"⚓ DIVER CALIBERS · 6217 → 6105 / 6159 → 6309", color:C.diver, grid:"g14", sectionX:15, sectionY:356, sectionW:2385, topPad:20, botPad:14, rows:[
       [_, "c_6217d", "c_6105", "c_6159", "c_6306"],
@@ -589,6 +591,8 @@ const edges=[
   ["c_crown", "c_3180", "strong", "Cal. 560's architecture became the foundation for the first Grand Seiko Cal. 3180"],
   ["c_3180", "c_5722", "medium", "57GS continued the hand-wound chronometer-grade Grand Seiko line"],
   ["c_marvel", "c_5740", "weak", "Lord Marvel 36000 was Suwa's premium hand-wound line pushed to Hi-Beat"],
+  ["c_marvel", "c_402", "medium", "Cal. 402 was a thinned, Marvel-derived hand-wound (via the 3140) for the Liner/Skyliner"],
+  ["c_402", "c_62xx", "strong", "Renamed Cal. 6220 in 1964, the 402 folded into the 62xx family"],
   ["c_603", "c_62xx", "strong", "Seikomatic 603 grew into the 62xx automatic platform"],
   ["c_62xx", "c_6245", "strong", "The 62xx evolved into the chronometer-grade 6245/6246 (62GS)"],
   ["c_62xx", "c_6217d", "strong", "The 6217 diver caliber is a 62xx variant (62MAS)"],
@@ -951,7 +955,9 @@ const filterDef=[
   {type:'sep'},
   {k:'iconic',l:'★ Iconic',type:'mod'},
   {k:'hibeat',l:'10B Hi-Beat',type:'mod'},
-  {k:'sd',l:'SD Spring Drive',type:'mod'}
+  {k:'sd',l:'SD Spring Drive',type:'mod'},
+  {type:'sep'},
+  {k:'collection',l:'◆ In Collection',type:'mod'}
 ];
 filterDef.forEach(def=>{
   if(def.type==='sep'){
@@ -976,7 +982,7 @@ filterDef.forEach(def=>{
   document.getElementById('filters').appendChild(b);
 });
 const legendEl=document.getElementById('legend');
-[[C.highlight,'★ Landmark caliber'],].forEach(([c,l])=>{const d=document.createElement('div');d.className='item';d.innerHTML=`<div class="dot" style="background:${c}"></div><span>${l}</span>`;legendEl.appendChild(d);});
+[[C.highlight,'★ Landmark caliber'],[C.collection,'◆ In Collection'],].forEach(([c,l])=>{const d=document.createElement('div');d.className='item';d.innerHTML=`<div class="dot" style="background:${c}"></div><span>${l}</span>`;legendEl.appendChild(d);});
 const sepEl=document.createElement('div');sepEl.className='sep';legendEl.appendChild(sepEl);
 [['var(--hibeat)','10B','36,000 vph / 10-beat'],['#d97706','8B','28,800 vph / 8-beat'],['var(--springdrive)','SD','Spring Drive'],['var(--quartz)','Q','Quartz']].forEach(([bg,ab,tip])=>{const d=document.createElement('div');d.className='item';d.innerHTML=`<div class="dot" style="background:${bg};border-radius:50%;width:8px;height:8px;font-size:5px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700">${ab}</div><span>${tip}</span>`;legendEl.appendChild(d);});
 const sepEl2=document.createElement('div');sepEl2.className='sep';legendEl.appendChild(sepEl2);
@@ -1214,7 +1220,7 @@ fitView();
    URL HASH DEEP-LINKING
    ═══════════════════════════════════════════════════════════════════════
    Lets you share or bookmark a specific node or tour:
-     /seiko-tree/#node=c_9r65      → opens with 62MAS locked and centred
+     /seiko-tree/#node=62mas      → opens with 62MAS locked and centred
      /seiko-tree/#tour=diver      → starts the Divers tour
    ═══════════════════════════════════════════════════════════════════════ */
 function panToNode(id){
@@ -1314,4 +1320,3 @@ searchInput.addEventListener('keydown',e=>{
 </script>
 </body>
 </html>
-
