@@ -64,11 +64,13 @@ body{background:var(--bg);font-family:'IBM Plex Mono',monospace;color:var(--ink)
 .section-bg{position:absolute;border-radius:4px;pointer-events:none}
 .section-bg .label{position:absolute;top:-8px;left:10px;font-size:10px;letter-spacing:2px;font-weight:600;background:var(--bg);padding:0 6px;text-transform:uppercase}
 .section-bg.sub .label{font-size:7px;letter-spacing:1px;top:-6px;left:6px;font-weight:500}
-.node{position:absolute;width:124px;min-height:42px;background:var(--paper);border-radius:3px;padding:5px 6px;display:flex;flex-direction:column;justify-content:center;align-items:center;cursor:default;transition:opacity .2s,border-color .2s,box-shadow .2s;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.node{position:absolute;width:124px;min-height:52px;background:var(--paper);border-radius:3px;padding:5px 6px;display:flex;flex-direction:column;justify-content:center;align-items:center;cursor:default;transition:opacity .2s,border-color .2s,box-shadow .2s;box-shadow:0 1px 2px rgba(0,0,0,.05)}
 .node:focus{outline:none;box-shadow:0 0 0 2px var(--icon),0 1px 2px rgba(0,0,0,.05)}
 .node:focus:not(:focus-visible){box-shadow:0 1px 2px rgba(0,0,0,.05)}
 .node:focus-visible{outline:none;box-shadow:0 0 0 2px var(--icon),0 1px 2px rgba(0,0,0,.05)}
 .node .text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:8.5px;color:var(--ink);line-height:1.25;text-align:center;white-space:pre-line;transition:font-size .15s;text-decoration:none}
+.node .year{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:7.5px;color:#5a5650;opacity:.65;margin-top:2px;line-height:1;letter-spacing:.3px;text-align:center;font-variant-numeric:tabular-nums}
+.node.locked-node .year{opacity:.85;color:#5a4a10}
 .node.icon{border-width:2px!important}
 .node.icon .text{font-weight:600}
 .node .star-badge{position:absolute;top:-1px;right:5px;background:var(--icon);color:var(--paper);font-size:6px;padding:0 3px;border-radius:0 0 2px 2px;font-weight:500}
@@ -142,7 +144,7 @@ body{background:var(--bg);font-family:'IBM Plex Mono',monospace;color:var(--ink)
   #legend .item{flex-shrink:0}
   #edge-tip{max-width:240px}
   #edge-tip .et-desc{font-size:13px}
-  .node{width:110px;min-height:38px}
+  .node{width:110px;min-height:48px}
   /* Intro-short fold on mobile: hide all but first paragraph until expanded */
   #intro-short:not(.expanded) > p:not(:first-child){display:none}
   #intro-short:not(.expanded)::after{content:'';display:block;height:0}
@@ -552,43 +554,43 @@ const LAYOUT = {
     {l:"DAINI SEIKOSHA (KAMEIDO) → SEIKO INSTRUMENTS / MORIOKA · Shizukuishi (9S · 8L · volume mechanical)", x:5, y:732, w:2405, h:748, c:C.daini},
   ],
   families: [
-    {label:"FOUNDATION · MANUAL (Marvel → Crown → first Grand Seiko)", color:C.suwa, grid:"g14", sectionX:15, sectionY:108, sectionW:2385, topPad:20, botPad:14, rows:[
+    {label:"FOUNDATION · MANUAL (Marvel → Crown → first Grand Seiko)", color:C.suwa, grid:"g14", sectionX:28, sectionY:108, sectionW:808, topPad:20, botPad:14, rows:[
       ["c_marvel", "c_crown", "c_3180", "c_5740", "c_5722"],
     ]},
-    {label:"EARLY SUWA · LINER/SKYLINER · SEIKOMATIC 62xx → GS · HI-BEAT 61xx · 56xx · 19xx (ladies')", color:C.suwa, grid:"g14", sectionX:15, sectionY:200, sectionW:2385, topPad:20, botPad:14, rows:[
+    {label:"EARLY SUWA · LINER/SKYLINER · SEIKOMATIC 62xx → GS · HI-BEAT 61xx · 56xx · 19xx (ladies')", color:C.suwa, grid:"g14", sectionX:28, sectionY:200, sectionW:808, topPad:20, botPad:14, rows:[
       ["c_603", "c_62xx", "c_6245", "c_6145", "c_1944"],
       ["c_402", "c_8346", "c_61xx_v", "c_56xx"],
     ]},
-    {label:"⚓ DIVER CALIBERS · 6217 → 6105 / 6159 → 6309", color:C.diver, grid:"g14", sectionX:15, sectionY:356, sectionW:2385, topPad:20, botPad:14, rows:[
+    {label:"⚓ DIVER CALIBERS · 6217 → 6105 / 6159 → 6309", color:C.diver, grid:"g14", sectionX:188, sectionY:356, sectionW:648, topPad:20, botPad:14, rows:[
       [_, "c_6217d", "c_6105", "c_6159", "c_6306"],
     ]},
-    {label:"⏱ CHRONOGRAPH · 613x (Suwa)", color:C.chrono, grid:"g14", sectionX:15, sectionY:448, sectionW:2385, topPad:20, botPad:14, rows:[
+    {label:"⏱ CHRONOGRAPH · 613x (Suwa)", color:C.chrono, grid:"g14", sectionX:348, sectionY:448, sectionW:340, topPad:20, botPad:14, rows:[
       [_, _, "c_6139", "c_6138"],
     ]},
-    {label:"SPRING DRIVE · Akahane → Credor 7R → Grand Seiko 9R / Seiko 5R", color:C.sd, grid:"g14", sectionX:15, sectionY:540, sectionW:2385, topPad:20, botPad:14, rows:[
+    {label:"SPRING DRIVE · Akahane → Credor 7R → Grand Seiko 9R / Seiko 5R", color:C.sd, grid:"g14", sectionX:1028, sectionY:540, sectionW:1188, topPad:20, botPad:14, rows:[
       [_, _, _, _, _, _, "c_sd_concept", "c_7r68", "c_9r65", "c_9r86", "c_9r01", "c_9ra5", "c_9rb2"],
       [_, _, _, _, _, _, _, "c_7r88", "c_5r65", "c_9r66"],
     ]},
-    {label:"FOUNDATION · KING SEIKO MANUAL (Cronos 54A → 44/45) · CHAMPION (volume manual)", color:C.ks, grid:"g14", sectionX:15, sectionY:762, sectionW:2385, topPad:20, botPad:14, rows:[
+    {label:"FOUNDATION · KING SEIKO MANUAL (Cronos 54A → 44/45) · CHAMPION (volume manual)", color:C.ks, grid:"g14", sectionX:28, sectionY:762, sectionW:808, topPad:20, botPad:14, rows:[
       ["c_54a", "c_ks1", "c_4420", "c_4500", "c_860"],
     ]},
-    {label:"DAINI AUTOMATIC · Presmatic 51xx · King Seiko 52xx → revived 4S", color:C.ks, grid:"g14", sectionX:15, sectionY:854, sectionW:2385, topPad:20, botPad:14, rows:[
+    {label:"DAINI AUTOMATIC · Presmatic 51xx · King Seiko 52xx → revived 4S", color:C.ks, grid:"g14", sectionX:348, sectionY:854, sectionW:848, topPad:20, botPad:14, rows:[
       [_, _, "c_5106", "c_5245", _, _, "c_4s"],
     ]},
-    {label:"⏱ CHRONOGRAPH · 70xx → 6S → 8R (Daini / SII)", color:C.chrono, grid:"g14", sectionX:15, sectionY:946, sectionW:2385, topPad:20, botPad:14, rows:[
+    {label:"⏱ CHRONOGRAPH · 70xx → 6S → 8R (Daini / SII)", color:C.chrono, grid:"g14", sectionX:348, sectionY:946, sectionW:1548, topPad:20, botPad:14, rows:[
       [_, _, "c_70xx", _, _, _, _, "c_6s", _, _, "c_8r"],
     ]},
-    {label:"🔔 ALARM · Bell-Matic", color:C.modern, grid:"g14", sectionX:15, sectionY:1038, sectionW:2385, topPad:20, botPad:14, rows:[
+    {label:"🔔 ALARM · Bell-Matic", color:C.modern, grid:"g14", sectionX:348, sectionY:1038, sectionW:340, topPad:20, botPad:14, rows:[
       [_, _, "c_4006"],
     ]},
-    {label:"VOLUME AUTOMATIC · 7002 → 7S → 4R / NH · 6R (Seiko Instruments / Time Module)", color:C.seiko5, grid:"g14", sectionX:15, sectionY:1130, sectionW:2385, topPad:20, botPad:14, rows:[
+    {label:"VOLUME AUTOMATIC · 7002 → 7S → 4R / NH · 6R (Seiko Instruments / Time Module)", color:C.seiko5, grid:"g14", sectionX:1028, sectionY:1130, sectionW:868, topPad:20, botPad:14, rows:[
       [_, _, _, _, _, _, "c_7002", "c_7s26", "c_6r15", "c_4r36", "c_6r35"],
       [_, _, _, _, _, _, _, "c_7s36", _, "c_nh3x"],
     ]},
-    {label:"GRAND SEIKO MECHANICAL · 9S (Shizukuishi)", color:C.gs, grid:"g14", sectionX:15, sectionY:1286, sectionW:2385, topPad:20, botPad:14, rows:[
+    {label:"GRAND SEIKO MECHANICAL · 9S (Shizukuishi)", color:C.gs, grid:"g14", sectionX:1188, sectionY:1286, sectionW:868, topPad:20, botPad:14, rows:[
       [_, _, _, _, _, _, _, "c_9s55", "c_9s65", "c_9s85", "c_9s86", "c_9sa5"],
     ]},
-    {label:"8L · 'SECRET GRAND SEIKO' DIVER (Shizukuishi)", color:C.diver, grid:"g14", sectionX:15, sectionY:1378, sectionW:2385, topPad:20, botPad:14, rows:[
+    {label:"8L · 'SECRET GRAND SEIKO' DIVER (Shizukuishi)", color:C.diver, grid:"g14", sectionX:1188, sectionY:1378, sectionW:548, topPad:20, botPad:14, rows:[
       [_, _, _, _, _, _, _, "c_8l35", _, "c_8l55"],
     ]},
   ],
@@ -791,7 +793,7 @@ function buildLayout(L) {
 
 
 /* Build nodes and sections from the declarative LAYOUT above */
-LAYOUT.canvas = {NW:124, NH:42, CW:2420, CH:1500};
+LAYOUT.canvas = {NW:124, NH:52, CW:2420, CH:1500};
 const _built = buildLayout(LAYOUT);
 const nodes = _built.nodes;
 const sections = _built.sections;
@@ -878,7 +880,7 @@ function fitView(){const cw=wrap.clientWidth;scale=(cw/CW)*.95;tx=(cw-CW*scale)/
 function view100(){scale=1;tx=0;ty=0;applyTransform();}
 sections.forEach(s=>{const d=document.createElement('div');d.className='section-bg'+(s.sub?' sub':'');d.style.cssText=`left:${s.x}px;top:${s.y}px;width:${s.w}px;height:${s.h}px;border:1px solid ${s.c}${s.sub?'18':'0e'};background:${s.c}${s.sub?'06':'04'}`;d.innerHTML=`<div class="label" style="color:${s.c}99">${s.l}</div>`;canvas.appendChild(d);});
 const nodeEls={};
-nodes.forEach(n=>{const[id,label,x,y,color,isIcon]=n;const d=document.createElement('div');d.className='node'+(isIcon?' icon':'');d.style.cssText=`left:${x}px;top:${y}px;border:${isIcon?2:1}px solid ${isIcon?C.highlight+'88':color+'30'}`;d.dataset.id=id;d.setAttribute('role','button');d.setAttribute('tabindex','0');d.setAttribute('aria-label',label.replace(/\n/g,' '));let inner='';if(isIcon)inner+=`<div class="star-badge">★</div>`;if(inCollection.has(id))inner+=`<div class="coll-badge">In Collection</div>`;const tech=techMap[id];if(tech){const lb={beat10:'10B',beat8:'8B',springdrive:'SD',quartz:'Q'};inner+=`<div class="tech-badge ${tech}" title="${({beat10:'36,000 vph / 10-beat',beat8:'28,800 vph / 8-beat',springdrive:'Spring Drive',quartz:'Quartz'})[tech]||tech}">${lb[tech]}</div>`;}inner+=`<div class="text">${label}</div>`;d.innerHTML=inner;d.addEventListener('mouseenter',(e)=>{hovered=id;updateHL();showPopup(id,e);if(typeof edgeTipVisible!=='undefined'&&edgeTipVisible){document.getElementById('edge-tip').classList.remove('show');edgeTipVisible=false;}});d.addEventListener('mousemove',(e)=>{});d.addEventListener('click',(e)=>{e.stopPropagation();locked=(locked===id)?null:id;updateHL();});d.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();locked=(locked===id)?null:id;updateHL();}});d.addEventListener('focus',(e)=>{hovered=id;updateHL();showPopup(id,e);});d.addEventListener('blur',()=>{hovered=null;updateHL();hidePopup();});d.addEventListener('mouseleave',()=>{hovered=null;updateHL();hidePopup();});canvas.appendChild(d);nodeEls[id]=d;});
+nodes.forEach(n=>{const[id,label,x,y,color,isIcon]=n;const d=document.createElement('div');d.className='node'+(isIcon?' icon':'');d.style.cssText=`left:${x}px;top:${y}px;border:${isIcon?2:1}px solid ${isIcon?C.highlight+'88':color+'30'}`;d.dataset.id=id;d.setAttribute('role','button');d.setAttribute('tabindex','0');d.setAttribute('aria-label',label.replace(/\n/g,' '));let inner='';if(isIcon)inner+=`<div class="star-badge">★</div>`;if(inCollection.has(id))inner+=`<div class="coll-badge">In Collection</div>`;const tech=techMap[id];if(tech){const lb={beat10:'10B',beat8:'8B',springdrive:'SD',quartz:'Q'};inner+=`<div class="tech-badge ${tech}" title="${({beat10:'36,000 vph / 10-beat',beat8:'28,800 vph / 8-beat',springdrive:'Spring Drive',quartz:'Quartz'})[tech]||tech}">${lb[tech]}</div>`;}inner+=`<div class="text">${label}</div><div class="year">${(popupData[id]||{}).era||""}</div>`;d.innerHTML=inner;d.addEventListener('mouseenter',(e)=>{hovered=id;updateHL();showPopup(id,e);if(typeof edgeTipVisible!=='undefined'&&edgeTipVisible){document.getElementById('edge-tip').classList.remove('show');edgeTipVisible=false;}});d.addEventListener('mousemove',(e)=>{});d.addEventListener('click',(e)=>{e.stopPropagation();locked=(locked===id)?null:id;updateHL();});d.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();locked=(locked===id)?null:id;updateHL();}});d.addEventListener('focus',(e)=>{hovered=id;updateHL();showPopup(id,e);});d.addEventListener('blur',()=>{hovered=null;updateHL();hidePopup();});d.addEventListener('mouseleave',()=>{hovered=null;updateHL();hidePopup();});canvas.appendChild(d);nodeEls[id]=d;});
 /* Sync NW/NH to actual rendered node size (handles mobile breakpoints) */
 syncNodeSize();
 window.addEventListener('resize',()=>{syncNodeSize();renderEdges();});
