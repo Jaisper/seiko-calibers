@@ -347,6 +347,7 @@ const C = {
   suwa:"#1e3a5f", epson:"#1c5f7a", daini:"#7a2332", sii:"#9e4a32",
   gs:"#1a4a6a", ks:"#5a2a4a", diver:"#0d6651", chrono:"#9e6b00",
   sd:"#1c7ed6", modern:"#4a3a1e", seiko5:"#3d6d1e", era:"#9a958c",
+  alarm:"#6d3a7a",
   highlight:"#b8942e", collection:"#2d8a3e",
 };
 
@@ -550,55 +551,72 @@ const _ = null;
 
 const LAYOUT = {
   parents: [
-    {l:"SUWA SEIKOSHA → SEIKO EPSON · Shinshu Watch Studio (Spring Drive · 9R · vintage Suwa)", x:5, y:78, w:2405, h:628, c:C.suwa},
-    {l:"DAINI SEIKOSHA (KAMEIDO) → SEIKO INSTRUMENTS / MORIOKA · Shizukuishi (9S · 8L · volume mechanical)", x:5, y:732, w:2405, h:748, c:C.daini},
+    {l:"SUWA SEIKOSHA → SEIKO EPSON · Shinshu Watch Studio (Spring Drive · 9R · vintage Suwa)", x:5, y:78, w:2410, h:1376, c:C.suwa},
+    {l:"DAINI SEIKOSHA (KAMEIDO) → SEIKO INSTRUMENTS / MORIOKA · Shizukuishi (9S · 8L · volume mechanical)", x:5, y:1452, w:2410, h:986, c:C.daini},
   ],
   families: [
-    {label:"FOUNDATION · MANUAL (Marvel → Crown → first Grand Seiko)", color:C.suwa, grid:"g14", sectionX:28, sectionY:108, sectionW:808, topPad:20, botPad:14, rows:[
-      ["c_marvel", "c_crown", "c_3180", "c_5740", "c_5722"],
+    {label:"FOUNDATION · MANUAL · Marvel → Crown → first Grand Seiko · Lord Marvel", color:C.suwa, grid:"gyears", sectionX:40, sectionY:100, sectionW:520, topPad:20, botPad:14, rows:[
+      [_, "c_marvel", _, _, _, "c_3180", _, _, _, _, _, _, "c_5740", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+      [_, _, _, _, "c_crown", _, _, _, "c_5722", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"EARLY SUWA · LINER/SKYLINER · SEIKOMATIC 62xx → GS · HI-BEAT 61xx · 56xx · 19xx (ladies')", color:C.suwa, grid:"g14", sectionX:28, sectionY:200, sectionW:808, topPad:20, botPad:14, rows:[
-      ["c_603", "c_62xx", "c_6245", "c_6145", "c_1944"],
-      ["c_402", "c_8346", "c_61xx_v", "c_56xx"],
+    {label:"SEIKOMATIC / AUTOMATIC FOUNDATION · 603 Magic Lever → 62xx → 62GS → 61GS Hi-Beat", color:C.suwa, grid:"gyears", sectionX:168, sectionY:265, sectionW:424, topPad:20, botPad:14, rows:[
+      [_, _, _, _, _, "c_603", _, _, _, _, _, "c_6245", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+      [_, _, _, _, _, _, "c_62xx", _, _, _, _, _, _, "c_6145", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"⚓ DIVER CALIBERS · 6217 → 6105 / 6159 → 6309", color:C.diver, grid:"g14", sectionX:188, sectionY:356, sectionW:648, topPad:20, botPad:14, rows:[
-      [_, "c_6217d", "c_6105", "c_6159", "c_6306"],
+    {label:"VOLUME / BUSINESS · Liner 402 → 83xx Business · everyday 61xx · thin 56xx", color:C.suwa, grid:"gyears", sectionX:200, sectionY:430, sectionW:392, topPad:20, botPad:14, rows:[
+      [_, _, _, _, _, _, "c_402", _, _, _, "c_8346", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+      [_, _, _, _, _, _, _, _, _, _, _, _, _, "c_56xx", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+      [_, _, _, _, _, _, _, _, _, _, _, _, _, "c_61xx_v", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"⏱ CHRONOGRAPH · 613x (Suwa)", color:C.chrono, grid:"g14", sectionX:348, sectionY:448, sectionW:340, topPad:20, botPad:14, rows:[
-      [_, _, "c_6139", "c_6138"],
+    {label:"WOMEN'S HI-BEAT · 19-series (Cal. 1944, world's first ladies' 36,000)", color:C.suwa, grid:"gyears", sectionX:392, sectionY:660, sectionW:340, topPad:20, botPad:14, rows:[
+      [_, _, _, _, _, _, _, _, _, _, _, _, "c_1944", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"SPRING DRIVE · Akahane → Credor 7R → Grand Seiko 9R / Seiko 5R", color:C.sd, grid:"g14", sectionX:1028, sectionY:540, sectionW:1188, topPad:20, botPad:14, rows:[
-      [_, _, _, _, _, _, "c_sd_concept", "c_7r68", "c_9r65", "c_9r86", "c_9r01", "c_9ra5", "c_9rb2"],
-      [_, _, _, _, _, _, _, "c_7r88", "c_5r65", "c_9r66"],
+    {label:"⚓ DIVER CALIBERS · 6217 → 6105 / 6159 → 6309", color:C.diver, grid:"gyears", sectionX:328, sectionY:760, sectionW:520, topPad:20, botPad:14, rows:[
+      [_, _, _, _, _, _, _, _, _, _, "c_6217d", _, _, _, _, _, _, _, _, _, _, "c_6306", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+      [_, _, _, _, _, _, _, _, _, _, _, _, _, "c_6105", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+      [_, _, _, _, _, _, _, _, _, _, _, _, _, "c_6159", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"FOUNDATION · KING SEIKO MANUAL (Cronos 54A → 44/45) · CHAMPION (volume manual)", color:C.ks, grid:"g14", sectionX:28, sectionY:762, sectionW:808, topPad:20, botPad:14, rows:[
-      ["c_54a", "c_ks1", "c_4420", "c_4500", "c_860"],
+    {label:"⏱ CHRONOGRAPH · 613x (Suwa)", color:C.chrono, grid:"gyears", sectionX:456, sectionY:990, sectionW:340, topPad:20, botPad:14, rows:[
+      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_6139", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_6138", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"DAINI AUTOMATIC · Presmatic 51xx · King Seiko 52xx → revived 4S", color:C.ks, grid:"g14", sectionX:348, sectionY:854, sectionW:848, topPad:20, botPad:14, rows:[
-      [_, _, "c_5106", "c_5245", _, _, "c_4s"],
+    {label:"SPRING DRIVE · Akahane → Credor 7R → Grand Seiko 9R · Seiko 5R", color:C.sd, grid:"gyears", sectionX:712, sectionY:1155, sectionW:1704, topPad:20, botPad:14, rows:[
+      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_sd_concept", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_7r68", _, _, _, _, "c_9r65", _, _, _, _, _, _, _, _, _, _, _, "c_9r01", _, _, _, "c_9ra5", _, _, _, _, "c_9rb2"],
+      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_7r88", _, _, _, _, "c_9r86", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_5r65", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_9r66", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"⏱ CHRONOGRAPH · 70xx → 6S → 8R (Daini / SII)", color:C.chrono, grid:"g14", sectionX:348, sectionY:946, sectionW:1548, topPad:20, botPad:14, rows:[
-      [_, _, "c_70xx", _, _, _, _, "c_6s", _, _, "c_8r"],
+    {label:"FOUNDATION · KING SEIKO MANUAL · Cronos 54A → 44/45 · CHAMPION (volume)", color:C.ks, grid:"gyears", sectionX:104, sectionY:1474, sectionW:488, topPad:20, botPad:14, rows:[
+      [_, _, _, "c_54a", _, _, _, _, _, "c_4420", _, _, _, "c_4500", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+      [_, _, _, _, _, _, "c_ks1", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+      [_, _, _, _, _, _, _, _, _, "c_860", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"🔔 ALARM · Bell-Matic", color:C.modern, grid:"g14", sectionX:348, sectionY:1038, sectionW:340, topPad:20, botPad:14, rows:[
-      [_, _, "c_4006"],
+    {label:"DAINI AUTOMATIC · Presmatic 51xx · King Seiko 52xx → revived 4S", color:C.ks, grid:"gyears", sectionX:392, sectionY:1704, sectionW:968, topPad:20, botPad:14, rows:[
+      [_, _, _, _, _, _, _, _, _, _, _, _, "c_5106", _, _, _, "c_5245", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_4s", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"VOLUME AUTOMATIC · 7002 → 7S → 4R / NH · 6R (Seiko Instruments / Time Module)", color:C.seiko5, grid:"g14", sectionX:1028, sectionY:1130, sectionW:868, topPad:20, botPad:14, rows:[
-      [_, _, _, _, _, _, "c_7002", "c_7s26", "c_6r15", "c_4r36", "c_6r35"],
-      [_, _, _, _, _, _, _, "c_7s36", _, "c_nh3x"],
+    {label:"⏱ CHRONOGRAPH · 70xx → 6S → 8R (Daini / SII)", color:C.chrono, grid:"gyears", sectionX:488, sectionY:1804, sectionW:1576, topPad:20, botPad:14, rows:[
+      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_70xx", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_6s", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_8r", _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"GRAND SEIKO MECHANICAL · 9S (Shizukuishi)", color:C.gs, grid:"g14", sectionX:1188, sectionY:1286, sectionW:868, topPad:20, botPad:14, rows:[
-      [_, _, _, _, _, _, _, "c_9s55", "c_9s65", "c_9s85", "c_9s86", "c_9sa5"],
+    {label:"🔔 ALARM · Bell-Matic", color:C.alarm, grid:"gyears", sectionX:360, sectionY:1904, sectionW:340, topPad:20, botPad:14, rows:[
+      [_, _, _, _, _, _, _, _, _, _, _, "c_4006", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"8L · 'SECRET GRAND SEIKO' DIVER (Shizukuishi)", color:C.diver, grid:"g14", sectionX:1188, sectionY:1378, sectionW:548, topPad:20, botPad:14, rows:[
-      [_, _, _, _, _, _, _, "c_8l35", _, "c_8l55"],
+    {label:"VOLUME AUTOMATIC · 7002 → 7S → 4R / NH · 6R (Seiko Instruments / Time Module)", color:C.seiko5, grid:"gyears", sectionX:1064, sectionY:2004, sectionW:1160, topPad:20, botPad:14, rows:[
+      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_7002", _, _, _, _, _, _, _, "c_7s26", _, _, _, _, _, _, _, _, _, "c_6r15", _, _, _, "c_4r36", _, _, _, _, _, _, _, _, "c_6r35", _, _, _, _, _, _],
+      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_7s36", _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_nh3x", _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    ]},
+    {label:"GRAND SEIKO MECHANICAL · 9S (Shizukuishi)", color:C.gs, grid:"gyears", sectionX:1384, sectionY:2169, sectionW:872, topPad:20, botPad:14, rows:[
+      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_9s55", _, _, _, _, _, _, _, _, _, _, "c_9s85", _, _, _, _, "c_9s86", _, _, _, _, _, "c_9sa5", _, _, _, _, _],
+      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_9s65", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    ]},
+    {label:"8L · 'SECRET GRAND SEIKO' DIVER (Shizukuishi)", color:C.diver, grid:"gyears", sectionX:1448, sectionY:2334, sectionW:456, topPad:20, botPad:14, rows:[
+      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_8l35", _, _, _, _, _, _, _, _, "c_8l55", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
   ],
   legacyNodes: [],
   prospexSubSubs: [
-    {l:"◀ VINTAGE FACTORY ERA · 1956–1988", x:8, y:22, w:968, h:40, c:C.era},
-    {l:"TRANSITION · 1988–2004", x:988, y:22, w:372, h:40, c:C.era},
-    {l:"MODERN ERA · 2004–2025 ▶", x:1372, y:22, w:1040, h:40, c:C.era},
+    {l:"◀ VINTAGE FACTORY ERA · 1956–1988", x:8, y:22, w:1074, h:44, c:C.era},
+    {l:"TRANSITION · 1988–2004", x:1086, y:22, w:508, h:44, c:C.era},
+    {l:"MODERN ERA · 2004–2025 ▶", x:1598, y:22, w:818, h:44, c:C.era},
   ],
 };
 
@@ -724,7 +742,7 @@ const nodeTags = {
 function buildLayout(L) {
   // Column-grid x-positions used inside families.
   const GRID_XS = {
-    g14: [50, 210, 370, 530, 690, 850, 1050, 1210, 1430, 1590, 1750, 1910, 2070, 2230]
+    gyears: [30, 62, 94, 126, 158, 190, 222, 254, 286, 318, 350, 382, 414, 446, 478, 510, 542, 574, 606, 638, 670, 702, 734, 766, 798, 830, 862, 894, 926, 958, 990, 1022, 1054, 1086, 1118, 1150, 1182, 1214, 1246, 1278, 1310, 1342, 1374, 1406, 1438, 1470, 1502, 1534, 1566, 1598, 1630, 1662, 1694, 1726, 1758, 1790, 1822, 1854, 1886, 1918, 1950, 1982, 2014, 2046, 2078, 2110, 2142, 2174, 2206, 2238, 2270]
   };
 
   const nodes = [];
@@ -793,7 +811,7 @@ function buildLayout(L) {
 
 
 /* Build nodes and sections from the declarative LAYOUT above */
-LAYOUT.canvas = {NW:124, NH:52, CW:2420, CH:1500};
+LAYOUT.canvas = {NW:124, NH:52, CW:2420, CH:2456};
 const _built = buildLayout(LAYOUT);
 const nodes = _built.nodes;
 const sections = _built.sections;
@@ -854,7 +872,7 @@ function hidePopup(){
 }
 /* Node dimensions — synced from actual CSS size on resize (mobile uses 110×38) */
 let NW=124,NH=42;
-const CW=2420,CH=1500;
+const CW=2420,CH=2456;
 function syncNodeSize(){
   /* Pick NW/NH to match the CSS breakpoint. The mobile media query at
      max-width:768px shrinks .node to 110×38; otherwise it's 124×42.
