@@ -198,10 +198,10 @@ body{background:var(--bg);font-family:'IBM Plex Mono',monospace;color:var(--ink)
 #tour-panel .tp-narration{font-family:'Cormorant Garamond',serif;font-size:12.5px;color:var(--ink);line-height:1.5;margin-bottom:10px}
 #tour-panel .tp-controls{display:flex;justify-content:space-between;align-items:center;gap:8px;border-top:1px solid var(--rule);padding-top:10px}
 #tour-panel .tp-btn{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:4px 10px;background:transparent;color:var(--muted);border:1px solid var(--rule);border-radius:3px;cursor:pointer;letter-spacing:.5px;text-transform:uppercase;transition:all .15s}
-#tour-panel .tp-btn:hover:not(:disabled){border-color:var(--ink);color:var(--ink)}
+@media (hover:hover){#tour-panel .tp-btn:hover:not(:disabled){border-color:var(--ink);color:var(--ink)}}
 #tour-panel .tp-btn:disabled{opacity:.35;cursor:not-allowed}
-#tour-panel .tp-btn.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-#tour-panel .tp-btn.primary:hover{background:#000}
+#tour-panel .tp-btn.primary{background:var(--ink);color:var(--paper);border-color:var(--ink);-webkit-tap-highlight-color:transparent}
+@media (hover:hover){#tour-panel .tp-btn.primary:hover{background:#000}}
 #tour-panel .tp-dots{display:flex;gap:4px;flex:1;justify-content:center}
 #tour-panel .tp-dot{width:6px;height:6px;border-radius:50%;background:var(--rule);cursor:pointer;transition:background .15s}
 #tour-panel .tp-dot.active{background:var(--icon)}
@@ -1196,9 +1196,9 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&locked){locked=null
 const tours=[
   {id:"sd",title:"Spring Drive — Akahane's Twenty-Year Pursuit",sub:"From 1977 R&D to the 2025 U.F.A.",stops:[
     {n:"c_sd_concept",name:"Spring Drive R&D · 1977",t:"Akahane begins work at Suwa on a mainspring-powered movement with quartz-grade accuracy. Two decades, hundreds of prototypes, and the tri-synchro regulator patent portfolio follow."},
-    {n:"c_7r68",name:"Cal. 7R68 · 1999",t:"The first commercial Spring Drive — manual-wind, under Credor. Akahane died in 1998, months before the launch he had worked toward for twenty years."},
+    {n:"c_7r68",name:"Cal. 7R68 · 1999",t:"The first commercial Spring Drive — manual-wind, launched in December 1999 under Credor. Akahane died in 1998, about a year before the launch he had worked toward for twenty years."},
     {n:"c_7r88",name:"Cal. 7R88 · 2002",t:"Automatic winding arrives, again under Credor. The bridge from Spring-Drive-as-curiosity to Spring-Drive-as-platform."},
-    {n:"c_9r65",name:"Cal. 9R65 · 2004",t:"Spring Drive becomes a Grand Seiko movement: 72-hour reserve, ±1 sec/day, the silent glide-motion seconds hand. Made at the Shinshu Watch Studio."},
+    {n:"c_9r65",name:"Cal. 9R65 · 2004",t:"Spring Drive becomes a Grand Seiko movement: 72-hour reserve, ±15 sec/month (≈±0.5 sec/day), the silent glide-motion seconds hand. Made at the Shinshu Watch Studio."},
     {n:"c_9r86",name:"Cal. 9R86 · 2007",t:"A column-wheel Spring Drive chronograph with GMT and power reserve — and still Grand Seiko's only chronograph caliber."},
     {n:"c_9r01",name:"Cal. 9R01 · 2016",t:"Three barrels, a 192-hour (8-day) reserve, hand-assembled by the Micro Artist Studio. One of the great mechanical feats of the century."},
     {n:"c_9ra5",name:"Cal. 9RA5 · 2020",t:"Advanced Spring Drive: twin barrels, a 5-day reserve, ±10 sec/month, and a slimmer movement — the platform for the GMT and the U.F.A."},
@@ -1209,7 +1209,7 @@ const tours=[
     {n:"c_9s65",name:"Cal. 9S65 · 2010",t:"A 3-day (72h) reserve standard automatic — the everyday backbone of the modern GS mechanical line."},
     {n:"c_9s85",name:"Cal. 9S85 · 2009",t:"36,000 vph Hi-Beat, 55-hour reserve, +5/−3 sec/day — GS's core Hi-Beat caliber for over a decade."},
     {n:"c_9sa5",name:"Cal. 9SA5 · 2020",t:"A clean-sheet Hi-Beat: the Dual Impulse Escapement delivers 36,000 vph AND an 80-hour reserve at once, in a slimmer movement. A genuine horological innovation."},
-    {n:"c_8l35",name:"Cal. 8L35 · 'secret GS'",t:"The undecorated, unadjusted 9S55 — hand-built at the same Shizukuishi studio for professional divers like the Marinemaster 300m."},
+    {n:"c_8l35",name:"Cal. 8L35 · 'secret GS'",t:"Mechanically a 9S55, hand-built at the same Shizukuishi studio for professional divers. The trade-off: wider Prospex spec (~±15 sec/day) where GS-grade 9S55 holds ±5/−3 across positions and temperatures. 'Secret Grand Seiko' is collector vernacular."},
   ]},
   {id:"volume",title:"The People's Mechanicals — 7S to 6R",sub:"Seiko's volume automatic lineage",stops:[
     {n:"c_7002",name:"Cal. 7002 · 1988",t:"The affordable automatic that preceded the 7S — the immediate ancestor of the workhorse to come."},
