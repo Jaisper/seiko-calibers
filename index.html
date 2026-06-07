@@ -397,7 +397,8 @@ const inCollection = new Set([]);
    ═══════════════════════════════════════════════════════════════════════ */
 const popupData={
   c_marvel:{n:"Marvel Cal. (1st in-house)",era:"1956-62",d:"Suwa Seikosha's first fully in-house movement, introducing the Diashock anti-shock system. The technical root of every Suwa caliber that followed — directly evolved into the chronometer-grade Crown Cal. 560.",tags:["icon"]},
-  c_crown:{n:"Cal. 560 Crown",era:"1959-65",d:"Seiko's first chronometer-grade movement: larger balance, increased barrel torque, improved Diashock. Its architecture became the foundation for the first Grand Seiko caliber a year later.",tags:[]},
+  c_crown:{n:"Cal. 560 Crown",era:"1959-65",d:"Seiko's first chronometer-grade movement: larger balance, increased barrel torque, improved Diashock. Its architecture became the foundation for the Crown Special, the first Grand Seiko, the 5722 GS, the Lord Marvel 5740, and the 5717/5719 Crown Chronograph — the entire Suwa pre-modern high-grade family.",tags:[]},
+  c_5760:{n:"Cal. 5760 / 341 Crown Special",era:"1961-63",d:"The higher-spec Suwa Crown variant — the direct bridge between Crown and Grand Seiko. Per Seiko's own genealogy, the first Grand Seiko (Cal. 3180, 1960) was created by taking Cal. 341 from the Crown Special and upgrading it with a fine-adjustment regulator and two extra barrel jewels. Suwa's direct parallel to Daini's Cronos Special (Cal. 810).",tags:["icon"]},
   c_3180:{n:"Cal. 3180 First Grand Seiko",era:"1960-64",d:"The first Grand Seiko movement. 25-jewel hand-wound, 18,000 vph, regulated to a precision standard on par with the best Swiss chronometers of the day. The genesis of the GS caliber line.",tags:["icon", "gs"]},
   c_5740:{n:"Cal. 5740 Lord Marvel",era:"1964-70s",d:"Suwa's premium hand-wound platform. The earlier 5740A (18,000 vph, 1964) and 5740B (19,800 vph) ran at conventional frequencies; the landmark 5740C of 1967 was Japan's first 36,000 vph Hi-Beat wristwatch movement — the starting point of Seiko's Hi-Beat era. World-first claim is contested: Girard-Perregaux's GP3080 reached market in 1966, only months earlier.",tags:["icon", "hb"]},
   c_5722:{n:"Cal. 5722 57GS",era:"1963-67",d:"Chronometer-grade hand-wound Grand Seiko caliber from Suwa, continuing the manual GS line after the 3180 with refined regulation.",tags:["gs"]},
@@ -411,6 +412,7 @@ const popupData={
   c_6105:{n:"Cal. 6105 diver auto",era:"1968-77",d:"Automatic diver caliber with revised case sealing; the movement of the cushion-case 'Willard'. The recreational-diver branch successor to the 6217.",tags:["diver"]},
   c_6159:{n:"Cal. 6159 Hi-Beat 300m diver",era:"1968-78",d:"36,000 vph Hi-Beat professional-diver movement (300m), derived from the 61xx hi-beat platform. Powered the 6159-7000 pro diver and the first 'Grandfather' Tuna.",tags:["icon", "diver", "hb"]},
   c_6306:{n:"Cal. 6306/6309 diver auto",era:"1976-88",d:"Robust 21,600 vph automatic diver caliber — the cost-down successor that powered the cushion-case 'Turtle'. Bridges the vintage diver era toward the 7002.",tags:["diver"]},
+  c_5717:{n:"Cal. 5717 / 5719 Crown Chronograph",era:"1964-67",d:"Japan's first wristwatch chronograph caliber — monopusher, column-wheel, horizontal clutch, 18,000 vph, 38-hour reserve. Developed by Suwa Seikosha for the 1964 Tokyo Olympics (Seiko was Official Timekeeper). Architecturally derived from the Cal. 560 Crown family — a Crown-platform chronograph. 5717 carried a date complication, 5719 was no-date; both predate Daini's 70xx automatic by six years and Suwa's own 6139 by five.",tags:["icon", "chrono"]},
   c_6139:{n:"Cal. 6139 auto chronograph",era:"1969-79",d:"Integrated column-wheel / vertical-clutch automatic chronograph — part of the landmark 1969 race for the first automatic chronograph. Single elapsed-minutes register. Carried the Pogue worn aboard Skylab.",tags:["icon", "chrono"]},
   c_6138:{n:"Cal. 6138 dual-register chrono",era:"1970-79",d:"The 6138 added a 12-hour register to the 6139, creating Seiko's bi-compax automatic chronograph (Kakume, Panda, Bullhead).",tags:["chrono"]},
   c_sd_concept:{n:"Spring Drive R&D Akahane",era:"1977-99",d:"Yoshikazu Akahane's two-decade project at Suwa: a mainspring-powered movement with quartz-grade accuracy. R&D from 1977, key patent on the quartz-regulated mechanical motor filed 1982, hundreds of prototypes thereafter to solve the core trade-off between mainspring torque and IC power budget. Commercialised December 1999, about a year after Akahane's death.",tags:["sd"]},
@@ -425,6 +427,7 @@ const popupData={
   c_9rb2:{n:"Cal. 9RB2 Spring Drive U.F.A.",era:"2025-",d:"Ultra Fine Accuracy: ±20 seconds per year — Grand Seiko's most accurate mainspring-powered caliber to date, extending the Spring Drive concept first realised in the 7R68.",tags:["icon", "gs", "sd"]},
   c_54a:{n:"Cal. 54A Cronos",era:"1958-62",d:"Daini's thin, high-precision base movement (Cronos), introduced 1958. Officially cited by Seiko as the architecture inherited by King Seiko and the 44GS — the root of Daini's high-grade line. (Daini still used ETA-derived 'Super' movements in some other lines like the Unique into 1960, so 54A is the foundation of the high-grade in-house line rather than Daini's first in-house design overall.)",tags:["icon"]},
   c_ks1:{n:"Cal. 54xx King Seiko 1st",era:"1961-63",d:"The first King Seiko caliber, derived directly from the Cronos 54A with extra jewels and finer regulation — Daini's high-grade riposte to Grand Seiko.",tags:["ks"]},
+  c_810:{n:"Cal. 810 Cronos Special",era:"1962-66",d:"Daini's 23-jewel Cronos Special — the popularly-priced sibling of the first King Seiko's Cal. 5440 architecture (25 jewels). Same Daini high-grade DNA — lower jewel count, no teardrop fine-adjuster, simpler ratchet wheel, accessible price point. Daini's direct response to Suwa's Crown Special (5760). 18,000 vph.",tags:["icon"]},
   c_4420:{n:"Cal. 4420 44KS / 44GS",era:"1964-68",d:"Hand-wound Daini caliber behind the 44KS and the 1967 44GS — the watch that codified what Seiko officially calls the 'Grand Seiko Style' (in collector vernacular: the 'Grammar of Design'). The case-and-dial design was a K. Hattori / Taro Tanaka effort implemented on Daini's 4420 movement; the Grammar arc therefore reflects head-office design direction more than a Daini-specific lineage. A landmark manual movement of 1960s Japan.",tags:["icon", "ks", "gs"]},
   c_4500:{n:"Cal. 4500 · 4520 45KS / 45GS Hi-Beat",era:"1968-75",d:"Daini's 36,000 vph manual Hi-Beat in five graded versions: 4500 (45KS, no date), 4502 (45KS, instant date), 4520 (45GS, no date — higher grade), 4522 (45GS, date) and the 4580 (45GS VFA, individually regulated to ±1 min/month). The high-water mark of the hand-wound King/Grand Seiko.",tags:["icon", "ks", "gs", "hb"]},
   c_5245:{n:"Cal. 5245/5246 52KS automatic",era:"1971-75",d:"Daini's 28,800 vph automatic Hi-Beat King Seiko caliber — the KS-grade member of the 52-series, sibling to the volume Lord Matic Special (5206) below. The 52-series architecture was later re-engineered into the modern 4S family.",tags:["icon", "ks"]},
@@ -464,6 +467,7 @@ const popupData={
 const nodeLabels = {
   c_marvel: "Marvel Cal.\n(1st in-house)",
   c_crown: "Cal. 560\nCrown",
+  c_5760: "Cal. 5760 / 341\nCrown Special",
   c_3180: "Cal. 3180\nFirst Grand Seiko",
   c_5740: "Cal. 5740\nLord Marvel",
   c_5722: "Cal. 5722\n57GS",
@@ -477,6 +481,7 @@ const nodeLabels = {
   c_6105: "Cal. 6105\ndiver auto",
   c_6159: "Cal. 6159\nHi-Beat 300m diver",
   c_6306: "Cal. 6306/6309\ndiver auto",
+  c_5717: "Cal. 5717 / 5719\nCrown Chronograph",
   c_6139: "Cal. 6139\nauto chronograph",
   c_6138: "Cal. 6138\ndual-register chrono",
   c_sd_concept: "Spring Drive R&D\nAkahane",
@@ -491,6 +496,7 @@ const nodeLabels = {
   c_9rb2: "Cal. 9RB2\nSpring Drive U.F.A.",
   c_54a: "Cal. 54A\nCronos",
   c_ks1: "Cal. 54xx\nKing Seiko 1st",
+  c_810: "Cal. 810\nCronos Special",
   c_4420: "Cal. 4420\n44KS / 44GS",
   c_4500: "Cal. 4500 · 4520\n45KS / 45GS Hi-Beat",
   c_5245: "Cal. 5245/5246\n52KS automatic",
@@ -529,11 +535,13 @@ const nodeLabels = {
    ═══════════════════════════════════════════════════════════════════════ */
 const iconFlags = {
   c_marvel: 1,
+  c_5760: 1,
   c_3180: 1,
   c_5740: 1,
   c_6145: 1,
   c_6217d: 1,
   c_6159: 1,
+  c_5717: 1,
   c_6139: 1,
   c_7r68: 1,
   c_9r65: 1,
@@ -542,6 +550,7 @@ const iconFlags = {
   c_9ra5: 1,
   c_9rb2: 1,
   c_54a: 1,
+  c_810: 1,
   c_4420: 1,
   c_4500: 1,
   c_5245: 1,
@@ -566,65 +575,67 @@ const _ = null;
 
 const LAYOUT = {
   parents: [
-    {l:"SUWA SEIKOSHA → SEIKO EPSON · Shinshu Watch Studio (Spring Drive · 9R · vintage Suwa)", x:5, y:78, w:2410, h:1376, c:C.suwa},
-    {l:"DAINI SEIKOSHA (KAMEIDO) → SEIKO INSTRUMENTS / MORIOKA · Shizukuishi (9S · 8L · volume mechanical)", x:5, y:1452, w:2410, h:1051, c:C.daini},
+    {l:"SUWA SEIKOSHA → SEIKO EPSON · Shinshu Watch Studio (Spring Drive · 9R · vintage Suwa)", x:5, y:78, w:2410, h:1441, c:C.suwa},
+    {l:"DAINI SEIKOSHA (KAMEIDO) → SEIKO INSTRUMENTS / MORIOKA · Shizukuishi (9S · 8L · volume mechanical)", x:5, y:1517, w:2410, h:1116, c:C.daini},
   ],
   families: [
-    {label:"FOUNDATION · MANUAL · Marvel → Crown → first Grand Seiko · Lord Marvel", color:C.suwa, grid:"gyears", sectionX:15, sectionY:100, sectionW:2390, topPad:20, botPad:14, rows:[
+    {label:"FOUNDATION · MANUAL · Marvel → Crown · Crown Special → first Grand Seiko · Lord Marvel", color:C.suwa, grid:"gyears", sectionX:15, sectionY:100, sectionW:2390, topPad:20, botPad:14, rows:[
       [_, "c_marvel", _, _, _, "c_3180", _, _, _, "c_5740", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
       [_, _, _, _, "c_crown", _, _, _, "c_5722", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+      [_, _, _, _, _, _, "c_5760", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"SEIKOMATIC / AUTOMATIC FOUNDATION · 603 Magic Lever → 62xx → 62GS → 61GS Hi-Beat", color:C.suwa, grid:"gyears", sectionX:15, sectionY:265, sectionW:2390, topPad:20, botPad:14, rows:[
+    {label:"SEIKOMATIC / AUTOMATIC FOUNDATION · 603 Magic Lever → 62xx → 62GS → 61GS Hi-Beat", color:C.suwa, grid:"gyears", sectionX:15, sectionY:330, sectionW:2390, topPad:20, botPad:14, rows:[
       [_, _, _, _, _, "c_603", _, _, _, "c_6206", _, _, _, "c_6145", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
       [_, _, _, _, _, _, "c_62xx", _, _, _, _, "c_6245", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"VOLUME / BUSINESS · Liner 402 → 83xx Business · everyday 61xx · thin 56xx", color:C.suwa, grid:"gyears", sectionX:15, sectionY:430, sectionW:2390, topPad:20, botPad:14, rows:[
+    {label:"VOLUME / BUSINESS · Liner 402 → 83xx Business · everyday 61xx · thin 56xx", color:C.suwa, grid:"gyears", sectionX:15, sectionY:495, sectionW:2390, topPad:20, botPad:14, rows:[
       [_, _, _, _, _, _, "c_402", _, _, _, "c_8346", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
       [_, _, _, _, _, _, _, _, _, _, _, _, _, "c_56xx", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
       [_, _, _, _, _, _, _, _, _, _, _, _, _, "c_61xx_v", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"WOMEN'S HI-BEAT · 19-series (Cal. 1944, world's first ladies' 36,000)", color:C.suwa, grid:"gyears", sectionX:15, sectionY:660, sectionW:2390, topPad:20, botPad:14, rows:[
+    {label:"WOMEN'S HI-BEAT · 19-series (Cal. 1944, world's first ladies' 36,000)", color:C.suwa, grid:"gyears", sectionX:15, sectionY:725, sectionW:2390, topPad:20, botPad:14, rows:[
       [_, _, _, _, _, _, _, _, _, _, _, _, "c_1944", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"⚓ DIVER CALIBERS · 6217 → 6105 / 6159 → 6309", color:C.diver, grid:"gyears", sectionX:15, sectionY:760, sectionW:2390, topPad:20, botPad:14, rows:[
+    {label:"⚓ DIVER CALIBERS · 6217 → 6105 / 6159 → 6309", color:C.diver, grid:"gyears", sectionX:15, sectionY:825, sectionW:2390, topPad:20, botPad:14, rows:[
       [_, _, _, _, _, _, _, _, _, _, "c_6217d", _, _, _, _, _, _, _, _, _, _, "c_6306", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
       [_, _, _, _, _, _, _, _, _, _, _, _, _, "c_6105", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
       [_, _, _, _, _, _, _, _, _, _, _, _, _, "c_6159", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"⏱ CHRONOGRAPH · 613x (Suwa)", color:C.chrono, grid:"gyears", sectionX:15, sectionY:990, sectionW:2390, topPad:20, botPad:14, rows:[
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_6139", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    {label:"⏱ CHRONOGRAPH · Crown 5717 (Olympics 1964) → 613x automatic (Suwa)", color:C.chrono, grid:"gyears", sectionX:15, sectionY:1055, sectionW:2390, topPad:20, botPad:14, rows:[
+      [_, _, _, _, _, _, _, _, _, "c_5717", _, _, _, _, "c_6139", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_6138", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"SPRING DRIVE · Akahane → Credor 7R → Grand Seiko 9R · Seiko 5R", color:C.sd, grid:"gyears", sectionX:15, sectionY:1155, sectionW:2390, topPad:20, botPad:14, rows:[
+    {label:"SPRING DRIVE · Akahane → Credor 7R → Grand Seiko 9R · Seiko 5R", color:C.sd, grid:"gyears", sectionX:15, sectionY:1220, sectionW:2390, topPad:20, botPad:14, rows:[
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_sd_concept", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_7r68", _, _, _, _, "c_9r65", _, _, _, _, _, _, _, _, _, _, _, "c_9r01", _, _, _, "c_9ra5", _, _, _, _, "c_9rb2"],
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_7r88", _, _, _, _, "c_9r86", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_5r65", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_9r66", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"FOUNDATION · KING SEIKO MANUAL · Cronos 54A → 44/45 · CHAMPION (volume)", color:C.ks, grid:"gyears", sectionX:15, sectionY:1474, sectionW:2390, topPad:20, botPad:14, rows:[
-      [_, _, _, "c_54a", _, _, _, _, _, "c_4420", _, _, _, "c_4500", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    {label:"FOUNDATION · KING SEIKO MANUAL · Cronos 54A → 1st KS · Cronos Special → 44/45 · CHAMPION (volume)", color:C.ks, grid:"gyears", sectionX:15, sectionY:1539, sectionW:2390, topPad:20, botPad:14, rows:[
+      [_, _, _, "c_54a", _, _, _, "c_810", _, _, _, _, _, "c_4500", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
       [_, _, _, _, _, _, "c_ks1", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+      [_, _, _, _, _, _, _, _, _, "c_4420", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
       [_, _, _, _, _, _, _, _, _, "c_860", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"DAINI AUTOMATIC · Presmatic 51xx · 52-series (Lord Matic Special · 52KS) → revived 4S · slim 6L35", color:C.ks, grid:"gyears", sectionX:15, sectionY:1704, sectionW:2390, topPad:20, botPad:14, rows:[
+    {label:"DAINI AUTOMATIC · Presmatic 51xx · 52-series (Lord Matic Special · 52KS) → revived 4S · slim 6L35", color:C.ks, grid:"gyears", sectionX:15, sectionY:1834, sectionW:2390, topPad:20, botPad:14, rows:[
       [_, _, _, _, _, _, _, _, _, _, _, _, "c_5106", _, _, _, "c_5245", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_4s", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_6l35", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_5206", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"⏱ CHRONOGRAPH · 70xx → 6S → 8R (Daini / SII)", color:C.chrono, grid:"gyears", sectionX:15, sectionY:1869, sectionW:2390, topPad:20, botPad:14, rows:[
+    {label:"⏱ CHRONOGRAPH · 70xx → 6S → 8R (Daini / SII)", color:C.chrono, grid:"gyears", sectionX:15, sectionY:1999, sectionW:2390, topPad:20, botPad:14, rows:[
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_70xx", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_6s", _, _, _, _, _, _, _, _, _, _, "c_8r", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"🔔 ALARM · Bell-Matic", color:C.alarm, grid:"gyears", sectionX:15, sectionY:1969, sectionW:2390, topPad:20, botPad:14, rows:[
+    {label:"🔔 ALARM · Bell-Matic", color:C.alarm, grid:"gyears", sectionX:15, sectionY:2099, sectionW:2390, topPad:20, botPad:14, rows:[
       [_, _, _, _, _, _, _, _, _, _, _, "c_4006", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"VOLUME AUTOMATIC · 7002 → 7S → 4R / NH · 6R (Seiko Instruments / Time Module)", color:C.seiko5, grid:"gyears", sectionX:15, sectionY:2069, sectionW:2390, topPad:20, botPad:14, rows:[
+    {label:"VOLUME AUTOMATIC · 7002 → 7S → 4R / NH · 6R (Seiko Instruments / Time Module)", color:C.seiko5, grid:"gyears", sectionX:15, sectionY:2199, sectionW:2390, topPad:20, botPad:14, rows:[
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_7002", _, _, _, _, _, _, _, "c_7s26", _, _, _, _, _, _, _, _, _, "c_6r15", _, _, _, "c_4r36", _, _, _, _, _, _, _, _, "c_6r35", _, _, _, _, _, _],
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_7s36", _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_nh3x", _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"GRAND SEIKO MECHANICAL · 9S (Shizukuishi)", color:C.gs, grid:"gyears", sectionX:15, sectionY:2234, sectionW:2390, topPad:20, botPad:14, rows:[
+    {label:"GRAND SEIKO MECHANICAL · 9S (Shizukuishi)", color:C.gs, grid:"gyears", sectionX:15, sectionY:2364, sectionW:2390, topPad:20, botPad:14, rows:[
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_9s55", _, _, _, _, _, _, _, _, _, _, "c_9s85", _, _, _, _, "c_9s86", _, _, _, _, _, "c_9sa5", _, _, _, _, _],
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_9s65", _, _, _, _, _, _, _, _, _, _, _, _, "c_9sa4", _, _],
     ]},
-    {label:"8L · 'SECRET GRAND SEIKO' DIVER (Shizukuishi)", color:C.diver, grid:"gyears", sectionX:15, sectionY:2399, sectionW:2390, topPad:20, botPad:14, rows:[
+    {label:"8L · 'SECRET GRAND SEIKO' DIVER (Shizukuishi)", color:C.diver, grid:"gyears", sectionX:15, sectionY:2529, sectionW:2390, topPad:20, botPad:14, rows:[
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_8l35", _, _, _, _, _, _, _, _, "c_8l55", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
   ],
@@ -633,7 +644,7 @@ const LAYOUT = {
     {l:"◀ VINTAGE FACTORY ERA · 1956–1988", x:8, y:22, w:1074, h:44, c:C.era},
     {l:"TRANSITION · 1988–2004", x:1086, y:22, w:508, h:44, c:C.era},
     {l:"MODERN ERA · 2004–2025 ▶", x:1598, y:22, w:818, h:44, c:C.era},
-    {l:"⏸ QUARTZ HIATUS · 1977–1988 · mechanical R&D paused everywhere except Akahane's Spring Drive lab", x:728, y:1440, w:612, h:30, c:C.era},
+    {l:"⏸ QUARTZ HIATUS · 1977–1988 · mechanical R&D paused everywhere except Akahane's Spring Drive lab", x:728, y:1505, w:612, h:30, c:C.era},
   ],
 };
 
@@ -642,7 +653,10 @@ const LAYOUT = {
    ═══════════════════════════════════════════════════════════════════════ */
 const edges=[
   ["c_marvel", "c_crown", "strong", "The Crown evolved the Marvel into Seiko's first chronometer-grade movement"],
-  ["c_crown", "c_3180", "strong", "Cal. 560's architecture became the foundation for the first Grand Seiko Cal. 3180"],
+  ["c_crown", "c_5760", "strong", "The Crown Special (5760/341) was the higher-spec sibling of the Crown — Cal. 341 carried fewer barrel jewels but the same architecture"],
+  ["c_5760", "c_3180", "strong", "The first Grand Seiko was Cal. 341 from the Crown Special upgraded with a fine-adjustment regulator and two extra barrel jewels"],
+  ["c_crown", "c_3180", "medium", "Crown remains the architectural ancestor of the first GS, but the direct lineage runs through the Crown Special"],
+  ["c_crown", "c_5717", "medium", "The Crown Chronograph (5717/5719) was Suwa's chronograph derived from the Cal. 560 Crown architecture — for the 1964 Tokyo Olympics"],
   ["c_3180", "c_5722", "medium", "57GS continued the hand-wound chronometer-grade Grand Seiko line"],
   ["c_marvel", "c_5740", "weak", "Lord Marvel 36000 was Suwa's premium hand-wound line pushed to Hi-Beat"],
   ["c_marvel", "c_402", "medium", "Cal. 402 was a thinned, Marvel-derived hand-wound (via the 3140) for the Liner/Skyliner"],
@@ -661,6 +675,7 @@ const edges=[
   ["c_6105", "c_6306", "strong", "The 6306/6309 was the cost-down automatic-diver successor to the 6105"],
   ["c_6145", "c_6159", "medium", "The 6159 applied 61xx Hi-Beat to a 300m professional diver"],
   ["c_6139", "c_6138", "strong", "The 6138 added a 12-hour register to the 6139, creating the dual-register branch"],
+  ["c_5717", "c_6139", "medium", "Seiko's Suwa chronograph evolution: the 5717/5719 monopusher (1964) led to the 6139 integrated automatic five years later"],
   ["c_6139", "c_9r86", "weak", "Suwa's automatic-chronograph heritage echoes in the Spring Drive chronograph"],
   ["c_sd_concept", "c_7r68", "strong", "Akahane's R&D reached production as the manual-wind 7R68"],
   ["c_7r68", "c_7r88", "strong", "The 7R88 added automatic winding to the Spring Drive concept"],
@@ -672,6 +687,7 @@ const edges=[
   ["c_9r65", "c_9ra5", "strong", "9RA5 is the next-generation, twin-barrel evolution of the 9R platform"],
   ["c_9ra5", "c_9rb2", "strong", "The U.F.A. 9RB2 refined the Advanced Spring Drive to ±20 sec/year"],
   ["c_54a", "c_ks1", "strong", "The first King Seiko caliber was derived directly from the Cronos 54A"],
+  ["c_ks1", "c_810", "strong", "The Cronos Special (810) is the 23-jewel popularly-priced sibling of the first King Seiko's 25-jewel Cal. 5440 — same architecture, less finishing"],
   ["c_54a", "c_860", "weak", "The Champion was Daini's volume manual line alongside the Cronos-derived high-grade movements"],
   ["c_ks1", "c_4420", "strong", "King Seiko advanced into the 4420 (44KS / 44GS Grammar of Design)"],
   ["c_4420", "c_4500", "strong", "The 4500 brought 36,000 vph Hi-Beat to the manual King/Grand Seiko"],
@@ -715,6 +731,7 @@ const nodeTags = {
   c_6105: ["diver"],
   c_6159: ["diver", "beat10"],
   c_6306: ["diver"],
+  c_5717: ["chrono"],
   c_6139: ["chrono"],
   c_6138: ["chrono"],
   c_sd_concept: ["springdrive"],
@@ -836,7 +853,7 @@ function buildLayout(L) {
 
 
 /* Build nodes and sections from the declarative LAYOUT above */
-LAYOUT.canvas = {NW:124, NH:52, CW:2420, CH:2521};
+LAYOUT.canvas = {NW:124, NH:52, CW:2420, CH:2651};
 const _built = buildLayout(LAYOUT);
 const nodes = _built.nodes;
 const sections = _built.sections;
@@ -897,7 +914,7 @@ function hidePopup(){
 }
 /* Node dimensions — synced from actual CSS size on resize (mobile uses 110×38) */
 let NW=124,NH=42;
-const CW=2420,CH=2521;
+const CW=2420,CH=2651;
 function syncNodeSize(){
   /* Pick NW/NH to match the CSS breakpoint. The mobile media query at
      max-width:768px shrinks .node to 110×38; otherwise it's 124×42.
