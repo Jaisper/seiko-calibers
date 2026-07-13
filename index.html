@@ -592,9 +592,9 @@ const _ = null;
 const LAYOUT = {
   parents: [
     {l:"SUWA SEIKOSHA · VINTAGE FACTORY · 1956–1988 (becomes Seiko Epson · Shinshu Watch Studio)", x:5, y:78, w:1077, h:1541, c:C.suwa},
-    {l:"DAINI SEIKOSHA (KAMEIDO) · VINTAGE FACTORY · 1958–1988 (becomes Seiko Instruments / Morioka · Shizukuishi)", x:5, y:1617, w:1077, h:1116, c:C.daini},
-    {l:"LEGACY TRANSITION · 1988–2001 · 4S platform · 9S mechanical revival · 7R Spring Drive launch", x:1090, y:78, w:408, h:2655, c:C.modern},
-    {l:"MODERN ERA · 2001–2025 · 9R Spring Drive in GS · MEMS Hi-Beat · Dual Impulse · UFA", x:1506, y:78, w:910, h:2655, c:C.modern},
+    {l:"DAINI SEIKOSHA (KAMEIDO) · VINTAGE FACTORY · 1958–1988 (becomes Seiko Instruments / Morioka · Shizukuishi)", x:5, y:1617, w:1077, h:1081, c:C.daini},
+    {l:"LEGACY TRANSITION · 1988–2001 · 4S platform · 9S mechanical revival · 7R Spring Drive launch", x:1080, y:78, w:418, h:2620, c:C.modern},
+    {l:"MODERN ERA · 2001–2025 · 9R Spring Drive in GS · MEMS Hi-Beat · Dual Impulse · UFA", x:1506, y:78, w:910, h:2620, c:C.modern},
   ],
   families: [
     {label:"FOUNDATION · MANUAL · Marvel → Crown · Crown Special → first Grand Seiko · Lord Marvel", color:C.suwa, grid:"gyears", sectionX:15, sectionY:100, sectionW:1059, topPad:20, botPad:14, rows:[
@@ -665,33 +665,34 @@ const LAYOUT = {
     {label:"GRAND SEIKO MECHANICAL · 9S (Shizukuishi)", color:C.gs, grid:"gyears", sectionX:1098, sectionY:2099, sectionW:392, topPad:20, botPad:14, rows:[
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_9s55", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
     {label:"", color:C.gs, grid:"gyears", sectionX:1514, sectionY:2099, sectionW:898, topPad:20, botPad:14, rows:[
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_9s85", _, _, _, _, "c_9s86", _, _, _, _, _, "c_9sa5", _, _, _, _, _],
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_9s65", _, _, _, _, _, _, _, _, _, _, _, _, _, "c_9sc5"],
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_9sa4", _],
     ]},
-    {label:"8L · 'SECRET GRAND SEIKO' DIVER (Shizukuishi)", color:C.diver, grid:"gyears", sectionX:1098, sectionY:2364, sectionW:392, topPad:20, botPad:14, rows:[
+    {label:"8L · 'SECRET GRAND SEIKO' DIVER (Shizukuishi)", color:C.diver, grid:"gyears", sectionX:1098, sectionY:2329, sectionW:392, topPad:20, botPad:14, rows:[
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_8l35", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"", color:C.diver, grid:"gyears", sectionX:1514, sectionY:2364, sectionW:898, topPad:20, botPad:14, rows:[
+    {label:"", color:C.diver, grid:"gyears", sectionX:1514, sectionY:2329, sectionW:898, topPad:20, botPad:14, rows:[
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_8l55", _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"VOLUME AUTOMATIC · 7002 → 7S → 4R / NH · 6R (Seiko Instruments / Time Module)", color:C.seiko5, grid:"gyears", sectionX:1098, sectionY:2464, sectionW:392, topPad:20, botPad:14, rows:[
+    {label:"VOLUME AUTOMATIC · 7002 → 7S → 4R / NH · 6R (Seiko Instruments / Time Module)", color:C.seiko5, grid:"gyears", sectionX:1098, sectionY:2429, sectionW:392, topPad:20, botPad:14, rows:[
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_7002", _, _, _, _, _, _, _, "c_7s26", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_7s36", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"", color:C.seiko5, grid:"gyears", sectionX:1514, sectionY:2464, sectionW:898, topPad:20, botPad:14, rows:[
+    {label:"", color:C.seiko5, grid:"gyears", sectionX:1514, sectionY:2429, sectionW:898, topPad:20, botPad:14, rows:[
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_6r15", _, _, _, _, "c_4r36", _, _, _, _, _, _, _, "c_6r35", _, _, _, _, _, _],
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_nh3x", _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"⏱ CHRONOGRAPH · 70xx → 6S → 8R (Daini / SII)", color:C.chrono, grid:"gyears", sectionX:15, sectionY:2629, sectionW:1059, topPad:20, botPad:14, rows:[
+    {label:"⏱ CHRONOGRAPH · 70xx → 6S → 8R (Daini / SII)", color:C.chrono, grid:"gyears", sectionX:15, sectionY:2594, sectionW:1059, topPad:20, botPad:14, rows:[
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_70xx", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"", color:C.chrono, grid:"gyears", sectionX:1098, sectionY:2629, sectionW:392, topPad:20, botPad:14, rows:[
+    {label:"", color:C.chrono, grid:"gyears", sectionX:1098, sectionY:2594, sectionW:392, topPad:20, botPad:14, rows:[
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_6s", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
-    {label:"", color:C.chrono, grid:"gyears", sectionX:1514, sectionY:2629, sectionW:898, topPad:20, botPad:14, rows:[
+    {label:"", color:C.chrono, grid:"gyears", sectionX:1514, sectionY:2594, sectionW:898, topPad:20, botPad:14, rows:[
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_8r", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
   ],
@@ -908,7 +909,7 @@ function buildLayout(L) {
 
 
 /* Build nodes and sections from the declarative LAYOUT above */
-LAYOUT.canvas = {NW:124, NH:52, CW:2420, CH:2751};
+LAYOUT.canvas = {NW:124, NH:52, CW:2420, CH:2716};
 const _built = buildLayout(LAYOUT);
 const nodes = _built.nodes;
 const sections = _built.sections;
@@ -969,7 +970,7 @@ function hidePopup(){
 }
 /* Node dimensions — synced from actual CSS size on resize (mobile uses 110×38) */
 let NW=124,NH=52;
-const CW=2420,CH=2751;
+const CW=2420,CH=2716;
 function syncNodeSize(){
   /* Pick NW/NH to match the CSS breakpoint. The mobile media query at
      max-width:768px shrinks .node to 110×48; otherwise it's 124×52 (matching
