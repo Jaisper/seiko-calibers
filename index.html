@@ -37,6 +37,10 @@ body{background:var(--bg);font-family:'IBM Plex Mono',monospace;color:var(--ink)
 #intro-short{margin:8px 0 0}
 #intro-detail{display:none;margin:4px 0 0}
 #intro-detail.show{display:block}
+#methodology-detail{display:none;margin:4px 0 0;font-family:'Noto Serif',Georgia,serif;font-size:15.5px;color:#3f3d38;line-height:1.7;max-width:1100px}
+#methodology-detail.show{display:block}
+#methodology-toggle{font-family:'Noto Serif',Georgia,serif;font-size:13px;color:var(--ink);background:none;border:1px solid var(--rule);border-radius:3px;padding:5px 14px;cursor:pointer;margin-top:8px;margin-left:6px;opacity:.7;transition:opacity .15s}
+#methodology-toggle:hover{opacity:1}
 #intro-toggle{font-family:'Noto Serif',Georgia,serif;font-size:13px;color:var(--ink);background:none;border:1px solid var(--rule);border-radius:3px;padding:5px 14px;cursor:pointer;margin-top:8px;opacity:.7;transition:opacity .15s}
 #intro-toggle:hover{opacity:1}
 .filters{display:flex;gap:3px;flex-wrap:wrap}
@@ -130,7 +134,7 @@ body{background:var(--bg);font-family:'IBM Plex Mono',monospace;color:var(--ink)
   #header h1{font-size:16px}
   #header .eyebrow{font-size:7px;letter-spacing:2.5px}
   #header > div > div{font-size:11.5px!important;max-width:none!important}
-  #intro-toggle{font-size:11px;padding:4px 10px}
+  #intro-toggle,#methodology-toggle{font-size:11px;padding:4px 10px}
   .filters{width:100%;margin-top:6px}
   .filters button{font-size:9px;padding:4px 8px;flex:1;min-width:auto}
   .filters .filter-sep{display:none}
@@ -235,13 +239,11 @@ body{background:var(--bg);font-family:'IBM Plex Mono',monospace;color:var(--ink)
         <p style="margin:0 0 10px"><strong style="color:var(--ink)">Before this diagram (1881–1955)</strong> — this tree begins with the 1956 Marvel, Suwa's first fully in-house movement. But movement-making capability was built over decades. Kintaro Hattori's fundamental insight, drawn from touring US and Swiss production facilities in 1900, was that America's <em>integrated</em> manufacturing model — where one factory made every part on machines that could handle multiple processes — would beat the Swiss cottage model of assembly from countless independent suppliers. From 1900 he began importing American production machinery — around 200 machines were purchased, and Seikosha's own workshop built about 300 more in-house, adapted to the specific requirements of Japanese-scale watch production. Pinion-cutting was the hardest process to automate; an automatic pinion-cutting machine was finally developed for pocket watches by 1909, four years before it was applied to make the 1913 Laurel wristwatch. Enamel dials were being made in-house from 1913. By the 1927 Showa era Seikosha was making its own three-hand watches; the 1940 Super brought Seiko's first sweep-second three-hand movement, and the 1953 Super Autodator added a central date pointer. In 1948 the newly-formed Central Inspection Institute of Weights and Measures began running domestic accuracy competitions — 62 of 180 submitted watches stopped during the first testing round, giving Seiko a decade of hard data on what its calibers actually had to become. By the mid-1950s Suwa Seikosha had reached total dominance of those competitions, and had the manufacturing depth to design and build a fully in-house calibre from scratch. That calibre — the Marvel — is where this diagram opens.</p>
         <p style="margin:0 0 10px"><strong style="color:var(--ink)">Suwa Seikosha → Seiko Epson</strong> (Nagano, top): the Marvel/Crown/3180 manual GS line, the Seikomatic 62xx automatics, the 61-series Hi-Beat and volume automatics, the 613x chronographs, the world-first ladies' Hi-Beat 1944 — and, from 1999, the <strong style="color:var(--ink)">Spring Drive</strong> family (7R → Grand Seiko 9R → Seiko 5R) hand-built at the Shinshu Watch Studio in Shiojiri.</p>
         <p style="margin:0 0 10px"><strong style="color:var(--ink)">Daini Seikosha (Kameido) → Seiko Instruments / Morioka</strong> (Tokyo→Iwate, bottom): the Cronos 54A, the King Seiko line, the 44GS that codified Seiko's "Grand Seiko Style" (the "Grammar of Design" in collector vernacular), the 45-series manual Hi-Beat, the slim 51-series Presmatic and the 52KS automatic re-engineered into the 4S — plus the volume 7S → 4R / 6R workhorses (now Seiko Instruments / Time Module), the 6S → 8R chronographs, and the modern <strong style="color:var(--ink)">9S</strong> mechanical and 8L calibres hand-built at the Grand Seiko Studio Shizukuishi in Morioka.</p>
-        <p style="margin:0;font-size:13px;opacity:.65;font-style:italic">Factory and era boundaries are editorial. Each node's x-position is its first year of production at 32 px/year. Solid lines <span style="display:inline-block;width:16px;height:0;border-top:2px solid #aaa;vertical-align:middle;margin:0 2px"></span> mark direct technical descent or re-engineering; thinner <span style="display:inline-block;width:16px;height:0;border-top:1px solid #aaa;vertical-align:middle;margin:0 2px"></span> or dashed <span style="display:inline-block;width:16px;height:0;border-top:1px dashed #aaa;vertical-align:middle;margin:0 2px"></span> lines mark looser platform-succession, curatorial links, or cross-factory collaboration. A curated reading, not an official Seiko genealogy.</p>
+        <p style="margin:0;font-size:13px;opacity:.65;font-style:italic">A curated reading, not an official Seiko genealogy — factory and era boundaries are editorial. See the <strong>Methodology guide</strong> below for axis conventions, line-weight meanings, and badge legend.</p>
         <button id="intro-short-toggle" onclick="const s=document.getElementById('intro-short');s.classList.toggle('expanded');this.textContent=s.classList.contains('expanded')?'Show less':'Show full intro ▼'">Show full intro ▼</button>
       </div>
       <div id="intro-detail">
         <hr style="border:none;border-top:1px solid var(--rule);margin:12px 0">
-        <p style="margin:0 0 4px"><strong style="color:var(--ink);font-size:16.5px;font-weight:600">Reading the tree</strong></p>
-        <p style="margin:0 0 12px">Each horizontal lane is a thematic caliber line (foundation/manual, automatic, diver, chronograph, Spring Drive, volume automatic, GS mechanical, 8L). The x-axis is real time at 32 px / year, so visible distances between calibers reflect actual year gaps; calibers that share a year stack vertically within their lane. Badges mark frequency and technology: <strong>10B</strong> = 36,000 vph Hi-Beat, <strong>8B</strong> = 28,800 vph, <strong>SD</strong> = Spring Drive.</p>
         <p style="margin:0 0 4px"><strong style="color:var(--ink);font-size:16.5px;font-weight:600">Telling the factories apart</strong></p>
         <p style="margin:0 0 12px">On dials, Suwa watches typically carry a "swirl" mark and Daini ones a "lightning bolt." But the deeper signature is architectural philosophy. <strong>Suwa</strong>'s instinct was robustness and volume — chunky cases, big balance wheels, the Magic-Lever automatic winder (developed at Suwa but shared with Daini from launch, per Seiko Epson's own historians). <strong>Daini</strong>'s instinct was the opposite: ultra-thin movements, alternative reverser-wheel winding systems (notably in the 51 Presmatic and the 52KS), and obsessive finishing. The two factories competed hard but also shared movements freely — some 5740C Lord Marvel units were built at Daini, and the 6139 chronograph drew on parts from both. The "two rivals, two solutions" framing is a useful starting heuristic, not a clean technical fact.</p>
         <p style="margin:0 0 4px"><strong style="color:var(--ink);font-size:16.5px;font-weight:600">Two factories, one catalogue (modern)</strong></p>
@@ -252,9 +254,37 @@ body{background:var(--bg);font-family:'IBM Plex Mono',monospace;color:var(--ink)
         <p style="margin:0 0 12px">If you look at the caliber timeline, there is a visible gap between the late vintage calibres (most ending production 1975–78) and the next mechanical movements (the 7002 in 1988, the 4S15 in 1992). This gap is the <strong>Quartz Hiatus</strong> — the roughly decade-long period when Seiko, after launching the 1969 Astron quartz revolution that disrupted the global mechanical industry, also turned away from its own mechanical R&D internally. Mechanical Grand Seiko was phased out, Bell-Matic was discontinued, the 6139/6138 chronograph family ended, and the Shizukuishi production machines were scheduled for the scrapyard — saved only because veteran employees refused to destroy them. The single exception was <strong>Yoshikazu Akahane</strong>'s Spring Drive project at Suwa, which ran quietly throughout this period and finally reached market with the 7R68 in December 1999 — twenty-two years after he started, one year after his death. The visible gap in the tree is the visible cost of the quartz revolution to Seiko's own mechanical lineage.</p>
         <p style="margin:0 0 4px"><strong style="color:var(--ink);font-size:16.5px;font-weight:600">Out of scope</strong></p>
         <p style="margin:0 0 12px">Quartz (9F, 7C46, V1xx etc.), Kinetic, Astron GPS and ana-digi calibres are deliberately not mapped — the tree's focus is mechanical and Spring Drive. The 9F deserves a passing nod: it is built at the same Shinshu Watch Studio as the 9R and forms the third leg of Grand Seiko's modern manufacture (9F quartz / 9R Spring Drive / 9S mechanical).</p>
-        <p style="margin:0;font-size:13px;opacity:.7">Coverage is a curated ~60-caliber selection, not exhaustive — sub-variants (e.g. 8L45, 9R02 / 9R31, 9S25/27, 6R64, 4580 VFA, 6155/6156 61GS Special) are largely omitted for clarity. Where I've used enthusiast vernacular ("Grammar of Design", "secret Grand Seiko", "bridge to 9S"), the popups flag it explicitly. Corrections welcome.</p>
+        </div>
       </div>
-      <button id="intro-toggle" onclick="const d=document.getElementById('intro-detail');d.classList.toggle('show');this.textContent=d.classList.contains('show')?'Show less ▲':'Read more — how to read this ▼'">Read more — how to read this ▼</button>
+      <button id="intro-toggle" onclick="const d=document.getElementById('intro-detail');d.classList.toggle('show');this.textContent=d.classList.contains('show')?'Show less ▲':'Read more — historical summary ▼'">Read more — historical summary ▼</button>
+      <button id="methodology-toggle" onclick="const d=document.getElementById('methodology-detail');d.classList.toggle('show');this.textContent=d.classList.contains('show')?'Show less ▲':'Methodology guide ▼'">Methodology guide ▼</button>
+      <div id="methodology-detail">
+        <div style="background:#f4f1eb; border:1px solid var(--rule); border-radius:4px; padding:16px; margin-bottom:24px;">
+          <p style="margin:0 0 8px"><strong style="color:var(--ink);font-size:16.5px;font-weight:600">How to Read This Tree</strong></p>
+          <p style="margin:0 0 12px; line-height:1.6">
+            This diagram is a <em>chronological caliber genealogy</em> mapping both time (horizontally) and technical inheritance (vertically). To navigate the visualization systematically, read the chart along two axes and three distinct line weights:
+          </p>
+          <ul style="margin:0 0 16px 20px; line-height:1.6; list-style-type: square; color:#3f3d38">
+            <li style="margin-bottom:6px"><strong>The Horizontal Axis (Chronology):</strong> Time flows left to right at 32 px per year (1956–2025). A caliber's horizontal position indicates its introduction year; calibers introduced in the same year stack vertically within their thematic lane.</li>
+            <li style="margin-bottom:6px"><strong>The Vertical Axis (Manufacturing Lineage):</strong> The top half groups calibers made at <strong>Suwa Seikosha</strong> (later Seiko Epson · Shinshu Watch Studio in Shiojiri); the bottom half groups calibers from <strong>Daini Seikosha / Kameido</strong> (later Seiko Instruments · Morioka in Shizukuishi). Within each factory, calibers are arranged by thematic lane (foundation/manual, automatic platform, professional derivatives, Hi-Beat, Spring Drive, etc.).</li>
+            <li style="margin-bottom:6px"><strong>Strong Connections (Thick, solid lines):</strong> Indicate direct technical descent — one caliber engineered from the previous (e.g., <span style="font-family:'IBM Plex Mono';font-size:11px">c_9s55 → c_9s65</span>).</li>
+            <li style="margin-bottom:6px"><strong>Medium Connections (Thin, solid lines):</strong> Indicate sibling variants sharing the same base architecture (e.g., date-only vs. day-date within the same family), or platform continuations across generations.</li>
+            <li style="margin-bottom:6px"><strong>Weak Connections (Dashed lines):</strong> Indicate looser platform influence or heritage-reinterpretation programs without continuous engineering inheritance.</li>
+          </ul>
+          <p style="margin:0 0 4px"><strong style="color:var(--ink);font-size:16.5px;font-weight:600">Badges (technology markers)</strong></p>
+          <ul style="margin:0 0 12px 20px; line-height:1.5; list-style-type: circle; color:#5a5750">
+            <li style="margin-bottom:4px"><strong>10B</strong> — 36,000 vph Hi-Beat</li>
+            <li style="margin-bottom:4px"><strong>8B</strong> — 28,800 vph (8-beat)</li>
+            <li style="margin-bottom:4px"><strong>SD</strong> — Spring Drive</li>
+            <li style="margin-bottom:4px"><strong>M</strong> — MEMS-fabricated escapement (micro-machined wheel and pallet)</li>
+          </ul>
+          <p style="margin:0 0 4px"><strong style="color:var(--ink);font-size:16.5px;font-weight:600">What the Tree Does <u>Not</u> Show</strong></p>
+          <ul style="margin:0 0 0 20px; line-height:1.5; list-style-type: circle; color:#5a5750">
+            <li style="margin-bottom:4px"><em>Not a complete caliber index:</em> The tree is a curated ~60-caliber selection focused on major platform milestones and landmark calibers. Sub-variants (e.g. 8L45, 9R02/9R31, 9S25/27, 6R64, 4580 VFA, 6155/6156 61GS Special) and obscure JDM references are largely omitted for clarity. Where enthusiast vernacular is used ("Grammar of Design", "secret Grand Seiko", "bridge to 9S"), the popups flag it explicitly. Corrections welcome.</li>
+            <li style="margin-bottom:4px"><em>Omission of quartz and Kinetic:</em> The scope is strictly mechanical (including Spring Drive as an electro-mechanical hybrid). Consumer quartz (7T, VD, VJ, etc.) and Kinetic (5M, YT) lines are excluded.</li>
+            <li style="margin-bottom:4px"><em>Modern brand lens vs. historic origins:</em> Modern factory names (Seiko Epson, Seiko Instruments/Morioka) reflect post-1983 corporate restructuring; the underlying manufacturing lineages trace back to Suwa and Daini Seikosha respectively. For the model-family view of the same story, see the companion <a href="https://jaisper.github.io/seiko-tree/" style="color:var(--ink);text-decoration:underline">Seiko Mechanical Family Tree</a>.</li>
+          </ul>
+      </div>
     </div>
   </div>
   <div class="spacer"></div>
@@ -668,8 +698,8 @@ const LAYOUT = {
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     ]},
     {label:"", color:C.gs, grid:"gyears", sectionX:1514, sectionY:2099, sectionW:898, topPad:20, botPad:14, rows:[
+      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_9s65", _, _, _, _, _, _, _, _, _, _, _, _, _, "c_9sc5", _],
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_9s85", _, _, _, _, "c_9s86", _, _, _, _, _, "c_9sa5", _, _, _, _, _],
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_9s65", _, _, _, _, _, _, _, _, _, _, _, _, _, "c_9sc5"],
       [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_9sa4", _],
     ]},
     {label:"8L · 'SECRET GRAND SEIKO' DIVER (Shizukuishi)", color:C.diver, grid:"gyears", sectionX:1086, sectionY:2329, sectionW:404, topPad:20, botPad:14, rows:[
@@ -717,7 +747,7 @@ const edges=[
   ["c_603", "c_62xx", "strong", "Seikomatic 603 grew into the 62xx automatic platform"],
   ["c_62xx", "c_8346", "weak", "The 83xx Business-A was Suwa's parallel volume-business automatic line"],
   ["c_62xx", "c_61xx_v", "medium", "The 61xx everyday automatic succeeded the 62xx as Suwa's mass-market platform"],
-  ["c_5740", "c_1944", "weak", "The world's first 36,000 vph men's (5740C) and ladies' (1944) calibres were both Suwa, August 1967"],
+  ["c_5740", "c_1944", "strong", "Lord Marvel 36000 (Cal. 5740C) established Suwa's 36,000 vph Hi-Beat manufacturing in 1967; the ladies' Cal. 1944 was announced in the Suwa magazine the same year as a direct platform derivative — the world's first 36,000 vph men's and ladies' calibres, both Suwa, August 1967"],
   ["c_6145", "c_1944", "medium", "The 1944 ladies' 36,000 vph platform paralleled Suwa's automatic Hi-Beat programme"],
   ["c_62xx", "c_6245", "strong", "The 62xx evolved into the chronometer-grade 6245/6246 (62GS)"],
   ["c_62xx", "c_6206", "strong", "The 6206 Seikomatic Weekdater was the first Japanese auto with day+date — a 62xx variant"],
