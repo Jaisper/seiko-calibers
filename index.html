@@ -11,7 +11,7 @@
    FONTS — loaded from Google Fonts above. Three families are used:
    ───────────────────────────────────────────────────────────────────────
      • Cormorant Garamond  — main title + popup serif (warm, editorial)
-     • IBM Plex Mono       — eyebrow + UI labels + node text (technical)
+     • IBM Plex Mono       — eyebrow + UI labels + node years (technical)
      • Noto Serif          — intro prose (clean readable serif)
    Want to swap a font? Update the <link rel="stylesheet"> in <head>
    AND the matching `font-family:` declaration further down in this
@@ -19,14 +19,15 @@
    ═══════════════════════════════════════════════════════════════════════ */
 
 /* ═══════════════════════════════════════════════════════════════════════
-   COLOUR VARIABLES — also exposed to JavaScript via the `C` object
-   (SECTION 1 in the script below). Keep these two in sync.
+   COLOUR VARIABLES
    ───────────────────────────────────────────────────────────────────────
-   The semantic colour names below (--suwa, --gs, --diver, etc.) drive
-   both the container box backgrounds and the node border/badge colours.
-   Tweak any of them and the whole diagram updates consistently.
+   The lane/factory colours live ONLY in the `C` palette object (SECTION 1
+   of the script). The two below that the CSS actually needs — --icon and
+   --coll — are pushed into this :root block from JS at startup, so there
+   is nothing to keep in sync by hand. The rest here are neutrals and
+   technology-badge colours that exist only in CSS.
    ═══════════════════════════════════════════════════════════════════════ */
-:root{--suwa:#1e3a5f;--kameido:#7a2332;--diver:#0d6651;--chrono:#9e6b00;--bell:#6d3a7a;--world:#2d7a53;--seiko5:#3d6d1e;--gs:#1a4a6a;--ks:#5a2a4a;--modern:#4a3a1e;--prospex:#0a5a4a;--presage:#3a2a5e;--icon:#b8942e;--coll:#2d8a3e;--bg:#faf9f7;--paper:#fff;--ink:#1a1a1a;--muted:#8a8780;--rule:#e0ddd6;--hibeat:#c92a2a;--springdrive:#1c7ed6;--quartz:#9e9e9e}
+:root{--bg:#faf9f7;--paper:#fff;--ink:#1a1a1a;--muted:#8a8780;--rule:#e0ddd6;--icon:#b8942e;--coll:#2d8a3e;--hibeat:#c92a2a;--beat8:#d97706;--springdrive:#1c7ed6;--quartz:#9e9e9e;--mems:#7c3aed}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);font-family:'IBM Plex Mono',monospace;color:var(--ink)}
 #app{width:100vw;display:flex;flex-direction:column}
@@ -93,12 +94,13 @@ body{background:var(--bg);font-family:'IBM Plex Mono',monospace;color:var(--ink)
 }
 .tech-badge{position:absolute;bottom:3px;right:4px;width:9px;height:9px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:5px;font-weight:700;color:#fff;box-shadow:0 0 3px rgba(0,0,0,.15);transition:opacity .2s}
 .tech-badge.beat10{background:var(--hibeat)}
-.tech-badge.beat8{background:#d97706}
+.tech-badge.beat8{background:var(--beat8)}
 .tech-badge.springdrive{background:linear-gradient(135deg,#1971c2,#22b8cf);animation:sd-pulse 3s ease-in-out infinite}
 .tech-badge.quartz{background:var(--quartz)}
-.tech-badge.mems{background:#7c3aed;box-shadow:0 0 4px rgba(124,58,237,.35)}
+.tech-badge.mems{background:var(--mems);box-shadow:0 0 4px rgba(124,58,237,.35)}
 @keyframes sd-pulse{0%,100%{box-shadow:0 0 3px rgba(28,126,214,.2)}50%{box-shadow:0 0 8px rgba(28,126,214,.5)}}
 #canvas.zoom-far .node .text{font-size:7px}
+#canvas.zoom-far .node .year{opacity:.4}
 #canvas.zoom-far .tech-badge{opacity:0}
 #canvas.zoom-far .coll-badge{opacity:0}
 #canvas.zoom-far .star-badge{font-size:5px;padding:0 2px}
@@ -124,7 +126,7 @@ body{background:var(--bg);font-family:'IBM Plex Mono',monospace;color:var(--ink)
 #watch-popup .popup-tag.t-hb{background:#c92a2a18;color:#c92a2a}
 #watch-popup .popup-tag.t-coll{background:#2d8a3e18;color:#2d8a3e}
 #edges-svg{position:absolute;top:0;left:0;pointer-events:none}
-#edges-svg path[data-desc]{pointer-events:stroke;cursor:crosshair;stroke-linecap:round}
+#edges-svg path{stroke-linecap:round}
 #edge-tip{position:fixed;z-index:55;pointer-events:none;background:var(--paper);border:1px solid var(--rule);border-radius:3px;box-shadow:0 2px 10px rgba(0,0,0,.1);padding:7px 10px;display:none;max-width:320px}
 #edge-tip.show{display:block}
 #edge-tip .et-type{font-size:8.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
@@ -133,7 +135,7 @@ body{background:var(--bg);font-family:'IBM Plex Mono',monospace;color:var(--ink)
   #header{padding:10px 12px 8px}
   #header h1{font-size:16px}
   #header .eyebrow{font-size:7px;letter-spacing:2.5px}
-  #header > div > div{font-size:11.5px!important;max-width:none!important}
+  #header .intro-wrap{font-size:11.5px!important;max-width:none!important}
   #intro-toggle,#methodology-toggle{font-size:11px;padding:4px 10px}
   .filters{width:100%;margin-top:6px}
   .filters button{font-size:9px;padding:4px 8px;flex:1;min-width:auto}
@@ -164,15 +166,22 @@ body{background:var(--bg);font-family:'IBM Plex Mono',monospace;color:var(--ink)
   #intro-short > p{display:block!important}
 }
 @media (max-width:480px){
-  #tour-launcher{right:auto;left:20px}
-  #tour-menu{right:auto;left:20px}
-  
   #header h1{font-size:14px}
   .filters button{font-size:8px;padding:3px 6px}
   #canvas-wrap{height:60vh;min-height:380px}
   #minimap{transform:scale(.55)}
   #watch-popup{width:220px}
   #watch-popup img{height:110px}
+  /* Move the tour launcher/menu to the LEFT on small screens so they clear
+     the minimap. Only `left` is set (right:auto) — setting both left and
+     right on a fixed element with no width stretches it across the screen. */
+  #tour-launcher{left:10px;right:auto;bottom:14px;padding:6px 12px;font-size:12px}
+  #tour-menu{left:10px;right:auto}
+  #tour-panel{padding:12px 14px 10px;width:calc(100vw - 24px);bottom:14px}
+  #tour-panel .tp-btn{padding:6px 10px;font-size:9.5px}
+  #tour-panel .tp-dots{min-width:40px}
+  #tour-panel .tp-title{font-size:13px}
+  #tour-panel .tp-narration{font-size:11.5px}
 }
 #search-box{position:relative;display:inline-flex;align-items:center;gap:4px}
 #search-input{font-family:'IBM Plex Mono',monospace;font-size:10px;border:1px solid var(--rule);border-radius:3px;padding:3px 7px;background:var(--paper);color:var(--ink);width:140px;outline:none}
@@ -206,25 +215,16 @@ body{background:var(--bg);font-family:'IBM Plex Mono',monospace;color:var(--ink)
 #tour-panel .tp-progress{font-size:9px;color:var(--muted);letter-spacing:1px;white-space:nowrap}
 #tour-panel .tp-stop-name{font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--icon);font-style:italic;margin-bottom:4px}
 #tour-panel .tp-narration{font-family:'Cormorant Garamond',serif;font-size:12.5px;color:var(--ink);line-height:1.5;margin-bottom:10px}
-#tour-panel .tp-controls{display:flex;justify-content:space-between;align-items:center;gap:8px;border-top:1px solid var(--rule);padding-top:10px}
+#tour-panel .tp-controls{display:flex;justify-content:space-between;align-items:center;gap:6px;border-top:1px solid var(--rule);padding-top:10px;flex-wrap:wrap}
 #tour-panel .tp-btn{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:4px 10px;background:transparent;color:var(--muted);border:1px solid var(--rule);border-radius:3px;cursor:pointer;letter-spacing:.5px;text-transform:uppercase;transition:all .15s}
 @media (hover:hover){#tour-panel .tp-btn:hover:not(:disabled){border-color:var(--ink);color:var(--ink)}}
 #tour-panel .tp-btn:disabled{opacity:.35;cursor:not-allowed}
 #tour-panel .tp-btn.primary{background:var(--ink);color:var(--paper);border-color:var(--ink);-webkit-tap-highlight-color:transparent}
 @media (hover:hover){#tour-panel .tp-btn.primary:hover{background:#000}}
-#tour-panel .tp-dots{display:flex;gap:4px;flex:1;justify-content:center}
+#tour-panel .tp-dots{display:flex;gap:4px;flex:1 1 auto;justify-content:center;min-width:60px}
 #tour-panel .tp-dot{width:6px;height:6px;border-radius:50%;background:var(--rule);cursor:pointer;transition:background .15s}
 #tour-panel .tp-dot.active{background:var(--icon)}
 #tour-panel .tp-dot.visited{background:var(--muted)}
-@media (max-width:480px){
-  #tour-launcher{right:auto;left:20px}
-  #tour-menu{right:auto;left:20px}
-  
-  #tour-launcher{right:10px;padding:6px 12px;font-size:12px}
-  #tour-panel{padding:12px 14px 10px}
-  #tour-panel .tp-title{font-size:13px}
-  #tour-panel .tp-narration{font-size:11.5px}
-}
 </style>
 <!-- GoatCounter analytics (privacy-friendly, cookieless) -->
 <script data-goatcounter="https://jaisper.goatcounter.com/count"
@@ -236,7 +236,7 @@ body{background:var(--bg);font-family:'IBM Plex Mono',monospace;color:var(--ink)
   <div>
     <div class="eyebrow">精工 · Caliber Genealogy · 1956–2025 · Two Factory Lineages</div>
     <h1>Seiko — A Curated Caliber Family Tree</h1>
-    <div style="font-family:'Noto Serif',Georgia,serif;font-size:15.5px;color:#3f3d38;line-height:1.7;max-width:1100px">
+    <div class="intro-wrap" style="font-family:'Noto Serif',Georgia,serif;font-size:15.5px;color:#3f3d38;line-height:1.7;max-width:1100px">
       <div id="intro-short" style="margin:8px 0 0">
         <p style="margin:0 0 10px">A companion to the model-family tree — here mapping the <strong style="color:var(--ink)">movements</strong> themselves. Calibers are grouped by their two parallel manufacturing lineages and positioned left-to-right by year (1956–2025).</p>
         <p style="margin:0 0 10px"><strong style="color:var(--ink)">Before this diagram (1881–1955)</strong> — this tree begins with the 1956 Marvel, Suwa's first fully in-house movement. But movement-making capability was built over decades. Kintaro Hattori's fundamental insight, drawn from touring US and Swiss production facilities in 1900, was that America's <em>integrated</em> manufacturing model — where one factory made every part on machines that could handle multiple processes — would beat the Swiss cottage model of assembly from countless independent suppliers. From 1900 he began importing American production machinery — around 200 machines were purchased, and Seikosha's own workshop built about 300 more in-house, adapted to the specific requirements of Japanese-scale watch production. Pinion-cutting was the hardest process to automate; an automatic pinion-cutting machine was finally developed for pocket watches by 1909, four years before it was applied to make the 1913 Laurel wristwatch. Enamel dials were being made in-house from 1913. By the 1927 Showa era Seikosha was making its own three-hand watches; the 1940 Super brought Seiko's first sweep-second three-hand movement, and the 1953 Super Autodator added a central date pointer. In 1948 the newly-formed Central Inspection Institute of Weights and Measures began running domestic accuracy competitions — 62 of 180 submitted watches stopped during the first testing round, giving Seiko a decade of hard data on what its calibers actually had to become. By the mid-1950s Suwa Seikosha had reached total dominance of those competitions, and had the manufacturing depth to design and build a fully in-house calibre from scratch. That calibre — the Marvel — is where this diagram opens.</p>
@@ -252,9 +252,9 @@ body{background:var(--bg);font-family:'IBM Plex Mono',monospace;color:var(--ink)
         <p style="margin:0 0 4px"><strong style="color:var(--ink);font-size:16.5px;font-weight:600">Two factories, one catalogue (modern)</strong></p>
         <p style="margin:0 0 12px">In the modern era many calibers share a brand but not a birthplace. Grand Seiko's <strong>9R</strong> Spring Drive (and the 9F quartz) is built by Seiko Epson at the Shinshu Watch Studio in Shiojiri — the Suwa lineage. Its <strong>9S</strong> mechanical and the 8L are built at the Grand Seiko Studio Shizukuishi in Morioka — the Daini → Seiko Instruments lineage. The volume 7S / 4R / 6R workhorses (and the unbranded NH35/36 sold to third parties) and the 8R chronograph descend from the Daini/SII side via Time Module Inc. This studio split is the organising axis of the tree.</p>
         <p style="margin:0 0 4px"><strong style="color:var(--ink);font-size:16.5px;font-weight:600">Three eras</strong></p>
-        <p style="margin:0 0 12px"><strong>Vintage (1956–1988)</strong>: the golden-age rivalry — Marvel through the Hi-Beat race, the first auto GS, the first Seiko diver, the 6139 chronograph. <strong>Legacy Transition (1988–2001)</strong>: the quartz crisis sees mechanical retreat almost everywhere; Daini's 4S and Suwa's Spring Drive R&D keep the flame alive; the 9S programme re-launches Grand Seiko mechanical in 1998; Credor's 7R68 commercialises Spring Drive in December 1999. <strong>Modern (2001–present)</strong>: Seiko Watch Corporation forms in 2001 as the institutional reset for the watch business; 9R takes Spring Drive into Grand Seiko (2004); the Hi-Beat 9S85, the Dual-Impulse 9SA5 / 9SA4 and the U.F.A. 9RB2 mark a second golden age. (The companion <a href="https://jaisper.github.io/seiko-tree/" style="color:var(--ink);text-decoration:underline">Seiko Mechanical Family Tree</a> uses the same era boundaries — a deliberate parallel so the two trees read together.)</p>
+        <p style="margin:0 0 12px"><strong>Vintage (1956–1988)</strong>: the golden-age rivalry — Marvel through the Hi-Beat race, the first auto GS, the first Seiko diver, the 6139 chronograph. <strong>Legacy Transition (1988–2001)</strong>: the quartz crisis sees mechanical retreat almost everywhere; Daini's 4S and Suwa's Spring Drive R&amp;D keep the flame alive; the 9S programme re-launches Grand Seiko mechanical in 1998; Credor's 7R68 commercialises Spring Drive in December 1999. <strong>Modern (2001–present)</strong>: Seiko Watch Corporation forms in 2001 as the institutional reset for the watch business; 9R takes Spring Drive into Grand Seiko (2004); the Hi-Beat 9S85, the Dual-Impulse 9SA5 / 9SA4 and the U.F.A. 9RB2 mark a second golden age. (The companion <a href="https://jaisper.github.io/seiko-tree/" style="color:var(--ink);text-decoration:underline">Seiko Mechanical Family Tree</a> uses the same era boundaries — a deliberate parallel so the two trees read together.)</p>
         <p style="margin:0 0 4px"><strong style="color:var(--ink);font-size:16.5px;font-weight:600">The Quartz Hiatus (1977–1988)</strong></p>
-        <p style="margin:0 0 12px">If you look at the caliber timeline, there is a visible gap between the late vintage calibres (most ending production 1975–78) and the next mechanical movements (the 7002 in 1988, the 4S15 in 1992). This gap is the <strong>Quartz Hiatus</strong> — the roughly decade-long period when Seiko, after launching the 1969 Astron quartz revolution that disrupted the global mechanical industry, also turned away from its own mechanical R&D internally. Mechanical Grand Seiko was phased out, Bell-Matic was discontinued, the 6139/6138 chronograph family ended, and the Shizukuishi production machines were scheduled for the scrapyard — saved only because veteran employees refused to destroy them. The single exception was <strong>Yoshikazu Akahane</strong>'s Spring Drive project at Suwa, which ran quietly throughout this period and finally reached market with the 7R68 in December 1999 — twenty-two years after he started, one year after his death. The visible gap in the tree is the visible cost of the quartz revolution to Seiko's own mechanical lineage.</p>
+        <p style="margin:0 0 12px">If you look at the caliber timeline, there is a visible gap between the late vintage calibres (most ending production 1975–78) and the next mechanical movements (the 7002 in 1988, the 4S15 in 1992). This gap is the <strong>Quartz Hiatus</strong> — the roughly decade-long period when Seiko, after launching the 1969 Astron quartz revolution that disrupted the global mechanical industry, also turned away from its own mechanical R&amp;D internally. Mechanical Grand Seiko was phased out, Bell-Matic was discontinued, the 6139/6138 chronograph family ended, and the Shizukuishi production machines were scheduled for the scrapyard — saved only because veteran employees refused to destroy them. The single exception was <strong>Yoshikazu Akahane</strong>'s Spring Drive project at Suwa, which ran quietly throughout this period and finally reached market with the 7R68 in December 1999 — twenty-two years after he started, one year after his death. The visible gap in the tree is the visible cost of the quartz revolution to Seiko's own mechanical lineage.</p>
         <p style="margin:0 0 4px"><strong style="color:var(--ink);font-size:16.5px;font-weight:600">Out of scope</strong></p>
         <p style="margin:0 0 12px">Quartz (9F, 7C46, V1xx etc.), Kinetic, Astron GPS and ana-digi calibres are deliberately not mapped — the tree's focus is mechanical and Spring Drive. The 9F deserves a passing nod: it is built at the same Shinshu Watch Studio as the 9R and forms the third leg of Grand Seiko's modern manufacture (9F quartz / 9R Spring Drive / 9S mechanical).</p>
         </div>
@@ -268,11 +268,12 @@ body{background:var(--bg);font-family:'IBM Plex Mono',monospace;color:var(--ink)
             This diagram is a <em>chronological caliber genealogy</em> mapping both time (horizontally) and technical inheritance (vertically). To navigate the visualization systematically, read the chart along two axes and three distinct line weights:
           </p>
           <ul style="margin:0 0 16px 20px; line-height:1.6; list-style-type: square; color:#3f3d38">
-            <li style="margin-bottom:6px"><strong>The Horizontal Axis (Chronology):</strong> Time flows left to right at 32 px per year (1956–2025). A caliber's horizontal position indicates its introduction year; calibers introduced in the same year stack vertically within their thematic lane.</li>
-            <li style="margin-bottom:6px"><strong>The Vertical Axis (Manufacturing Lineage):</strong> The top half groups calibers made at <strong>Suwa Seikosha</strong> (later Seiko Epson · Shinshu Watch Studio in Shiojiri); the bottom half groups calibers from <strong>Daini Seikosha / Kameido</strong> (later Seiko Instruments · Morioka in Shizukuishi). Within each factory, calibers are arranged by thematic lane (foundation/manual, automatic platform, professional derivatives, Hi-Beat, Spring Drive, etc.).</li>
+            <li style="margin-bottom:6px"><strong>The Horizontal Axis (Chronology):</strong> Time flows left to right at 32 px per year (1956–2025). A caliber's horizontal position is derived directly from its introduction year, so the axis is strictly year-scaled; calibers introduced in the same year stack vertically within their thematic lane. The grey bar trailing each node shows its production span, with an open fade where production is ongoing.</li>
+            <li style="margin-bottom:6px"><strong>The Vertical Axis (Manufacturing Lineage):</strong> The top half groups calibers made at <strong>Suwa Seikosha</strong> (later Seiko Epson · Shinshu Watch Studio in Shiojiri); the bottom half groups calibers from <strong>Daini Seikosha / Kameido</strong> (later Seiko Instruments · Morioka in Shizukuishi). Within each factory, calibers are arranged by thematic lane (foundation/manual, automatic platform, professional derivatives, Hi-Beat, Spring Drive, etc.). A lane continues across the era columns, so you can follow one technical thread from 1956 to 2025 by reading straight across.</li>
             <li style="margin-bottom:6px"><strong>Strong Connections (Thick, solid lines):</strong> Indicate direct technical descent — one caliber engineered from the previous (e.g., <span style="font-family:'IBM Plex Mono';font-size:11px">c_9s55 → c_9s65</span>).</li>
             <li style="margin-bottom:6px"><strong>Medium Connections (Thin, solid lines):</strong> Indicate sibling variants sharing the same base architecture (e.g., date-only vs. day-date within the same family), or platform continuations across generations.</li>
             <li style="margin-bottom:6px"><strong>Weak Connections (Dashed lines):</strong> Indicate looser platform influence or heritage-reinterpretation programs without continuous engineering inheritance.</li>
+            <li style="margin-bottom:6px"><strong>Cross-factory Collaboration (Gold dashed lines):</strong> Mark the documented cases where Suwa and Daini shared technology or handed a product line over — the exceptions that complicate the neat rivalry narrative.</li>
           </ul>
           <p style="margin:0 0 4px"><strong style="color:var(--ink);font-size:16.5px;font-weight:600">Badges (technology markers)</strong></p>
           <ul style="margin:0 0 12px 20px; line-height:1.5; list-style-type: circle; color:#5a5750">
@@ -296,7 +297,7 @@ body{background:var(--bg);font-family:'IBM Plex Mono',monospace;color:var(--ink)
             <li style="margin-bottom:4px"><a href="https://www.grand-seiko.com/global-en/history/" style="color:var(--ink);text-decoration:underline">Grand Seiko official caliber timeline</a> — Spring Drive family (7R68 1999 manual, 7R88 2002 manual, 9R65 2004 first-automatic), 9RA5 5.0mm and 9SA5 5.18mm specifications, 9SC5 Tentagraph.</li>
             <li style="margin-bottom:4px"><a href="https://museum.seiko.co.jp/en/knowledge/" style="color:var(--ink);text-decoration:underline">Seiko Museum</a> — Cal. 341/3180 first-GS genealogy, Marvel/Crown/GS descent.</li>
             <li style="margin-bottom:4px"><a href="https://by.seiko-design.com/140th/en/" style="color:var(--ink);text-decoration:underline">Seiko Design 140 anniversary site</a> — 4S family history, dress-caliber lineage, Vanac 62xx production run.</li>
-            <li style="margin-bottom:4px"><a href="https://grandseikogs9club.com/" style="color:var(--ink);text-decoration:underline">GS9 Club</a> — Spring Drive chronograph launches (SBGC201, SBGC240), Tentagraph SLGC001, 9SA4 2024 release timing.</li>
+            <li style="margin-bottom:4px"><a href="https://grandseikogs9club.com/" style="color:var(--ink);text-decoration:underline">GS9 Club</a> — Spring Drive chronograph launches (SBGC201, SBGC240), Tentagraph SLGC001, 9SA4 release timing.</li>
           </ul>
           <p style="margin:0 0 6px"><em>Specialist enthusiast scholarship</em></p>
           <ul style="margin:0 0 12px 20px; line-height:1.6; list-style-type: circle; color:#3f3d38">
@@ -311,7 +312,7 @@ body{background:var(--bg);font-family:'IBM Plex Mono',monospace;color:var(--ink)
           <ul style="margin:0 0 8px 20px; line-height:1.6; list-style-type: circle; color:#3f3d38">
             <li style="margin-bottom:4px">Watch-and-Vintage, Frame Watch Works — 5606 Lord Matic day-date verification, 56xx date-wheel plastic-part notes.</li>
             <li style="margin-bottom:4px">Bell-Matic 4005/4006 platform analysis (Watchspot Bell-Matic 4006A "dolphin caseback" variant).</li>
-            <li style="margin-bottom:4px">Wikipedia and Grokipedia entries on Seikosha history — 1928 Kameido factory, 1937 Daini formalization, 1970 Morioka Seiko Kogyo, 1983 Daini→Seiko Instruments &amp; Electronics, 1997 → Seiko Instruments Inc.</li>
+            <li style="margin-bottom:4px">Wikipedia entries on Seikosha history — 1928 Kameido factory, 1937 Daini formalization, 1970 Morioka Seiko Kogyo, 1983 Daini→Seiko Instruments &amp; Electronics, 1997 → Seiko Instruments Inc.</li>
             <li style="margin-bottom:4px"><a href="https://www.watchuseek.com/" style="color:var(--ink);text-decoration:underline">WatchUseek</a> Seiko/Citizen forum (SCWF), Chrono24 historical catalogues, Fratello / aBlogtoWatch / Worn &amp; Wound / Wristreview for modern releases (8L55 SBEX001 Baselworld 2015, 6L35 SJE073 Baselworld 2018).</li>
             <li><em>Corrections welcome:</em> If you spot factual errors, missing landmark calibers, or misattributions between Suwa and Daini, please open an issue on the <a href="https://github.com/Jaisper/seiko-calibers" style="color:var(--ink);text-decoration:underline">GitHub repository</a>.</li>
           </ul>
@@ -379,602 +380,692 @@ body{background:var(--bg);font-family:'IBM Plex Mono',monospace;color:var(--ink)
    ║  Single-file HTML — no build step, no dependencies.                  ║
    ║                                                                      ║
    ║  CONTENTS                                                            ║
-   ║   1. COLOUR PALETTE         (visual grouping colours)                ║
-   ║   2. TECH BADGES            (10B/8B/SD/Q badges on nodes)            ║
-   ║   3. COLLECTION OWNERSHIP   (personal "In Collection" markers)       ║
-   ║   4. WATCH DATA             (popupData — descriptions, eras, tags)   ║
-   ║   5. LAYOUT                 (declarative grid; node x/y auto-comp.)  ║
-   ║   6. RELATIONSHIPS          (edges — lines between nodes)            ║
-   ║   7. FILTER TAGS            (nodeTags — for category filtering)      ║
-   ║   8. RENDERING & INTERACTION (the engine — usually no need to edit)  ║
-   ║   9. GUIDED TOURS           (the narrated walk-throughs)             ║
+   ║   1. COLOUR PALETTE      (single source of truth — synced to CSS)    ║
+   ║   2. CALIBER DATA        (`calibers` — ONE entry per caliber: name,  ║
+   ║                           era, node label, popup text, icon flag,    ║
+   ║                           tech badges, filter tags — all in one)     ║
+   ║   3. COLLECTION OWNERSHIP (personal "In Collection" markers)         ║
+   ║   4. LAYOUT              (lanes of caliber ids; x comes from the     ║
+   ║                           YEAR, y is auto-cascaded — no pixels)      ║
+   ║   5. RELATIONSHIPS       (edges — named-field objects)               ║
+   ║   6. RENDERING & INTERACTION (the engine — usually no need to edit)  ║
+   ║   7. GUIDED TOURS        (the narrated walk-throughs)                ║
+   ║   8. VALIDATOR & BOOT    (data-integrity checks, always on)          ║
    ║                                                                      ║
-   ║  Container boxes are auto-generated by the engine from Section 5;    ║
-   ║  no separate "sections" array to maintain.                           ║
+   ║  THE KEY IDEA — THE X AXIS IS THE YEAR                               ║
+   ║   A caliber's horizontal position is computed from the first year in ║
+   ║   its `era` string: x = xBase + (startYear - yearMin) * pxPerYear.   ║
+   ║   You therefore never place a caliber in a column by hand — you just ║
+   ║   list its id in a lane, in chronological order, and the engine puts ║
+   ║   it on the right year. Fixing a date in `era` moves the node.       ║
    ║                                                                      ║
-   ║  HOW TO ADD A WATCH                                                  ║
-   ║   1. Pick a unique id  (lowercase, snake_case, e.g. "ks_special_72") ║
-   ║   2. Add an entry to popupData (Section 4) — description & tags      ║
-   ║   3. Add the id to a grid cell in Section 5\u2019s LAYOUT.families:        ║
-   ║       — find the right family, put the id at (row, column)           ║
-   ║       — use `_` for empty cells; section box auto-resizes            ║
-   ║   4. Add the label + icon flag to nodeLabels/iconFlags (Section 5)   ║
-   ║   5. Optionally add edges (Section 6) and filter tags (Section 7)    ║
+   ║  HOW TO ADD A CALIBER — exactly TWO edits:                           ║
+   ║   1. Add ONE entry to `calibers` (Section 2) with a unique id        ║
+   ║      (lowercase snake_case, conventionally prefixed `c_`). Fields:   ║
+   ║        n       — popup display name (required)                       ║
+   ║        era     — production span, e.g. "1968-75" or "2004-"          ║
+   ║                  (required — the FIRST year drives the x position)   ║
+   ║        label   — node box text with \n line breaks (optional;        ║
+   ║                  defaults to the name)                               ║
+   ║        d       — popup description (required)                        ║
+   ║        tags    — popup badges: icon/diver/chrono/gs/ks/hb/sd         ║
+   ║        icon    — 1 = gold ★ node border (landmark caliber)           ║
+   ║        tech    — badge or array of badges:                           ║
+   ║                  "beat10" | "beat8" | "springdrive" | "quartz"       ║
+   ║                  | "mems"   (e.g. tech:["beat10","mems"])            ║
+   ║        filters — category-filter membership: diver/chrono/gs/ks      ║
+   ║                  (+ informational: beat10/springdrive/mems)          ║
+   ║        hasImg  — 1 = load ./img/{id}.jpg in the popup if present     ║
+   ║   2. Add the id to a lane row in Section 4's LAYOUT.lanes.           ║
+   ║   Optionally add edges (Section 5).                                  ║
    ║                                                                      ║
    ║  HOW TO ADD A GUIDED TOUR                                            ║
-   ║   Add an entry to the `tours` array (Section 9). Each stop has a     ║
+   ║   Add an entry to the `tours` array (Section 7). Each stop has a     ║
    ║   node id, a stop name, and a narration paragraph.                   ║
    ╚══════════════════════════════════════════════════════════════════════╝ */
 
 
 /* ═══════════════════════════════════════════════════════════════════════
-   SECTION 1 · COLOUR PALETTE
+   SECTION 1 · COLOUR PALETTE — SINGLE SOURCE OF TRUTH
    ═══════════════════════════════════════════════════════════════════════
-   These colours group nodes visually. Each node and each container box
-   references one of these keys. Changing a value here updates the whole
-   diagram consistently. Hex values can also be edited in the :root CSS
-   block in the <style> section near the top of the file — keep them in
-   sync if you change anything here.
-   ═══════════════════════════════════════════════════════════════════════ */
-/* ═══════════════════════════════════════════════════════════════════════
-   SECTION 1 · COLOUR PALETTE
+   These colours group lanes and nodes visually. The two the stylesheet
+   also needs (highlight → --icon, collection → --coll) are pushed into
+   the :root CSS block at startup, so there is nothing to keep in sync.
    ═══════════════════════════════════════════════════════════════════════ */
 const C = {
-  suwa:"#1e3a5f", epson:"#1c5f7a", daini:"#7a2332", sii:"#9e4a32",
-  gs:"#1a4a6a", ks:"#5a2a4a", diver:"#0d6651", chrono:"#9e6b00",
-  sd:"#1c7ed6", modern:"#4a3a1e", seiko5:"#3d6d1e", era:"#9a958c",
-  alarm:"#6d3a7a",
-  highlight:"#b8942e", collection:"#2d8a3e",
+  suwa       : "#1e3a5f",  // Suwa Seikosha lineage (blue)
+  daini      : "#7a2332",  // Daini Seikosha / Kameido lineage (oxblood)
+  gs         : "#1a4a6a",  // Grand Seiko mechanical (deep blue)
+  ks         : "#5a2a4a",  // King Seiko / Daini high-grade (plum)
+  diver      : "#0d6651",  // Diver calibers (teal green)
+  chrono     : "#9e6b00",  // Chronographs (amber)
+  sd         : "#1c7ed6",  // Spring Drive (blue)
+  alarm      : "#6d3a7a",  // Bell-Matic mechanical alarm (purple)
+  seiko5     : "#3d6d1e",  // Volume automatics / Seiko 5 workhorses (olive)
+  modern     : "#4a3a1e",  // Era container boxes (umber)
+  highlight  : "#b8942e",  // Landmark ★, locked state, cross-factory edges (gold)
+  collection : "#2d8a3e",  // In-collection marker (green)
 };
+/* Push the two palette entries the stylesheet uses into CSS custom
+   properties, so `C` remains the only place a colour is defined. */
+document.documentElement.style.setProperty('--icon', C.highlight);
+document.documentElement.style.setProperty('--coll', C.collection);
+
 
 /* ═══════════════════════════════════════════════════════════════════════
-   SECTION 2 · TECH BADGES  (beat10 / beat8 / springdrive)
+   SECTION 2 · CALIBER DATA — `calibers` (unified, one entry per caliber)
+   ═══════════════════════════════════════════════════════════════════════
+   This replaces the old parallel maps (popupData / nodeLabels /
+   iconFlags / techMap / nodeTags). Everything about a caliber lives in
+   ONE entry; the engine derives the old maps automatically.
+
+   REMEMBER: the first year in `era` sets the node's x position on the
+   timeline. "1968-75" puts the node at 1968; "2004-" puts it at 2004
+   and draws an open-ended production bar.
    ═══════════════════════════════════════════════════════════════════════ */
-const techMap = {
-  c_5740: "beat10",
-  c_6145: "beat10",
-  c_56xx: "beat8",
-  c_6159: "beat10",
-  c_sd_concept: "springdrive",
-  c_7r68: "springdrive",
-  c_7r88: "springdrive",
-  c_5r65: "springdrive",
-  c_9r65: "springdrive",
-  c_9r66: "springdrive",
-  c_9r86: "springdrive",
-  c_9r01: "springdrive",
-  c_9ra5: "springdrive",
-  c_9rb2: "springdrive",
-  c_4500: "beat10",
-  c_5245: "beat8",
-  c_5206: "beat8",
-  c_4s: "beat8",
-  c_9s55: "beat8",
-  c_9s65: ["beat8", "mems"],
-  c_9s85: ["beat10", "mems"],
-  c_9s86: ["beat10", "mems"],
-  c_9sa5: ["beat10", "mems"],
-  c_9sc5: ["beat10", "mems"],
-  c_8l35: "beat8",
-  c_8l55: ["beat10", "mems"],
-  c_1944: "beat10",
-  c_9sa4: ["beat10", "mems"],
+const calibers={
+
+  /* ─── SUWA · FOUNDATION / MANUAL ─── */
+  c_marvel:{n:"Marvel Cal. (1st in-house)",era:"1956-59",label:"Marvel Cal.\n(1st in-house)",icon:1,tags:["icon"],
+    d:"Suwa Seikosha's first fully in-house movement, introducing the Diashock anti-shock system. The technical root of every Suwa caliber that followed — directly evolved into the chronometer-grade Crown Cal. 560."},
+  c_crown:{n:"Cal. 560 Crown",era:"1959-65",label:"Cal. 560\nCrown",tags:[],
+    d:"Seiko's first chronometer-grade movement: larger balance, increased barrel torque, improved Diashock. Its architecture became the foundation for the Crown Special, the first Grand Seiko, the 5722 GS, the Lord Marvel 5740, and the 5717/5719 Crown Chronograph — the entire Suwa pre-modern high-grade family."},
+  c_5760:{n:"Cal. 5760 / 341 Crown Special",era:"1960-63",label:"Cal. 5760 / 341\nCrown Special",icon:1,tags:["icon"],
+    d:"The higher-spec Suwa Crown variant — the direct bridge between Crown and Grand Seiko. Per the Seiko Museum's 3180 genealogy, the first Grand Seiko (Cal. 3180, 1960) was created by taking Cal. 341 from the Crown Special and upgrading it with a fine-adjustment regulator and two extra barrel jewels. Suwa's direct parallel to Daini's Cronos Special (Cal. 810)."},
+  c_3180:{n:"Cal. 3180 First Grand Seiko",era:"1960-64",label:"Cal. 3180\nFirst Grand Seiko",icon:1,filters:["gs"],tags:["icon","gs"],
+    d:"The first Grand Seiko movement. 25-jewel hand-wound, 18,000 vph, regulated to a precision standard on par with the best Swiss chronometers of the day. The genesis of the GS caliber line."},
+  c_5740:{n:"Cal. 5740 Lord Marvel",era:"1964-70s",label:"Cal. 5740\nLord Marvel",icon:1,tech:"beat10",filters:["beat10"],tags:["icon","hb"],
+    d:"Suwa's premium hand-wound platform. The earlier 5740A (18,000 vph, 1964) and 5740B (19,800 vph) ran at conventional frequencies; the landmark 5740C of 1967 was Japan's first 36,000 vph Hi-Beat wristwatch movement — the starting point of Seiko's Hi-Beat era. World-first claim is contested: Girard-Perregaux's GP3080 reached market in 1966, only months earlier."},
+  c_5722:{n:"Cal. 5722 57GS",era:"1963-67",label:"Cal. 5722\n57GS",filters:["gs"],tags:["gs"],
+    d:"Chronometer-grade hand-wound Grand Seiko caliber from Suwa, continuing the manual GS line after the 3180 with refined regulation."},
+
+  /* ─── SUWA · VOLUME / BUSINESS ─── */
+  c_402:{n:"Cal. 402 → 6220 Skyliner / Liner",era:"1961-66",label:"Cal. 402 → 6220\nSkyliner / Liner",tags:[],
+    d:"A thinned 21-jewel hand-wound movement derived from the Marvel-based Cal. 3140 (1960) — Suwa's response to Daini's ultra-thin Goldfeather (60M, 1960) for the era's competing demand for slim dress watches. Used in the budget Skyliner (1961) and inherited from the higher-priced Liner sub-brand (which Suwa squeezed to 3mm). Under Seiko's 1964 caliber-number renaming it became Cal. 6220 (date version 6222), folding into the 62xx family — the manual-wind cousin of the Seikomatic automatics. Skyliner endured into 1971 long after the Liner brand was retired."},
+  c_8346:{n:"Cal. 83xx Business-A",era:"1965-69",label:"Cal. 83xx\nBusiness-A",tags:[],
+    d:"Suwa's slim volume business automatic (8305/8306/8346) — the line Seiko relabelled from 'Seikomatic' to 'Business' in 1967. Sister to the 62xx Business calibres at a lower jewel count and price tier. Architectural curiosity: unlike most Suwa automatics of the era, the 83-series did NOT use Magic Lever — it used an integrated automatic winding system for a thinner overall profile, the same engineering instinct Daini deployed in its 5106 Presmatic. A reminder that the Suwa=Magic-Lever / Daini=reverser binary is too clean."},
+  c_56xx:{n:"Cal. 56xx thin automatic",era:"1968-78",label:"Cal. 56xx\nthin automatic",tech:"beat8",tags:[],
+    d:"Suwa's slim 28,800 vph automatic platform — 5606 (Lord Matic, day-date with dual-language day disc), 5621/5626 (56KS, day-date), 5645/5646 (56GS, day-date). High-volume thin workhorse of the 1970s. A known service weakness: the teeth on the plastic date wheel break over time — typically when the quick-set is forced. All day-date variants (5606, 56KS, 56GS) share the plastic date wheel weakness — replacement parts are rare and expensive."},
+  c_61xx_v:{n:"Cal. 61xx (everyday auto)",era:"1968-77",label:"Cal. 61xx\n(everyday auto)",tags:[],
+    d:"Suwa's high-volume 21,600 vph automatic platform — 6106 (Seiko 5), 6117 (World Time), 6119 (Seiko 5). The everyday cousin to the 61GS Hi-Beat (6145), the 6139 chronograph and the 6159 diver. Replaced the 62xx as Suwa's mass-market workhorse."},
+
+  /* ─── SUWA · SEIKOMATIC / AUTOMATIC FOUNDATION ─── */
+  c_603:{n:"Cal. 603 Seikomatic",era:"1960-63",label:"Cal. 603\nSeikomatic",tags:[],
+    d:"The foundational Seikomatic platform caliber, extending the Magic Lever winding system (introduced 1959 with Gyro Marvel) into the 62xx family. Magic Lever was developed at Suwa but shared with Daini internally from launch (per Seiko Epson's Hirokazu Imai in Beyond the Dial). The seed of the 62xx automatic platform."},
+  c_62xx:{n:"Cal. 62xx Seikomatic family",era:"1961-70",label:"Cal. 62xx\nSeikomatic family",tags:[],
+    d:"Suwa's mainstream automatic platform of the 1960s (6205/6206/6215/6217/6218). Powered the Weekdater, Silverwave and the 62MAS diver, and evolved into the chronometer-grade 6245/6246."},
+  c_6206:{n:"Cal. 6206 Seikomatic Weekdater",era:"1964-67",label:"Cal. 6206\nSeikomatic Weekdater",tags:[],
+    d:"First Japanese wristwatch automatic with both day and date (Seikomatic Weekdater). Suwa's complication-bridge inside the 62xx family — preceded the Daini 5106 Presmatic by three years and set the volume-automatic template for day-date that the 7S/4R workhorses inherited decades later."},
+  c_6245:{n:"Cal. 6245/6246 62GS",era:"1966-68",label:"Cal. 6245/6246\n62GS",filters:["gs"],tags:["gs"],
+    d:"Chronometer-grade automatic from the 62xx family — the movement behind the first automatic Grand Seiko (62GS). The case design hid the crown at 4 o'clock, a visual statement that the automatic winding made manual interaction unnecessary."},
+  c_6145:{n:"Cal. 6145/6146 61GS Hi-Beat",era:"1968-75",label:"Cal. 6145/6146\n61GS Hi-Beat",icon:1,tech:"beat10",filters:["gs","beat10"],tags:["icon","gs","hb"],
+    d:"Japan's first automatic 10-beat (36,000 vph) movement, in Grand Seiko form — produced at Suwa. The 6155/6156 'Special' and the 6185/6186 VFA variants pushed the platform to chronometer-grade individual regulation (±2 sec/day). Set the automatic-hi-beat template that survives in today's 9S85."},
+
+  /* ─── SUWA · WOMEN'S HI-BEAT ─── */
+  c_1944:{n:"Cal. 1944 ladies' Hi-Beat",era:"1967-74",label:"Cal. 1944\nladies' Hi-Beat",icon:1,tech:"beat10",filters:["beat10"],tags:["icon","hb"],
+    d:"The world's first 36,000 vph movement designed for ladies' watches — announced in the Suwa company magazine in August 1967, weeks before the men's Lord Marvel 5740C. The 19-series went on to power the 19GS (Cal. 1964, from 1969) and the 19GS VFA (Cal. 1984)."},
+
+  /* ─── SUWA · DIVER CALIBERS ─── */
+  c_6217d:{n:"Cal. 6217 62MAS diver",era:"1965-68",label:"Cal. 6217\n62MAS diver",icon:1,filters:["diver"],tags:["icon","diver"],
+    d:"The 62xx variant inside the 62MAS — Japan's first professional diver's watch (150m), designed by Taro Tanaka with Tatsuro Akabane. The technical root of Seiko's entire diver caliber lineage."},
+  c_6105:{n:"Cal. 6105 diver auto",era:"1968-77",label:"Cal. 6105\ndiver auto",filters:["diver"],tags:["diver"],
+    d:"Automatic diver caliber with revised case sealing; the movement of the cushion-case 'Willard'. The recreational-diver branch successor to the 6217."},
+  c_6159:{n:"Cal. 6159 Hi-Beat 300m diver",era:"1968-78",label:"Cal. 6159\nHi-Beat 300m diver",icon:1,tech:"beat10",filters:["diver","beat10"],tags:["icon","diver","hb"],
+    d:"36,000 vph Hi-Beat professional-diver movement (300m), derived from the 61xx hi-beat platform. Powered the 6159-7000 pro diver and the first 'Grandfather' Tuna."},
+  c_6306:{n:"Cal. 6306/6309 diver auto",era:"1976-88",label:"Cal. 6306/6309\ndiver auto",filters:["diver"],tags:["diver"],
+    d:"Robust 21,600 vph automatic diver caliber — the cost-down successor that powered the cushion-case 'Turtle'. Bridges the vintage diver era toward the 7002."},
+
+  /* ─── SUWA · CHRONOGRAPHS ─── */
+  c_5717:{n:"Cal. 5717 / 5719 Crown Chronograph",era:"1964-67",label:"Cal. 5717 / 5719\nCrown Chronograph",icon:1,filters:["chrono"],tags:["icon","chrono"],
+    d:"Japan's first wristwatch chronograph caliber — monopusher, column-wheel, horizontal clutch, 18,000 vph, 38-hour reserve. Developed by Suwa Seikosha alongside Seiko's 1964 Tokyo Olympics official-timekeeper role; the actual venue timing was done by stopwatches and photo-finish equipment, and the 5717 was marketed as the wristwatch spin-off of that Olympic association. Architecturally derived from the Cal. 560 Crown family — a Crown-platform chronograph. 5717 carried a date complication, 5719 was no-date; both predate Daini's 70xx automatic by six years and Suwa's own 6139 by five."},
+  c_6139:{n:"Cal. 6139 auto chronograph",era:"1969-79",label:"Cal. 6139\nauto chronograph",icon:1,filters:["chrono"],tags:["icon","chrono"],
+    d:"Integrated column-wheel / vertical-clutch automatic chronograph — part of the landmark 1969 race for the first automatic chronograph. Single elapsed-minutes register. Carried the Pogue worn aboard Skylab."},
+  c_6138:{n:"Cal. 6138 dual-register chrono",era:"1970-79",label:"Cal. 6138\ndual-register chrono",filters:["chrono"],tags:["chrono"],
+    d:"The 6138 added a 12-hour register to the 6139, creating Seiko's bi-compax automatic chronograph (Kakume, Panda, Bullhead)."},
+
+  /* ─── SUWA · MECHANICAL ALARM ─── */
+  c_4006:{n:"Cal. 4006 Bell-Matic",era:"1966-78",label:"Cal. 4006\nBell-Matic",icon:1,tags:["icon"],
+    d:"The world's first central-rotor automatic alarm wristwatch (the Vulcain Cricket was manual; early JLC Memovox automatics used bumper rotors). A Suwa Seikosha clean-sheet design with two mainsprings — one for timekeeping, one for the alarm — and a small hammer striking a curved sounding spring inside the case. The early 1966 'dolphin caseback' variant is the collector grail. 27/21/17-jewel variants existed due to US import tariffs. Cal. 4005 was a later date-only sibling (1968-69), not an ancestor. Often misattributed to Daini; the SUWA logo on every Bell-Matic dial settles it."},
+
+  /* ─── SUWA · SPRING DRIVE ─── */
+  c_sd_concept:{n:"Spring Drive R&D Akahane",era:"1977-99",label:"Spring Drive R&D\nAkahane",tech:"springdrive",filters:["springdrive"],tags:["sd"],
+    d:"Yoshikazu Akahane's two-decade project at Suwa: a mainspring-powered movement with quartz-grade accuracy. R&D from 1977, key patent on the quartz-regulated mechanical motor filed 1982, hundreds of prototypes thereafter to solve the core trade-off between mainspring torque and IC power budget. Commercialised December 1999, about a year after Akahane's death."},
+  c_7r68:{n:"Cal. 7R68 first Spring Drive",era:"1999-",label:"Cal. 7R68\nfirst Spring Drive",icon:1,tech:"springdrive",filters:["springdrive"],tags:["icon","sd"],
+    d:"The first commercial Spring Drive caliber: manual-wind, launched in December 1999 in limited editions under both the Seiko and Credor brands. Realised Akahane's twenty-year vision (he died in 1998, about a year before launch)."},
+  c_7r88:{n:"Cal. 7R88 Credor Spring Drive",era:"2002-",label:"Cal. 7R88\nCredor Spring Drive",tech:"springdrive",filters:["springdrive"],tags:["sd"],
+    d:"A refined manual-wind Spring Drive released under Credor — Seiko's ultra-exclusive haute horlogerie brand — three years after the first production Spring Drive (7R68). The first automatic Spring Drive would be the 9R65 in Grand Seiko two years later. Platinum cases only."},
+  c_9r65:{n:"Cal. 9R65 GS Spring Drive",era:"2004-",label:"Cal. 9R65\nGS Spring Drive",icon:1,tech:"springdrive",filters:["gs","springdrive"],tags:["icon","gs","sd"],
+    d:"The first automatic Spring Drive, and the first Grand Seiko Spring Drive: 72-hour reserve, ±15 sec/month (≈±0.5 sec/day) standard, the glide-motion seconds hand. Made at the Shinshu Watch Studio. The base of the entire 9R family."},
+  c_9r66:{n:"Cal. 9R66 Spring Drive GMT",era:"2005-",label:"Cal. 9R66\nSpring Drive GMT",tech:"springdrive",filters:["gs","springdrive"],tags:["gs","sd"],
+    d:"9R65 plus a true GMT complication (independent second time zone) — the GS Spring Drive sports/GMT movement."},
+  c_5r65:{n:"Cal. 5R65 Seiko Spring Drive",era:"2005-",label:"Cal. 5R65\nSeiko Spring Drive",tech:"springdrive",filters:["springdrive"],tags:["sd"],
+    d:"The Seiko-grade Spring Drive family (a 9R65 with less refined finishing), bringing Spring Drive to the main Seiko / Prospex line at lower price points."},
+  c_9r86:{n:"Cal. 9R86 Spring Drive chrono",era:"2007-",label:"Cal. 9R86\nSpring Drive chrono",icon:1,tech:"springdrive",filters:["gs","chrono","springdrive"],tags:["icon","gs","sd","chrono"],
+    d:"Spring Drive chronograph with column wheel, GMT and power reserve, holding its 72-hour reserve even with the chronograph running. Grand Seiko's only Spring Drive chronograph caliber."},
+  c_9r01:{n:"Cal. 9R01 8-day Spring Drive",era:"2016-",label:"Cal. 9R01\n8-day Spring Drive",icon:1,tech:"springdrive",filters:["gs","springdrive"],tags:["icon","gs","sd"],
+    d:"Manual-wind Spring Drive with three barrels and a 192-hour (8-day) power reserve, ±10 sec/month. Hand-assembled at the Micro Artist Studio (Shiojiri) — the same workshop behind the Credor Eichi enamel-dial pieces and the Spring Drive Sonnerie and Minute Repeater. The point where Spring Drive meets haute horlogerie."},
+  c_9ra5:{n:"Cal. 9RA5 Advanced Spring Drive",era:"2020-",label:"Cal. 9RA5\nAdvanced Spring Drive",icon:1,tech:"springdrive",filters:["gs","springdrive"],tags:["icon","gs","sd"],
+    d:"Next-generation Spring Drive: twin-barrel 5-day (120h) reserve, ±10 sec/month, slimmer 5.0mm profile (down from 5.8mm). Platform for the GMT 9RA2 and the U.F.A."},
+  c_9rb2:{n:"Cal. 9RB2 Spring Drive U.F.A.",era:"2025-",label:"Cal. 9RB2\nSpring Drive U.F.A.",icon:1,tech:"springdrive",filters:["gs","springdrive"],tags:["icon","gs","sd"],
+    d:"Ultra Fine Accuracy: ±20 seconds per year — Grand Seiko's most accurate mainspring-powered caliber to date, extending the Spring Drive concept first realised in the 7R68."},
+
+  /* ─── DAINI · FOUNDATION / KING SEIKO MANUAL ─── */
+  c_54a:{n:"Cal. 54A Cronos",era:"1958-62",label:"Cal. 54A\nCronos",icon:1,tags:["icon"],
+    d:"Daini's thin, high-precision base movement (Cronos), introduced 1958. Officially cited by Seiko as the architecture inherited by King Seiko and the 44GS — the root of Daini's high-grade line. (Daini still used ETA-derived 'Super' movements in some other lines like the Unique into 1960, so 54A is the foundation of the high-grade in-house line rather than Daini's first in-house design overall.)"},
+  c_ks1:{n:"Cal. 54xx King Seiko 1st",era:"1961-63",label:"Cal. 54xx\nKing Seiko 1st",filters:["ks"],tags:["ks"],
+    d:"The first King Seiko caliber, derived directly from the Cronos 54A with extra jewels and finer regulation — Daini's high-grade riposte to Grand Seiko."},
+  c_810:{n:"Cal. 810 Cronos Special",era:"1962-66",label:"Cal. 810\nCronos Special",icon:1,tags:["icon"],
+    d:"Daini's 23-jewel Cronos Special — the popularly-priced sibling of the first King Seiko's Cal. 5440 architecture (25 jewels). Same Daini high-grade DNA — lower jewel count, no teardrop fine-adjuster, simpler ratchet wheel, accessible price point. Daini's direct response to Suwa's Crown Special (5760). 18,000 vph."},
+  c_4420:{n:"Cal. 4420 44KS / 44GS",era:"1964-68",label:"Cal. 4420\n44KS / 44GS",icon:1,filters:["ks","gs"],tags:["icon","ks","gs"],
+    d:"Hand-wound Daini caliber behind the 44KS and the 1967 44GS — the watch that codified what Seiko officially calls the 'Grand Seiko Style' (in collector vernacular: the 'Grammar of Design'). The case-and-dial design was a K. Hattori / Taro Tanaka effort implemented on Daini's 4420 movement; the Grammar arc therefore reflects head-office design direction more than a Daini-specific lineage. A landmark manual movement of 1960s Japan."},
+  c_860:{n:"Cal. 860 Champion",era:"1964-69",label:"Cal. 860\nChampion",tags:[],
+    d:"Daini's high-volume manual movement for the Champion / Champion Calendar line — the everyday counterpart to the Cronos-derived King Seiko calibres at the same factory. Later renumbered Cal. 7622 under the 1964 movement-naming reform."},
+  c_4500:{n:"Cal. 4500 · 4520 45KS / 45GS Hi-Beat",era:"1968-75",label:"Cal. 4500 · 4520\n45KS / 45GS Hi-Beat",icon:1,tech:"beat10",filters:["ks","gs","beat10"],tags:["icon","ks","gs","hb"],
+    d:"Daini's 36,000 vph manual Hi-Beat in five graded versions: 4500 (45KS, no date), 4502 (45KS, instant date), 4520 (45GS, no date — higher grade), 4522 (45GS, date) and the 4580 (45GS VFA, individually regulated to ±1 min/month). The high-water mark of the hand-wound King/Grand Seiko."},
+
+  /* ─── DAINI · AUTOMATIC (51 / 52 series → 4S → 6L) ─── */
+  c_5106:{n:"Cal. 5106 / 5146 Presmatic",era:"1967-69",label:"Cal. 5106 / 5146\nPresmatic",icon:1,tags:["icon"],
+    d:"Daini's slim 33-jewel automatic with a hexagonal push-button inside the crown for instant date change (the 'P' in Seikomatic-P / Presmatic). Day-date, hacking and hand-winding — a small but technically dense flagship of Daini's slimming engineering philosophy."},
+  c_5206:{n:"Cal. 5206 Lord Matic Special",era:"1970-76",label:"Cal. 5206\nLord Matic Special",icon:1,tech:"beat8",tags:["icon"],
+    d:"The technological pioneer of the 52-series — the first iteration of Daini's spring-loaded instant day/date switch and ultra-compact reverser winder. Lord Matic Special (e.g. 5206-6090) was the volume incarnation; the 52KS (5245/5246) is its high-grade sibling. The architecture was inherited near-directly by the 4S15/25/35 revival in 1992."},
+  c_5245:{n:"Cal. 5245/5246 52KS automatic",era:"1971-75",label:"Cal. 5245/5246\n52KS automatic",icon:1,tech:"beat8",filters:["ks"],tags:["icon","ks"],
+    d:"Daini's 28,800 vph automatic Hi-Beat King Seiko caliber — the KS-grade member of the 52-series, sibling to the volume Lord Matic Special (5206) below. The 52-series architecture was later re-engineered into the modern 4S family."},
+  c_4s:{n:"Cal. 4S15/25/35 revived mechanical",era:"1992-2005",label:"Cal. 4S15/25/35\nrevived mechanical",tech:"beat8",filters:["ks"],tags:["ks"],
+    d:"Higher-grade mechanical caliber re-engineered from the 1970s 52KS (52xx) architecture — partly by retired Daini engineers, reportedly because much of Seiko's original mechanical production capacity had been dismantled during the Quartz Crisis and the 52xx was the only high-beat platform that could quickly be re-industrialized. Used in JDM Alpinist/SUS through the 1990s. Seiko's own 'Design 140' history credits the 4S programme with keeping the company's mechanical capability alive between the quartz crisis and the 1998 9S revival; framing it as a planned 'bridge' to 9S is curatorial — the historical evidence points more towards adaptive survival than a curated transition strategy."},
+  c_6l35:{n:"Cal. 6L35 slim modern automatic",era:"2018-",label:"Cal. 6L35\nslim modern automatic",tech:"beat8",tags:[],
+    d:"Seiko Instruments' slim modern automatic — 28,800 vph, 45h reserve, 3.7mm thin. Debuted 2018 in the Presage SJE073 'Baby Snowflake' Limited Edition; later powered the 2021 King Seiko KSK SJE083 revival. The contemporary descendant of Daini's thin-automatic philosophy."},
+
+  /* ─── DAINI / MORIOKA · GRAND SEIKO MECHANICAL (9S) ─── */
+  c_9s55:{n:"Cal. 9S51 · 9S55 GS mechanical revival",era:"1998-2009",label:"Cal. 9S51 · 9S55\nGS mechanical revival",icon:1,tech:"beat8",filters:["gs"],tags:["icon","gs"],
+    d:"The first modern Grand Seiko mechanical calibres after a 23-year break — 28,800 vph, hand-assembled at the Grand Seiko Studio Shizukuishi (Morioka). The launch family came in two variants (9S51 no-date, 9S55 with date); both anchor the entire 9S programme and the related 8L."},
+  c_9s85:{n:"Cal. 9S85 Hi-Beat 36000",era:"2009-",label:"Cal. 9S85\nHi-Beat 36000",icon:1,tech:["beat10","mems"],filters:["gs","beat10","mems"],tags:["icon","gs","hb"],
+    d:"Grand Seiko's modern 36,000 vph Hi-Beat automatic — 55-hour reserve, +5/−3 sec/day. Uses MEMS-fabricated escape wheel and pallet fork to hold tolerances at high frequency; the manufacturing technology is what lets modern Hi-Beat run reliably for the long term, unlike the wear-prone vintage 36,000 movements (5740C, 6145, 6159). The core high-beat caliber for over a decade and the predecessor of the 9SA5."},
+  c_9s65:{n:"Cal. 9S65 3-day automatic",era:"2010-",label:"Cal. 9S65\n3-day automatic",tech:["beat8","mems"],filters:["gs","mems"],tags:["gs"],
+    d:"Standard 28,800 vph GS automatic with a 72-hour (3-day) reserve via the SPRON 510 mainspring — the everyday workhorse of the 9S family. Uses MEMS-fabricated escapement components (first introduced by GS with the 9S85 Hi-Beat in 2009), allowing tighter tolerances on the wheel and pallet."},
+  c_9s86:{n:"Cal. 9S86 Hi-Beat GMT",era:"2014-",label:"Cal. 9S86\nHi-Beat GMT",tech:["beat10","mems"],filters:["gs","beat10","mems"],tags:["gs","hb"],
+    d:"The 9S85 with a GMT complication — 36,000 vph Hi-Beat plus an independent second time zone."},
+  c_9sa5:{n:"Cal. 9SA5 Dual Impulse Hi-Beat",era:"2020-",label:"Cal. 9SA5\nDual Impulse Hi-Beat",icon:1,tech:["beat10","mems"],filters:["gs","beat10","mems"],tags:["icon","gs","hb"],
+    d:"Grand Seiko's clean-sheet Hi-Beat: the Dual Impulse Escapement and a free-sprung balance deliver 36,000 vph AND an 80-hour reserve simultaneously, in a slimmer 5.18mm movement. Advanced MEMS fabrication enables the new escapement's complex geometry — the platform innovation behind the simultaneous Hi-Beat + 80h reserve. (Per Grand Seiko's 9S Mechanical 25th Anniversary documentation, 2023.)"},
+  c_9sc5:{n:"Cal. 9SC5 Tentagraph",era:"2023-",label:"Cal. 9SC5\nTentagraph chrono",icon:1,tech:["beat10","mems"],filters:["gs","chrono","beat10","mems"],tags:["icon","gs","chrono","hb"],
+    d:"Grand Seiko's first mechanical chronograph, built on the 9SA5 platform with an integrated chronograph mechanism. TEN beats per second (36,000 vph), Three days power reserve (72h with chrono running), Automatic — hence 'Tentagraph.' Twin barrels, Dual Impulse Escapement, vertical clutch and column wheel. Launched at Watches & Wonders 2023 in the SLGC001. Ends the era where 9R86 stood alone as Grand Seiko's chronograph caliber."},
+  c_9sa4:{n:"Cal. 9SA4 hand-wound Hi-Beat",era:"2024-",label:"Cal. 9SA4\nhand-wound Hi-Beat",icon:1,tech:["beat10","mems"],filters:["gs","beat10","mems"],tags:["icon","gs","hb"],
+    d:"The hand-wound sister to the 9SA5, sharing the Dual Impulse Escapement, free-sprung balance and 80-hour reserve at 36,000 vph — without the automatic rotor. The new manual GS Hi-Beat platform, announced 2023 (W&W), commercial release 2024."},
+
+  /* ─── DAINI / MORIOKA · 8L 'SECRET GS' DIVER ─── */
+  c_8l35:{n:"Cal. 8L35 'secret GS' diver",era:"2000-",label:"Cal. 8L35\n'secret GS' diver",icon:1,tech:"beat8",filters:["diver"],tags:["icon","diver"],
+    d:"Mechanically a 9S55 with the same Shizukuishi hand-assembly — but deliberately under-regulated: where GS-grade 9S55 is adjusted to ±5/−3 sec/day across multiple positions and temperatures, the 8L35 carries a wider Prospex spec (~±15 sec/day). The trade-off is what lets Seiko price the Marinemaster 300m below GS while keeping the architecture intact. 'Secret Grand Seiko' is collector vernacular for that geometry — not an official Seiko designation."},
+  c_8l55:{n:"Cal. 8L55 Hi-Beat diver",era:"2015-",label:"Cal. 8L55\nHi-Beat diver",tech:["beat10","mems"],filters:["diver","beat10","mems"],tags:["diver","hb"],
+    d:"The Hi-Beat 8L: architecturally the diver-spec sister of the GS 9S85 (36,000 vph, 55-hour reserve, MEMS escapement) — the same Shizukuishi hand-built movement, regulated to a wider Prospex spec rather than GS-grade. Used in high-end Prospex Hi-Beat divers including the Marinemaster Hi-Beat and the Prospex LX line."},
+
+  /* ─── DAINI / SII · VOLUME AUTOMATIC ─── */
+  c_7002:{n:"Cal. 7002 volume automatic",era:"1988-96",label:"Cal. 7002\nvolume automatic",tags:[],
+    d:"Daini's affordable diver/sports automatic — 21,600 vph, 17 jewels, ~43h reserve, date-only. When Suwa discontinued the 6309 in 1988, the 7002 took over the volume-diver mantle from the Suwa side: architecturally distinct but lineally the successor, and a milestone in Seiko's internal consolidation toward Daini (later Seiko Instruments) for volume mechanical work. The immediate ancestor of the 7S26 workhorse, recognisable by the Daini lightning-bolt logo on the case back."},
+  c_7s26:{n:"Cal. 7S26 workhorse automatic",era:"1996-2019",label:"Cal. 7S26\nworkhorse automatic",icon:1,tags:["icon"],
+    d:"Seiko's entry-level automatic workhorse: 21,600 vph, ~41h, no hacking or hand-winding. Powered the SKX and became Seiko's highest-volume mechanical caliber."},
+  c_7s36:{n:"Cal. 7S36 +4 jewels",era:"1996-",label:"Cal. 7S36\n+4 jewels",tags:[],
+    d:"A 7S26 with four extra jewels, used in the 5 Sports line. Same non-hacking, non-hand-winding architecture as its sibling."},
+  c_6r15:{n:"Cal. 6R15 mid-grade automatic",era:"2006-19",label:"Cal. 6R15\nmid-grade automatic",tags:[],
+    d:"A re-engineered 7S base adding hacking, hand-winding and a Spron 510 mainspring (50h reserve). The mid-grade workhorse behind the SARB line and many divers."},
+  c_4r36:{n:"Cal. 4R35/4R36 hacking workhorse",era:"2011-",label:"Cal. 4R35/4R36\nhacking workhorse",icon:1,tags:["icon"],
+    d:"The 7S36 brought up to modern spec — adding hacking and hand-winding (4R35 date; 4R36 day-date). Powers the modern Seiko 5 Sports and Turtle reissues."},
+  c_nh3x:{n:"Cal. NH35/NH36 Time Module (3rd-party)",era:"2011-",label:"Cal. NH35/NH36\nTime Module (3rd-party)",tags:[],
+    d:"The unbranded Time Module Inc. versions of the 4R35/4R36, sold to third parties — Invicta, Steinhart, hundreds of microbrands. The 'hidden' Daini/SII caliber that turned the Morioka lineage into a horizontal supplier business, not just an internal Seiko provider. The backbone of the microbrand and modding world."},
+  c_6r35:{n:"Cal. 6R35 70-hour automatic",era:"2019-",label:"Cal. 6R35\n70-hour automatic",tags:[],
+    d:"The 6R15 with one extra jewel and a longer 70-hour reserve. The no-date variant powered the 2022 King Seiko relaunch."},
+
+  /* ─── DAINI / SII · CHRONOGRAPHS ─── */
+  c_70xx:{n:"Cal. 701x Daini chronograph",era:"1970-77",label:"Cal. 701x\nDaini chronograph",filters:["chrono"],tags:["chrono"],
+    d:"Daini Seikosha's compact automatic chronograph family — 7015/7016/7017/7018 — launched the year Daini established Morioka Seiko Kogyo in Shizukuishi, Iwate (operations from 1971) — the factory lineage that leads to today's Grand Seiko Studio Shizukuishi. The 7017 set a world record as the thinnest automatic chronograph at 5.9 mm, holding it until 1987 when Frédéric Piguet's 1185 broke it. The 7016 added a true flyback function (Seiko's first), with a stacked concentric 30-minute / running-seconds sub-dial at 6 o'clock — Daini's miniaturised, technically more advanced answer to Suwa's larger 6138. Notably the 701x used the Magic Lever winder developed at Suwa — explicit evidence of cross-factory technology sharing."},
+  c_6s:{n:"Cal. 6S28/6S37 SII auto chrono",era:"1998-",label:"Cal. 6S28/6S37\nSII auto chrono",tech:"beat8",filters:["chrono"],tags:["chrono"],
+    d:"Seiko Instruments' automatic column-wheel chronograph introduced in 1998 (the same year as the 9S mechanical revival). The 6S37 powered the Flightmaster (SBDS-series) and is sometimes called 'the GS mechanical chronograph that never was'. Direct predecessor of the 8R. 28,800 vph; also sold by Seiko Instruments as the TC78, which became the base for the TAG Heuer Calibre 1887."},
+  c_8r:{n:"Cal. 8R28/8R46/8R48 modern auto chrono",era:"2009-",label:"Cal. 8R28/8R46/8R48\nmodern auto chrono",icon:1,tech:"beat8",filters:["chrono"],tags:["icon","chrono"],
+    d:"Seiko's modern automatic chronograph: column wheel plus vertical clutch, three-register, 28,800 vph with a ~45-hour reserve. 8R28 entered production around 2009 as the three-register base for Ananta and later high-end chronographs; the 8R48 (three-register variant) followed circa 2014; the 8R46 (two-register) launched with the 2021 Prospex Speedtimer, and the 8R48 entered the Speedtimer line from 2023 — reconnecting to the 1969 chronograph heritage."},
 };
+
 
 /* ═══════════════════════════════════════════════════════════════════════
    SECTION 3 · COLLECTION OWNERSHIP
+   ═══════════════════════════════════════════════════════════════════════
+   Calibers the maintainer personally owns. Owned entries get a small
+   green "In Collection" badge in the popup. Empty in the public version.
    ═══════════════════════════════════════════════════════════════════════ */
 const inCollection = new Set([]);
 
-/* ═══════════════════════════════════════════════════════════════════════
-   SECTION 4 · CALIBER DATA — popupData
-   ═══════════════════════════════════════════════════════════════════════ */
-const popupData={
-  c_marvel:{n:"Marvel Cal. (1st in-house)",era:"1956-59",d:"Suwa Seikosha's first fully in-house movement, introducing the Diashock anti-shock system. The technical root of every Suwa caliber that followed — directly evolved into the chronometer-grade Crown Cal. 560.",tags:["icon"]},
-  c_crown:{n:"Cal. 560 Crown",era:"1959-65",d:"Seiko's first chronometer-grade movement: larger balance, increased barrel torque, improved Diashock. Its architecture became the foundation for the Crown Special, the first Grand Seiko, the 5722 GS, the Lord Marvel 5740, and the 5717/5719 Crown Chronograph — the entire Suwa pre-modern high-grade family.",tags:[]},
-  c_5760:{n:"Cal. 5760 / 341 Crown Special",era:"1960-63",d:"The higher-spec Suwa Crown variant — the direct bridge between Crown and Grand Seiko. Per the Seiko Museum's 3180 genealogy, the first Grand Seiko (Cal. 3180, 1960) was created by taking Cal. 341 from the Crown Special and upgrading it with a fine-adjustment regulator and two extra barrel jewels. Suwa's direct parallel to Daini's Cronos Special (Cal. 810).",tags:["icon"]},
-  c_3180:{n:"Cal. 3180 First Grand Seiko",era:"1960-64",d:"The first Grand Seiko movement. 25-jewel hand-wound, 18,000 vph, regulated to a precision standard on par with the best Swiss chronometers of the day. The genesis of the GS caliber line.",tags:["icon", "gs"]},
-  c_5740:{n:"Cal. 5740 Lord Marvel",era:"1964-70s",d:"Suwa's premium hand-wound platform. The earlier 5740A (18,000 vph, 1964) and 5740B (19,800 vph) ran at conventional frequencies; the landmark 5740C of 1967 was Japan's first 36,000 vph Hi-Beat wristwatch movement — the starting point of Seiko's Hi-Beat era. World-first claim is contested: Girard-Perregaux's GP3080 reached market in 1966, only months earlier.",tags:["icon", "hb"]},
-  c_5722:{n:"Cal. 5722 57GS",era:"1963-67",d:"Chronometer-grade hand-wound Grand Seiko caliber from Suwa, continuing the manual GS line after the 3180 with refined regulation.",tags:["gs"]},
-  c_402:{n:"Cal. 402 → 6220 Skyliner / Liner",era:"1961-66",d:"A thinned 21-jewel hand-wound movement derived from the Marvel-based Cal. 3140 (1960) — Suwa's response to Daini's ultra-thin Goldfeather (60M, 1960) for the era's competing demand for slim dress watches. Used in the budget Skyliner (1961) and inherited from the higher-priced Liner sub-brand (which Suwa squeezed to 3mm). Under Seiko's 1964 caliber-number renaming it became Cal. 6220 (date version 6222), folding into the 62xx family — the manual-wind cousin of the Seikomatic automatics. Skyliner endured into 1971 long after the Liner brand was retired.",tags:[]},
-  c_603:{n:"Cal. 603 Seikomatic",era:"1960-63",d:"The foundational Seikomatic platform caliber, extending the Magic Lever winding system (introduced 1959 with Gyro Marvel) into the 62xx family. Magic Lever was developed at Suwa but shared with Daini internally from launch (per Seiko Epson's Hirokazu Imai in Beyond the Dial). The seed of the 62xx automatic platform.",tags:[]},
-  c_62xx:{n:"Cal. 62xx Seikomatic family",era:"1961-70",d:"Suwa's mainstream automatic platform of the 1960s (6205/6206/6215/6217/6218). Powered the Weekdater, Silverwave and the 62MAS diver, and evolved into the chronometer-grade 6245/6246.",tags:[]},
-  c_6245:{n:"Cal. 6245/6246 62GS",era:"1966-68",d:"Chronometer-grade automatic from the 62xx family — the movement behind the first automatic Grand Seiko (62GS). The case design hid the crown at 4 o'clock, a visual statement that the automatic winding made manual interaction unnecessary.",tags:["gs"]},
-  c_6145:{n:"Cal. 6145/6146 61GS Hi-Beat",era:"1968-75",d:"Japan's first automatic 10-beat (36,000 vph) movement, in Grand Seiko form — produced at Suwa. The 6155/6156 'Special' and the 6185/6186 VFA variants pushed the platform to chronometer-grade individual regulation (±2 sec/day). Set the automatic-hi-beat template that survives in today's 9S85.",tags:["icon", "gs", "hb"]},
-  c_56xx:{n:"Cal. 56xx thin automatic",era:"1968-78",d:"Suwa's slim 28,800 vph automatic platform — 5606 (Lord Matic, day-date with dual-language day disc), 5621/5626 (56KS, day-date), 5645/5646 (56GS, day-date). High-volume thin workhorse of the 1970s. A known service weakness: the teeth on the plastic date wheel break over time — typically when the quick-set is forced. All day-date variants (5606, 56KS, 56GS) share the plastic date wheel weakness — replacement parts are rare and expensive.",tags:[]},
-  c_6217d:{n:"Cal. 6217 62MAS diver",era:"1965-68",d:"The 62xx variant inside the 62MAS — Japan's first professional diver's watch (150m), designed by Taro Tanaka with Tatsuro Akabane. The technical root of Seiko's entire diver caliber lineage.",tags:["icon", "diver"]},
-  c_6105:{n:"Cal. 6105 diver auto",era:"1968-77",d:"Automatic diver caliber with revised case sealing; the movement of the cushion-case 'Willard'. The recreational-diver branch successor to the 6217.",tags:["diver"]},
-  c_6159:{n:"Cal. 6159 Hi-Beat 300m diver",era:"1968-78",d:"36,000 vph Hi-Beat professional-diver movement (300m), derived from the 61xx hi-beat platform. Powered the 6159-7000 pro diver and the first 'Grandfather' Tuna.",tags:["icon", "diver", "hb"]},
-  c_6306:{n:"Cal. 6306/6309 diver auto",era:"1976-88",d:"Robust 21,600 vph automatic diver caliber — the cost-down successor that powered the cushion-case 'Turtle'. Bridges the vintage diver era toward the 7002.",tags:["diver"]},
-  c_5717:{n:"Cal. 5717 / 5719 Crown Chronograph",era:"1964-67",d:"Japan's first wristwatch chronograph caliber — monopusher, column-wheel, horizontal clutch, 18,000 vph, 38-hour reserve. Developed by Suwa Seikosha alongside Seiko's 1964 Tokyo Olympics official-timekeeper role; the actual venue timing was done by stopwatches and photo-finish equipment, and the 5717 was marketed as the wristwatch spin-off of that Olympic association. Architecturally derived from the Cal. 560 Crown family — a Crown-platform chronograph. 5717 carried a date complication, 5719 was no-date; both predate Daini's 70xx automatic by six years and Suwa's own 6139 by five.",tags:["icon", "chrono"]},
-  c_6139:{n:"Cal. 6139 auto chronograph",era:"1969-79",d:"Integrated column-wheel / vertical-clutch automatic chronograph — part of the landmark 1969 race for the first automatic chronograph. Single elapsed-minutes register. Carried the Pogue worn aboard Skylab.",tags:["icon", "chrono"]},
-  c_6138:{n:"Cal. 6138 dual-register chrono",era:"1970-79",d:"The 6138 added a 12-hour register to the 6139, creating Seiko's bi-compax automatic chronograph (Kakume, Panda, Bullhead).",tags:["chrono"]},
-  c_sd_concept:{n:"Spring Drive R&D Akahane",era:"1977-99",d:"Yoshikazu Akahane's two-decade project at Suwa: a mainspring-powered movement with quartz-grade accuracy. R&D from 1977, key patent on the quartz-regulated mechanical motor filed 1982, hundreds of prototypes thereafter to solve the core trade-off between mainspring torque and IC power budget. Commercialised December 1999, about a year after Akahane's death.",tags:["sd"]},
-  c_7r68:{n:"Cal. 7R68 first Spring Drive",era:"1999-",d:"The first commercial Spring Drive caliber: manual-wind, launched in December 1999 in limited editions under both the Seiko and Credor brands. Realised Akahane's twenty-year vision (he died in 1998, about a year before launch).",tags:["icon", "sd"]},
-  c_7r88:{n:"Cal. 7R88 Credor Spring Drive",era:"2002-",d:"A refined manual-wind Spring Drive released under Credor — Seiko's ultra-exclusive haute horlogerie brand — three years after the first production Spring Drive (7R68). The first automatic Spring Drive would be the 9R65 in Grand Seiko two years later. Platinum cases only.",tags:["sd"]},
-  c_5r65:{n:"Cal. 5R65 Seiko Spring Drive",era:"2005-",d:"The Seiko-grade Spring Drive family (a 9R65 with less refined finishing), bringing Spring Drive to the main Seiko / Prospex line at lower price points.",tags:["sd"]},
-  c_9r65:{n:"Cal. 9R65 GS Spring Drive",era:"2004-",d:"The first automatic Spring Drive, and the first Grand Seiko Spring Drive: 72-hour reserve, ±15 sec/month (≈±0.5 sec/day) standard, the glide-motion seconds hand. Made at the Shinshu Watch Studio. The base of the entire 9R family.",tags:["icon", "gs", "sd"]},
-  c_9r66:{n:"Cal. 9R66 Spring Drive GMT",era:"2005-",d:"9R65 plus a true GMT complication (independent second time zone) — the GS Spring Drive sports/GMT movement.",tags:["gs", "sd"]},
-  c_9r86:{n:"Cal. 9R86 Spring Drive chrono",era:"2007-",d:"Spring Drive chronograph with column wheel, GMT and power reserve, holding its 72-hour reserve even with the chronograph running. Grand Seiko's only Spring Drive chronograph caliber.",tags:["icon", "gs", "sd", "chrono"]},
-  c_9r01:{n:"Cal. 9R01 8-day Spring Drive",era:"2016-",d:"Manual-wind Spring Drive with three barrels and a 192-hour (8-day) power reserve, ±10 sec/month. Hand-assembled at the Micro Artist Studio (Shiojiri) — the same workshop behind the Credor Eichi enamel-dial pieces and the Spring Drive Sonnerie and Minute Repeater. The point where Spring Drive meets haute horlogerie.",tags:["icon", "gs", "sd"]},
-  c_9ra5:{n:"Cal. 9RA5 Advanced Spring Drive",era:"2020-",d:"Next-generation Spring Drive: twin-barrel 5-day (120h) reserve, ±10 sec/month, slimmer 5.0mm profile (down from 5.8mm). Platform for the GMT 9RA2 and the U.F.A.",tags:["icon", "gs", "sd"]},
-  c_9rb2:{n:"Cal. 9RB2 Spring Drive U.F.A.",era:"2025-",d:"Ultra Fine Accuracy: ±20 seconds per year — Grand Seiko's most accurate mainspring-powered caliber to date, extending the Spring Drive concept first realised in the 7R68.",tags:["icon", "gs", "sd"]},
-  c_54a:{n:"Cal. 54A Cronos",era:"1958-62",d:"Daini's thin, high-precision base movement (Cronos), introduced 1958. Officially cited by Seiko as the architecture inherited by King Seiko and the 44GS — the root of Daini's high-grade line. (Daini still used ETA-derived 'Super' movements in some other lines like the Unique into 1960, so 54A is the foundation of the high-grade in-house line rather than Daini's first in-house design overall.)",tags:["icon"]},
-  c_ks1:{n:"Cal. 54xx King Seiko 1st",era:"1961-63",d:"The first King Seiko caliber, derived directly from the Cronos 54A with extra jewels and finer regulation — Daini's high-grade riposte to Grand Seiko.",tags:["ks"]},
-  c_810:{n:"Cal. 810 Cronos Special",era:"1962-66",d:"Daini's 23-jewel Cronos Special — the popularly-priced sibling of the first King Seiko's Cal. 5440 architecture (25 jewels). Same Daini high-grade DNA — lower jewel count, no teardrop fine-adjuster, simpler ratchet wheel, accessible price point. Daini's direct response to Suwa's Crown Special (5760). 18,000 vph.",tags:["icon"]},
-  c_4420:{n:"Cal. 4420 44KS / 44GS",era:"1964-68",d:"Hand-wound Daini caliber behind the 44KS and the 1967 44GS — the watch that codified what Seiko officially calls the 'Grand Seiko Style' (in collector vernacular: the 'Grammar of Design'). The case-and-dial design was a K. Hattori / Taro Tanaka effort implemented on Daini's 4420 movement; the Grammar arc therefore reflects head-office design direction more than a Daini-specific lineage. A landmark manual movement of 1960s Japan.",tags:["icon", "ks", "gs"]},
-  c_4500:{n:"Cal. 4500 · 4520 45KS / 45GS Hi-Beat",era:"1968-75",d:"Daini's 36,000 vph manual Hi-Beat in five graded versions: 4500 (45KS, no date), 4502 (45KS, instant date), 4520 (45GS, no date — higher grade), 4522 (45GS, date) and the 4580 (45GS VFA, individually regulated to ±1 min/month). The high-water mark of the hand-wound King/Grand Seiko.",tags:["icon", "ks", "gs", "hb"]},
-  c_5245:{n:"Cal. 5245/5246 52KS automatic",era:"1971-75",d:"Daini's 28,800 vph automatic Hi-Beat King Seiko caliber — the KS-grade member of the 52-series, sibling to the volume Lord Matic Special (5206) below. The 52-series architecture was later re-engineered into the modern 4S family.",tags:["icon", "ks"]},
-  c_5206:{n:"Cal. 5206 Lord Matic Special",era:"1970-76",d:"The technological pioneer of the 52-series — the first iteration of Daini's spring-loaded instant day/date switch and ultra-compact reverser winder. Lord Matic Special (e.g. 5206-6090) was the volume incarnation; the 52KS (5245/5246) is its high-grade sibling. The architecture was inherited near-directly by the 4S15/25/35 revival in 1992.",tags:["icon"]},
-  c_4s:{n:"Cal. 4S15/25/35 revived mechanical",era:"1992-2005",d:"Higher-grade mechanical caliber re-engineered from the 1970s 52KS (52xx) architecture — partly by retired Daini engineers, reportedly because much of Seiko's original mechanical production capacity had been dismantled during the Quartz Crisis and the 52xx was the only high-beat platform that could quickly be re-industrialized. Used in JDM Alpinist/SUS through the 1990s. Seiko's own 'Design 140' history credits the 4S programme with keeping the company's mechanical capability alive between the quartz crisis and the 1998 9S revival; framing it as a planned 'bridge' to 9S is curatorial — the historical evidence points more towards adaptive survival than a curated transition strategy.",tags:["ks"]},
-  c_70xx:{n:"Cal. 701x Daini chronograph",era:"1970-77",d:"Daini Seikosha's compact automatic chronograph family — 7015/7016/7017/7018 — launched the year Daini established Morioka Seiko Kogyo in Shizukuishi, Iwate (operations from 1971) — the factory lineage that leads to today's Grand Seiko Studio Shizukuishi. The 7017 set a world record as the thinnest automatic chronograph at 5.9 mm, holding it until 1987 when Frédéric Piguet's 1185 broke it. The 7016 added a true flyback function (Seiko's first), with a stacked concentric 30-minute / running-seconds sub-dial at 6 o'clock — Daini's miniaturised, technically more advanced answer to Suwa's larger 6138. Notably the 701x used the Magic Lever winder developed at Suwa — explicit evidence of cross-factory technology sharing.",tags:["chrono"]},
-  c_6s:{n:"Cal. 6S28/6S37 SII auto chrono",era:"1998-",d:"Seiko Instruments' automatic column-wheel chronograph introduced in 1998 (the same year as the 9S mechanical revival). The 6S37 powered the Flightmaster (SBDS-series) and is sometimes called 'the GS mechanical chronograph that never was'. Direct predecessor of the 8R.",tags:["chrono"]},
-  c_8r:{n:"Cal. 8R28/8R46/8R48 modern auto chrono",era:"2009-",d:"Seiko's modern automatic chronograph: column wheel plus vertical clutch, three-register. 8R28 entered production around 2009 as the three-register base for Ananta and later high-end chronographs; the 8R48 (three-register variant) followed circa 2014; the 8R46 (two-register) launched with the 2021 Prospex Speedtimer, and the 8R48 entered the Speedtimer line from 2023 — reconnecting to the 1969 chronograph heritage.",tags:["icon", "chrono"]},
-  c_4006:{n:"Cal. 4006 Bell-Matic",era:"1966-78",d:"The world's first central-rotor automatic alarm wristwatch (the Vulcain Cricket was manual; early JLC Memovox automatics used bumper rotors). A Suwa Seikosha clean-sheet design with two mainsprings — one for timekeeping, one for the alarm — and a small hammer striking a curved sounding spring inside the case. The early 1966 'dolphin caseback' variant is the collector grail. 27/21/17-jewel variants existed due to US import tariffs. Cal. 4005 was a later date-only sibling (1968-69), not an ancestor. Often misattributed to Daini; the SUWA logo on every Bell-Matic dial settles it.",tags:["icon"]},
-  c_7002:{n:"Cal. 7002 volume automatic",era:"1988-96",d:"Daini's affordable diver/sports automatic — 21,600 vph, 17 jewels, ~43h reserve, date-only. When Suwa discontinued the 6309 in 1988, the 7002 took over the volume-diver mantle from the Suwa side: architecturally distinct but lineally the successor, and a milestone in Seiko's internal consolidation toward Daini (later Seiko Instruments) for volume mechanical work. The immediate ancestor of the 7S26 workhorse, recognisable by the Daini lightning-bolt logo on the case back.",tags:[]},
-  c_7s26:{n:"Cal. 7S26 workhorse automatic",era:"1996-2019",d:"Seiko's entry-level automatic workhorse: 21,600 vph, ~41h, no hacking or hand-winding. Powered the SKX and became Seiko's highest-volume mechanical caliber.",tags:["icon"]},
-  c_7s36:{n:"Cal. 7S36 +4 jewels",era:"1996-",d:"A 7S26 with four extra jewels, used in the 5 Sports line. Same non-hacking, non-hand-winding architecture as its sibling.",tags:[]},
-  c_6r15:{n:"Cal. 6R15 mid-grade automatic",era:"2006-19",d:"A re-engineered 7S base adding hacking, hand-winding and a Spron 510 mainspring (50h reserve). The mid-grade workhorse behind the SARB line and many divers.",tags:[]},
-  c_4r36:{n:"Cal. 4R35/4R36 hacking workhorse",era:"2011-",d:"The 7S36 brought up to modern spec — adding hacking and hand-winding (4R35 date; 4R36 day-date). Powers the modern Seiko 5 Sports and Turtle reissues.",tags:["icon"]},
-  c_nh3x:{n:"Cal. NH35/NH36 Time Module (3rd-party)",era:"2011-",d:"The unbranded Time Module Inc. versions of the 4R35/4R36, sold to third parties — Invicta, Steinhart, hundreds of microbrands. The 'hidden' Daini/SII caliber that turned the Morioka lineage into a horizontal supplier business, not just an internal Seiko provider. The backbone of the microbrand and modding world.",tags:[]},
-  c_6r35:{n:"Cal. 6R35 70-hour automatic",era:"2019-",d:"The 6R15 with one extra jewel and a longer 70-hour reserve. The no-date variant powered the 2022 King Seiko relaunch.",tags:[]},
-  c_9s55:{n:"Cal. 9S51 · 9S55 GS mechanical revival",era:"1998-2009",d:"The first modern Grand Seiko mechanical calibres after a 23-year break — 28,800 vph, hand-assembled at the Grand Seiko Studio Shizukuishi (Morioka). The launch family came in two variants (9S51 no-date, 9S55 with date); both anchor the entire 9S programme and the related 8L.",tags:["icon", "gs"]},
-  c_9s65:{n:"Cal. 9S65 3-day automatic",era:"2010-",d:"Standard 28,800 vph GS automatic with a 72-hour (3-day) reserve via the SPRON 510 mainspring — the everyday workhorse of the 9S family. Uses MEMS-fabricated escapement components (first introduced by GS with the 9S85 Hi-Beat in 2009), allowing tighter tolerances on the wheel and pallet.",tags:["gs"]},
-  c_9s85:{n:"Cal. 9S85 Hi-Beat 36000",era:"2009-",d:"Grand Seiko's modern 36,000 vph Hi-Beat automatic — 55-hour reserve, +5/−3 sec/day. Uses MEMS-fabricated escape wheel and pallet fork to hold tolerances at high frequency; the manufacturing technology is what lets modern Hi-Beat run reliably for the long term, unlike the wear-prone vintage 36,000 movements (5740C, 6145, 6159). The core high-beat caliber for over a decade and the predecessor of the 9SA5.",tags:["icon", "gs", "hb"]},
-  c_9s86:{n:"Cal. 9S86 Hi-Beat GMT",era:"2014-",d:"The 9S85 with a GMT complication — 36,000 vph Hi-Beat plus an independent second time zone.",tags:["gs", "hb"]},
-  c_9sa5:{n:"Cal. 9SA5 Dual Impulse Hi-Beat",era:"2020-",d:"Grand Seiko's clean-sheet Hi-Beat: the Dual Impulse Escapement and a free-sprung balance deliver 36,000 vph AND an 80-hour reserve simultaneously, in a slimmer 5.18mm movement. Advanced MEMS fabrication enables the new escapement's complex geometry — the platform innovation behind the simultaneous Hi-Beat + 80h reserve. (Per Grand Seiko's 9S Mechanical 25th Anniversary documentation, 2023.)",tags:["icon", "gs", "hb"]},
-  c_8l35:{n:"Cal. 8L35 'secret GS' diver",era:"2000-",d:"Mechanically a 9S55 with the same Shizukuishi hand-assembly — but deliberately under-regulated: where GS-grade 9S55 is adjusted to ±5/−3 sec/day across multiple positions and temperatures, the 8L35 carries a wider Prospex spec (~±15 sec/day). The trade-off is what lets Seiko price the Marinemaster 300m below GS while keeping the architecture intact. 'Secret Grand Seiko' is collector vernacular for that geometry — not an official Seiko designation.",tags:["icon", "diver"]},
-  c_8l55:{n:"Cal. 8L55 Hi-Beat diver",era:"2015-",d:"The Hi-Beat 8L: architecturally the diver-spec sister of the GS 9S85 (36,000 vph, 55-hour reserve, MEMS escapement) — the same Shizukuishi hand-built movement, regulated to a wider Prospex spec rather than GS-grade. Used in high-end Prospex Hi-Beat divers including the Marinemaster Hi-Beat and the Prospex LX line.",tags:["diver", "hb"]},
-  c_8346:{n:"Cal. 83xx Business-A",era:"1965-69",d:"Suwa's slim volume business automatic (8305/8306/8346) — the line Seiko relabelled from 'Seikomatic' to 'Business' in 1967. Sister to the 62xx Business calibres at a lower jewel count and price tier. Architectural curiosity: unlike most Suwa automatics of the era, the 83-series did NOT use Magic Lever — it used an integrated automatic winding system for a thinner overall profile, the same engineering instinct Daini deployed in its 5106 Presmatic. A reminder that the Suwa=Magic-Lever / Daini=reverser binary is too clean.",tags:[]},
-  c_1944:{n:"Cal. 1944 ladies' Hi-Beat",era:"1967-74",d:"The world's first 36,000 vph movement designed for ladies' watches — announced in the Suwa company magazine in August 1967, weeks before the men's Lord Marvel 5740C. The 19-series went on to power the 19GS (Cal. 1964, from 1969) and the 19GS VFA (Cal. 1984).",tags:["icon", "hb"]},
-  c_61xx_v:{n:"Cal. 61xx (everyday auto)",era:"1968-77",d:"Suwa's high-volume 21,600 vph automatic platform — 6106 (Seiko 5), 6117 (World Time), 6119 (Seiko 5). The everyday cousin to the 61GS Hi-Beat (6145), the 6139 chronograph and the 6159 diver. Replaced the 62xx as Suwa's mass-market workhorse.",tags:[]},
-  c_860:{n:"Cal. 860 Champion",era:"1964-69",d:"Daini's high-volume manual movement for the Champion / Champion Calendar line — the everyday counterpart to the Cronos-derived King Seiko calibres at the same factory. Later renumbered Cal. 7622 under the 1964 movement-naming reform.",tags:[]},
-  c_5106:{n:"Cal. 5106 / 5146 Presmatic",era:"1967-69",d:"Daini's slim 33-jewel automatic with a hexagonal push-button inside the crown for instant date change (the 'P' in Seikomatic-P / Presmatic). Day-date, hacking and hand-winding — a small but technically dense flagship of Daini's slimming engineering philosophy.",tags:["icon"]},
-  c_6206:{n:"Cal. 6206 Seikomatic Weekdater",era:"1964-67",d:"First Japanese wristwatch automatic with both day and date (Seikomatic Weekdater). Suwa's complication-bridge inside the 62xx family — preceded the Daini 5106 Presmatic by three years and set the volume-automatic template for day-date that the 7S/4R workhorses inherited decades later.",tags:[]},
-  c_9sa4:{n:"Cal. 9SA4 hand-wound Hi-Beat",era:"2024-",d:"The hand-wound sister to the 9SA5, sharing the Dual Impulse Escapement, free-sprung balance and 80-hour reserve at 36,000 vph — without the automatic rotor. The new manual GS Hi-Beat platform, announced 2023 (W&W), commercial release 2024.",tags:["icon", "gs", "hb"]},
-  c_9sc5:{n:"Cal. 9SC5 Tentagraph",era:"2024-",d:"Grand Seiko's first mechanical chronograph, built on the 9SA5 platform with a chronograph module. TEN beats per second (36,000 vph), Three days power reserve (72h with chrono running), Automatic — hence 'Tentagraph.' Twin barrels, Dual Impulse Escapement, vertical clutch and column wheel. Launched W&W 2023, first model SLGC001. Ends the era where 9R86 stood alone as Grand Seiko's chronograph caliber.",tags:["icon","gs","chrono","hb"]},
-  c_6l35:{n:"Cal. 6L35 slim modern automatic",era:"2018-",d:"Seiko Instruments' slim modern automatic — 28,800 vph, 45h reserve, 3.7mm thin. Debuted 2018 in the Presage SJE073 'Baby Snowflake' Limited Edition; later powered the 2021 King Seiko KSK SJE083 revival. The contemporary descendant of Daini's thin-automatic philosophy.",tags:[]},
-};
 
-/* ═══════════════════════════════════════════════════════════════════════
-   NODE LABELS
-   ═══════════════════════════════════════════════════════════════════════ */
-const nodeLabels = {
-  c_marvel: "Marvel Cal.\n(1st in-house)",
-  c_crown: "Cal. 560\nCrown",
-  c_5760: "Cal. 5760 / 341\nCrown Special",
-  c_3180: "Cal. 3180\nFirst Grand Seiko",
-  c_5740: "Cal. 5740\nLord Marvel",
-  c_5722: "Cal. 5722\n57GS",
-  c_402: "Cal. 402 → 6220\nSkyliner / Liner",
-  c_603: "Cal. 603\nSeikomatic",
-  c_62xx: "Cal. 62xx\nSeikomatic family",
-  c_6245: "Cal. 6245/6246\n62GS",
-  c_6145: "Cal. 6145/6146\n61GS Hi-Beat",
-  c_56xx: "Cal. 56xx\nthin automatic",
-  c_6217d: "Cal. 6217\n62MAS diver",
-  c_6105: "Cal. 6105\ndiver auto",
-  c_6159: "Cal. 6159\nHi-Beat 300m diver",
-  c_6306: "Cal. 6306/6309\ndiver auto",
-  c_5717: "Cal. 5717 / 5719\nCrown Chronograph",
-  c_6139: "Cal. 6139\nauto chronograph",
-  c_6138: "Cal. 6138\ndual-register chrono",
-  c_sd_concept: "Spring Drive R&D\nAkahane",
-  c_7r68: "Cal. 7R68\nfirst Spring Drive",
-  c_7r88: "Cal. 7R88\nCredor Spring Drive",
-  c_5r65: "Cal. 5R65\nSeiko Spring Drive",
-  c_9r65: "Cal. 9R65\nGS Spring Drive",
-  c_9r66: "Cal. 9R66\nSpring Drive GMT",
-  c_9r86: "Cal. 9R86\nSpring Drive chrono",
-  c_9r01: "Cal. 9R01\n8-day Spring Drive",
-  c_9ra5: "Cal. 9RA5\nAdvanced Spring Drive",
-  c_9rb2: "Cal. 9RB2\nSpring Drive U.F.A.",
-  c_54a: "Cal. 54A\nCronos",
-  c_ks1: "Cal. 54xx\nKing Seiko 1st",
-  c_810: "Cal. 810\nCronos Special",
-  c_4420: "Cal. 4420\n44KS / 44GS",
-  c_4500: "Cal. 4500 · 4520\n45KS / 45GS Hi-Beat",
-  c_5245: "Cal. 5245/5246\n52KS automatic",
-  c_5206: "Cal. 5206\nLord Matic Special",
-  c_4s: "Cal. 4S15/25/35\nrevived mechanical",
-  c_70xx: "Cal. 701x\nDaini chronograph",
-  c_6s: "Cal. 6S28/6S37\nSII auto chrono",
-  c_8r: "Cal. 8R28/8R46/8R48\nmodern auto chrono",
-  c_4006: "Cal. 4006\nBell-Matic",
-  c_7002: "Cal. 7002\nvolume automatic",
-  c_7s26: "Cal. 7S26\nworkhorse automatic",
-  c_7s36: "Cal. 7S36\n+4 jewels",
-  c_6r15: "Cal. 6R15\nmid-grade automatic",
-  c_4r36: "Cal. 4R35/4R36\nhacking workhorse",
-  c_nh3x: "Cal. NH35/NH36\nTime Module (3rd-party)",
-  c_6r35: "Cal. 6R35\n70-hour automatic",
-  c_9s55: "Cal. 9S51 · 9S55\nGS mechanical revival",
-  c_9s65: "Cal. 9S65\n3-day automatic",
-  c_9s85: "Cal. 9S85\nHi-Beat 36000",
-  c_9s86: "Cal. 9S86\nHi-Beat GMT",
-  c_9sa5: "Cal. 9SA5\nDual Impulse Hi-Beat",
-  c_8l35: "Cal. 8L35\n'secret GS' diver",
-  c_8l55: "Cal. 8L55\nHi-Beat diver",
-  c_8346: "Cal. 83xx\nBusiness-A",
-  c_1944: "Cal. 1944\nladies' Hi-Beat",
-  c_61xx_v: "Cal. 61xx\n(everyday auto)",
-  c_860: "Cal. 860\nChampion",
-  c_5106: "Cal. 5106 / 5146\nPresmatic",
-  c_6206: "Cal. 6206\nSeikomatic Weekdater",
-  c_9sa4: "Cal. 9SA4\nhand-wound Hi-Beat",
-  c_9sc5: "Cal. 9SC5\nTentagraph chrono",
-  c_6l35: "Cal. 6L35\nslim modern automatic",
-};
-
-/* ═══════════════════════════════════════════════════════════════════════
-   ICON / LANDMARK FLAGS
-   ═══════════════════════════════════════════════════════════════════════ */
-const iconFlags = {
-  c_marvel: 1,
-  c_5760: 1,
-  c_3180: 1,
-  c_5740: 1,
-  c_6145: 1,
-  c_6217d: 1,
-  c_6159: 1,
-  c_5717: 1,
-  c_6139: 1,
-  c_7r68: 1,
-  c_9r65: 1,
-  c_9r86: 1,
-  c_9r01: 1,
-  c_9ra5: 1,
-  c_9rb2: 1,
-  c_54a: 1,
-  c_810: 1,
-  c_4420: 1,
-  c_4500: 1,
-  c_5245: 1,
-  c_5206: 1,
-  c_8r: 1,
-  c_4006: 1,
-  c_7s26: 1,
-  c_4r36: 1,
-  c_9s55: 1,
-  c_9s85: 1,
-  c_9sa5: 1,
-  c_8l35: 1,
-  c_1944: 1,
-  c_5106: 1,
-  c_9sa4: 1,
-  c_9sc5: 1,
-};
-
-/* ═══════════════════════════════════════════════════════════════════════
-   SECTION 5 · DECLARATIVE LAYOUT (14-col grid · factory lineage × era)
-   ═══════════════════════════════════════════════════════════════════════ */
-const _ = null;
-
-const LAYOUT = {
-  parents: [
-    {l:"SUWA SEIKOSHA · VINTAGE FACTORY · 1956–1988 (becomes Seiko Epson · Shinshu Watch Studio)", x:5, y:78, w:1073, h:1541, c:C.suwa},
-    {l:"DAINI SEIKOSHA (KAMEIDO) · VINTAGE FACTORY · 1958–1988 (becomes Seiko Instruments / Morioka · Shizukuishi)", x:5, y:1617, w:1073, h:1081, c:C.daini},
-    {l:"LEGACY TRANSITION · 1988–2001 · 4S platform · 9S mechanical revival · 7R Spring Drive launch", x:1086, y:78, w:412, h:2620, c:C.modern},
-    {l:"MODERN ERA · 2001–2025 · 9R Spring Drive in GS · MEMS Hi-Beat · Dual Impulse · UFA", x:1506, y:78, w:910, h:2620, c:C.modern},
-  ],
-  families: [
-    {label:"FOUNDATION · MANUAL · Marvel → Crown · Crown Special → first Grand Seiko · Lord Marvel", color:C.suwa, grid:"gyears", sectionX:15, sectionY:100, sectionW:1059, topPad:20, botPad:14, rows:[
-      [_, "c_marvel", _, _, _, "c_3180", _, _, _, "c_5740", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-      [_, _, _, _, "c_crown", _, _, _, "c_5722", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-      [_, _, _, _, _, "c_5760", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    ]},
-    {label:"VOLUME / BUSINESS · Liner 402 → 83xx Business · everyday 61xx · thin 56xx", color:C.suwa, grid:"gyears", sectionX:15, sectionY:330, sectionW:1059, topPad:20, botPad:14, rows:[
-      [_, _, _, _, _, _, "c_402", _, _, _, "c_8346", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, "c_56xx", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, "c_61xx_v", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    ]},
-    {label:"SEIKOMATIC / AUTOMATIC FOUNDATION · 603 Magic Lever → 62xx → 62GS → 61GS Hi-Beat", color:C.suwa, grid:"gyears", sectionX:15, sectionY:560, sectionW:1059, topPad:20, botPad:14, rows:[
-      [_, _, _, _, _, "c_603", _, _, _, "c_6206", _, _, _, "c_6145", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-      [_, _, _, _, _, _, "c_62xx", _, _, _, _, "c_6245", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    ]},
-    {label:"WOMEN'S HI-BEAT · 19-series (Cal. 1944, world's first ladies' 36,000)", color:C.suwa, grid:"gyears", sectionX:15, sectionY:725, sectionW:1059, topPad:20, botPad:14, rows:[
-      [_, _, _, _, _, _, _, _, _, _, _, _, "c_1944", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    ]},
-    {label:"⚓ DIVER CALIBERS · 6217 → 6105 / 6159 → 6309", color:C.diver, grid:"gyears", sectionX:15, sectionY:825, sectionW:1059, topPad:20, botPad:14, rows:[
-      [_, _, _, _, _, _, _, _, _, _, "c_6217d", _, _, _, _, _, _, _, _, _, _, "c_6306", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, "c_6105", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, "c_6159", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    ]},
-    {label:"⏱ CHRONOGRAPH · Crown 5717 (Olympics 1964) → 613x automatic (Suwa)", color:C.chrono, grid:"gyears", sectionX:15, sectionY:1055, sectionW:1059, topPad:20, botPad:14, rows:[
-      [_, _, _, _, _, _, _, _, _, "c_5717", _, _, _, _, "c_6139", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_6138", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    ]},
-    {label:"🔔 ALARM · Bell-Matic (world's first central-rotor automatic alarm)", color:C.alarm, grid:"gyears", sectionX:15, sectionY:1220, sectionW:1059, topPad:20, botPad:14, rows:[
-      [_, _, _, _, _, _, _, _, _, _, _, "c_4006", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    ]},
-    {label:"SPRING DRIVE · Akahane → Credor 7R → Grand Seiko 9R · Seiko 5R", color:C.sd, grid:"gyears", sectionX:15, sectionY:1320, sectionW:1059, topPad:20, botPad:14, rows:[
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_sd_concept", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    ]},
-    {label:"", color:C.sd, grid:"gyears", sectionX:1086, sectionY:1320, sectionW:404, topPad:20, botPad:14, rows:[
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_7r68", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    ]},
-    {label:"", color:C.sd, grid:"gyears", sectionX:1514, sectionY:1320, sectionW:898, topPad:20, botPad:14, rows:[
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_9r65", _, _, _, _, _, _, _, _, _, _, _, "c_9r01", _, _, _, "c_9ra5", _, _, _, _, "c_9rb2"],
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_7r88", _, _, _, _, "c_9r86", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_5r65", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_9r66", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    ]},
-    {label:"FOUNDATION · KING SEIKO MANUAL · Cronos 54A → 1st KS · Cronos Special → 44/45 · CHAMPION (volume)", color:C.ks, grid:"gyears", sectionX:15, sectionY:1639, sectionW:1059, topPad:20, botPad:14, rows:[
-      [_, _, _, "c_54a", _, _, _, "c_810", _, _, _, _, _, "c_4500", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-      [_, _, _, _, _, _, "c_ks1", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-      [_, _, _, _, _, _, _, _, _, "c_4420", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-      [_, _, _, _, _, _, _, _, _, "c_860", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    ]},
-    {label:"DAINI AUTOMATIC · Presmatic 51xx · 52-series (Lord Matic Special · 52KS) → revived 4S · slim 6L35", color:C.ks, grid:"gyears", sectionX:15, sectionY:1934, sectionW:1059, topPad:20, botPad:14, rows:[
-      [_, _, _, _, _, _, _, _, _, _, _, _, "c_5106", _, _, _, "c_5245", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_5206", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    ]},
-    {label:"", color:C.ks, grid:"gyears", sectionX:1086, sectionY:1934, sectionW:404, topPad:20, botPad:14, rows:[
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_4s", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    ]},
-    {label:"", color:C.ks, grid:"gyears", sectionX:1514, sectionY:1934, sectionW:898, topPad:20, botPad:14, rows:[
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_6l35", _, _, _, _, _, _, _],
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    ]},
-    {label:"GRAND SEIKO MECHANICAL · 9S (Shizukuishi)", color:C.gs, grid:"gyears", sectionX:1086, sectionY:2099, sectionW:404, topPad:20, botPad:14, rows:[
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_9s55", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    ]},
-    {label:"", color:C.gs, grid:"gyears", sectionX:1514, sectionY:2099, sectionW:898, topPad:20, botPad:14, rows:[
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_9s65", _, _, _, _, _, _, _, _, _, _, _, _, _, "c_9sc5", _],
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_9s85", _, _, _, _, "c_9s86", _, _, _, _, _, "c_9sa5", _, _, _, _, _],
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_9sa4", _],
-    ]},
-    {label:"8L · 'SECRET GRAND SEIKO' DIVER (Shizukuishi)", color:C.diver, grid:"gyears", sectionX:1086, sectionY:2329, sectionW:404, topPad:20, botPad:14, rows:[
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_8l35", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    ]},
-    {label:"", color:C.diver, grid:"gyears", sectionX:1514, sectionY:2329, sectionW:898, topPad:20, botPad:14, rows:[
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_8l55", _, _, _, _, _, _, _, _, _, _],
-    ]},
-    {label:"VOLUME AUTOMATIC · 7002 → 7S → 4R / NH · 6R (Seiko Instruments / Time Module)", color:C.seiko5, grid:"gyears", sectionX:1086, sectionY:2429, sectionW:404, topPad:20, botPad:14, rows:[
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_7002", _, _, _, _, _, _, _, "c_7s26", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_7s36", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    ]},
-    {label:"", color:C.seiko5, grid:"gyears", sectionX:1514, sectionY:2429, sectionW:898, topPad:20, botPad:14, rows:[
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_6r15", _, _, _, _, "c_4r36", _, _, _, _, _, _, _, "c_6r35", _, _, _, _, _, _],
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_nh3x", _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    ]},
-    {label:"⏱ CHRONOGRAPH · 70xx → 6S → 8R (Daini / SII)", color:C.chrono, grid:"gyears", sectionX:15, sectionY:2594, sectionW:1059, topPad:20, botPad:14, rows:[
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_70xx", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    ]},
-    {label:"", color:C.chrono, grid:"gyears", sectionX:1086, sectionY:2594, sectionW:404, topPad:20, botPad:14, rows:[
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_6s", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    ]},
-    {label:"", color:C.chrono, grid:"gyears", sectionX:1514, sectionY:2594, sectionW:898, topPad:20, botPad:14, rows:[
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, "c_8r", _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    ]},
-  ],
-  legacyNodes: [],
-  prospexSubSubs: [
-  ],
-};
-
-/* ═══════════════════════════════════════════════════════════════════════
-   SECTION 6 · RELATIONSHIPS — edges
-   ═══════════════════════════════════════════════════════════════════════ */
-const edges=[
-  ["c_marvel", "c_crown", "strong", "The Crown evolved the Marvel into Seiko's first chronometer-grade movement"],
-  ["c_crown", "c_5760", "strong", "The Crown Special (5760/341) was the higher-spec sibling of the Crown — Cal. 341 carried fewer barrel jewels but the same architecture"],
-  ["c_5760", "c_3180", "strong", "The first Grand Seiko was Cal. 341 from the Crown Special upgraded with a fine-adjustment regulator and two extra barrel jewels"],
-  ["c_crown", "c_3180", "medium", "Crown remains the architectural ancestor of the first GS, but the direct lineage runs through the Crown Special"],
-  ["c_crown", "c_5717", "medium", "The Crown Chronograph (5717/5719) was Suwa's chronograph derived from the Cal. 560 Crown architecture — for the 1964 Tokyo Olympics"],
-  ["c_3180", "c_5722", "medium", "57GS continued the hand-wound chronometer-grade Grand Seiko line"],
-  ["c_marvel", "c_5740", "weak", "Lord Marvel 36000 was Suwa's premium hand-wound line pushed to Hi-Beat"],
-  ["c_marvel", "c_402", "medium", "Cal. 402 was a thinned, Marvel-derived hand-wound (via the 3140) for the Liner/Skyliner"],
-  ["c_402", "c_62xx", "strong", "Renamed Cal. 6220 in 1964, the 402 folded into the 62xx family"],
-  ["c_603", "c_62xx", "strong", "Seikomatic 603 grew into the 62xx automatic platform"],
-  ["c_62xx", "c_8346", "weak", "The 83xx Business-A was Suwa's parallel volume-business automatic line"],
-  ["c_62xx", "c_61xx_v", "medium", "The 61xx everyday automatic succeeded the 62xx as Suwa's mass-market platform"],
-  ["c_5740", "c_1944", "strong", "Lord Marvel 36000 (Cal. 5740C) established Suwa's 36,000 vph Hi-Beat manufacturing in 1967; the ladies' Cal. 1944 was announced in the Suwa magazine the same year as a direct platform derivative — the world's first 36,000 vph men's and ladies' calibres, both Suwa, August 1967"],
-  ["c_6145", "c_1944", "medium", "The 1944 ladies' 36,000 vph platform paralleled Suwa's automatic Hi-Beat programme"],
-  ["c_62xx", "c_6245", "strong", "The 62xx evolved into the chronometer-grade 6245/6246 (62GS)"],
-  ["c_62xx", "c_6206", "strong", "The 6206 Seikomatic Weekdater was the first Japanese auto with day+date — a 62xx variant"],
-  ["c_62xx", "c_6217d", "strong", "The 6217 diver caliber is a 62xx variant (62MAS)"],
-  ["c_62xx", "c_56xx", "weak", "The thin 56xx succeeded the 62xx as Suwa's volume automatic"],
-  ["c_6245", "c_6145", "strong", "62GS advanced into the automatic Hi-Beat 61xx (61GS)"],
-  ["c_6217d", "c_6105", "strong", "The 6105 succeeded the 6217 as Suwa's diver caliber"],
-  ["c_6105", "c_6306", "strong", "The 6306/6309 was the cost-down automatic-diver successor to the 6105"],
-  ["c_6145", "c_6159", "medium", "The 6159 applied 61xx Hi-Beat to a 300m professional diver"],
-  ["c_6139", "c_6138", "strong", "The 6138 added a 12-hour register to the 6139, creating the dual-register branch"],
-  ["c_5717", "c_6139", "medium", "Seiko's Suwa chronograph evolution: the 5717/5719 monopusher (1964) led to the 6139 integrated automatic five years later"],
-  ["c_6139", "c_9r86", "weak", "Suwa's automatic-chronograph heritage echoes in the Spring Drive chronograph"],
-  ["c_sd_concept", "c_7r68", "strong", "Akahane's R&D reached production as the manual-wind 7R68"],
-  ["c_7r68", "c_7r88", "strong", "The 7R88 was the second Credor Spring Drive caliber — refining the manual-wind platform three years after the 7R68"],
-  ["c_7r88", "c_9r65", "medium", "Automatic Spring Drive matured into the Grand Seiko 9R65 platform"],
-  ["c_9r65", "c_9r66", "strong", "9R66 added a GMT complication to the 9R65"],
-  ["c_9r65", "c_9r86", "strong", "9R86 added a column-wheel chronograph and GMT to the 9R platform"],
-  ["c_9r65", "c_5r65", "strong", "5R65 is the Seiko-grade version of the 9R65"],
-  ["c_9r65", "c_9r01", "medium", "The 9R01 extended Spring Drive to an 8-day, three-barrel reserve"],
-  ["c_9r65", "c_9ra5", "strong", "9RA5 is the next-generation, twin-barrel evolution of the 9R platform"],
-  ["c_9ra5", "c_9rb2", "strong", "The U.F.A. 9RB2 refined the Advanced Spring Drive to ±20 sec/year"],
-  ["c_54a", "c_ks1", "strong", "The first King Seiko caliber was derived directly from the Cronos 54A"],
-  ["c_ks1", "c_810", "strong", "The Cronos Special (810) is the 23-jewel popularly-priced sibling of the first King Seiko's 25-jewel Cal. 5440 — same architecture, less finishing"],
-  ["c_54a", "c_860", "weak", "The Champion was Daini's volume manual line alongside the Cronos-derived high-grade movements"],
-  ["c_ks1", "c_4420", "strong", "King Seiko advanced into the 4420 (44KS / 44GS Grammar of Design)"],
-  ["c_4420", "c_4500", "strong", "The 4500 brought 36,000 vph Hi-Beat to the manual King/Grand Seiko"],
-  ["c_ks1", "c_5245", "medium", "The 52KS 52xx was Daini's automatic Hi-Beat King Seiko"],
-  ["c_5106", "c_5245", "medium", "The 51-series Presmatic preceded Daini's 52-series automatic — both built on Daini's slim-reverser philosophy"],
-  ["c_5206", "c_5245", "strong", "The 5206 Lord Matic Special was the volume pioneer of the 52-series; the 52KS (5245) is its high-grade sibling"],
-  ["c_5206", "c_4s", "strong", "The 4S family was re-engineered directly from the 5206-architecture (spring-loaded day/date switch, ultra-compact reverser)"],
-  ["c_5245", "c_4s", "medium", "The 52KS architecture also informed the modern 4S revival"],
-  ["c_603", "c_70xx", "collab", "Cross-factory: Magic Lever was developed at Suwa but adopted by Daini in select calibres (e.g. the 70xx chronograph) before Daini moved to its slimmer reverser systems"],
-  ["c_4s", "c_9s55", "weak", "Curatorial: the 4S kept Daini-style mechanical capability alive at SII through the quartz era, before the 1998 9S revival at Shizukuishi"],
-  ["c_70xx", "c_6s", "weak", "Daini's automatic-chronograph capability re-emerged in the SII 6S"],
-  ["c_6s", "c_8r", "strong", "The 8R is the modern column-wheel + vertical-clutch successor to the 6S"],
-  ["c_7002", "c_7s26", "strong", "The 7S26 directly succeeded the 7002 as Seiko's volume automatic"],
-  ["c_7s26", "c_7s36", "strong", "The 7S36 is a 7S26 with four extra jewels"],
-  ["c_7s26", "c_6r15", "strong", "The 6R15 re-engineered the 7S base with hacking, hand-winding and Spron 510"],
-  ["c_7s36", "c_4r36", "strong", "The 4R36 brought the 7S36 up to spec with hacking and hand-winding"],
-  ["c_6r15", "c_4r36", "medium", "The 4R took its hacking and hand-winding from the 6R, added to the 7S base"],
-  ["c_4r36", "c_nh3x", "strong", "NH35/NH36 are the unbranded Time Module versions of the 4R35/4R36"],
-  ["c_6r15", "c_6r35", "strong", "The 6R35 added a jewel and a 70-hour reserve to the 6R15"],
-  ["c_9s55", "c_9s65", "strong", "9S65 extended the 9S55 to a 3-day reserve"],
-  ["c_9s55", "c_9s85", "strong", "9S85 brought 36,000 vph Hi-Beat to the 9S family"],
-  ["c_9s85", "c_9s86", "strong", "9S86 added GMT to the Hi-Beat 9S85"],
-  ["c_9s85", "c_9sa5", "strong", "9SA5 succeeded the 9S85 as GS's core Hi-Beat, with a new escapement"],
-  ["c_9sa5", "c_9sa4", "strong", "9SA4 is the hand-wound sister to the 9SA5, sharing the Dual Impulse Escapement"],
-  ["c_9sa5", "c_9sc5", "strong", "Tentagraph 9SC5 is the chronograph built on the 9SA5 Dual Impulse platform — Grand Seiko's first mechanical chronograph"],
-  ["c_4s", "c_6l35", "weak", "Curatorial: the 6L35 continues Daini's slim-automatic philosophy in the modern SII catalogue"],
-  ["c_4420", "c_5740", "collab", "Cross-factory: some 5740C Lord Marvel movements are documented as Daini-manufactured — Suwa and Daini shared movement production more than the rivalry narrative suggests"],
-  ["c_6306", "c_7002", "collab", "Cross-factory handover: when Suwa discontinued the 6309 in 1988, Daini's 7002 took over the volume-diver / affordable-automatic mantle — a milestone in Seiko's consolidation toward Daini (later Seiko Instruments) for volume mechanical work"],
-  ["c_9s55", "c_8l35", "strong", "8L35 is the undecorated, unadjusted diver version of the 9S55"],
-  ["c_9s85", "c_8l55", "strong", "8L55 is the diver version of the Hi-Beat 9S85"],
-];
-
-/* ═══════════════════════════════════════════════════════════════════════
-   SECTION 7 · FILTER TAGS — nodeTags
-   ═══════════════════════════════════════════════════════════════════════ */
-const nodeTags = {
-  c_3180: ["gs"],
-  c_5740: ["beat10"],
-  c_5722: ["gs"],
-  c_6245: ["gs"],
-  c_6145: ["gs", "beat10"],
-  c_6217d: ["diver"],
-  c_6105: ["diver"],
-  c_6159: ["diver", "beat10"],
-  c_6306: ["diver"],
-  c_5717: ["chrono"],
-  c_6139: ["chrono"],
-  c_6138: ["chrono"],
-  c_sd_concept: ["springdrive"],
-  c_7r68: ["springdrive"],
-  c_7r88: ["springdrive"],
-  c_5r65: ["springdrive"],
-  c_9r65: ["gs", "springdrive"],
-  c_9r66: ["gs", "springdrive"],
-  c_9r86: ["gs", "chrono", "springdrive"],
-  c_9r01: ["gs", "springdrive"],
-  c_9ra5: ["gs", "springdrive"],
-  c_9rb2: ["gs", "springdrive"],
-  c_ks1: ["ks"],
-  c_4420: ["ks", "gs"],
-  c_4500: ["ks", "gs", "beat10"],
-  c_5245: ["ks"],
-  c_4s: ["ks"],
-  c_70xx: ["chrono"],
-  c_6s: ["chrono"],
-  c_8r: ["chrono"],
-  c_9s55: ["gs"],
-  c_9s65: ["gs"],
-  c_9s85: ["gs", "beat10"],
-  c_9s86: ["gs", "beat10"],
-  c_9sa5: ["gs", "beat10"],
-  c_8l35: ["diver"],
-  c_8l55: ["diver", "beat10"],
-  c_1944: ["beat10"],
-  c_9sa4: ["gs", "beat10"],
-  c_9sc5: ["gs", "chrono", "beat10"],
-};
-
-
-
-/* ═══════════════════════════════════════════════════════════════════════
-   SECTION 8 · RENDERING & INTERACTION ENGINE
-   ═══════════════════════════════════════════════════════════════════════
-   The diagram's runtime: builds the DOM, draws SVG edges, handles
-   zoom/pan/clicks/keyboard, manages the minimap and filters, and
-   renders popups + edge tooltips.
-
-   You usually do NOT need to edit anything below this line. Everything
-   above (Sections 1–9) drives what's shown.
-   ═══════════════════════════════════════════════════════════════════════ */
-
-
-/* ─── Layout engine: deklarativ LAYOUT → flat nodes + sections arrays ───
-   Called once at startup. Consumes Section 5's LAYOUT and produces the
-   data structures the rest of the engine expects. Pure function; no
-   side effects beyond returning. */
-function buildLayout(L) {
-  // Column-grid x-positions used inside families.
-  const GRID_XS = {
-    gyears: [30, 62, 94, 126, 158, 190, 222, 254, 286, 318, 350, 382, 414, 446, 478, 510, 542, 574, 606, 638, 670, 702, 734, 766, 798, 830, 862, 894, 926, 958, 990, 1022, 1054, 1086, 1118, 1150, 1182, 1214, 1246, 1278, 1310, 1342, 1374, 1406, 1438, 1470, 1502, 1534, 1566, 1598, 1630, 1662, 1694, 1726, 1758, 1790, 1822, 1854, 1886, 1918, 1950, 1982, 2014, 2046, 2078, 2110, 2142, 2174, 2206, 2238, 2270]
-  };
-
-  const nodes = [];
-  const sections = [];
-
-  // Parent boxes (eras, factories) — drawn as outer containers.
-  for (const p of L.parents) sections.push(p);
-
-  // Family sub-sections + their nodes.
-  for (const f of L.families) {
-    const xs = GRID_XS[f.grid];
-    const topPad = f.topPad ?? 20;
-    const botPad = f.botPad ?? 20;
-    const strides = f.rowStrides;                    // optional per-row strides
-    const NH = L.canvas?.NH ?? 42;
-    
-    // Determine each row's y position
-    const rowYs = [];
-    let y = f.sectionY + topPad;
-    for (let r = 0; r < f.rows.length; r++) {
-      rowYs.push(y);
-      const stride = strides ? strides[r] : 65;       // default 65px stride
-      y += stride ?? 65;
-    }
-    
-    // Compute section height from rows + padding
-    const lastRowBottom = rowYs[rowYs.length - 1] + NH;
-    const sectionH = (lastRowBottom + botPad) - f.sectionY;
-    
-    // Emit the family section box
-    sections.push({
-      l: f.label,
-      x: f.sectionX,
-      y: f.sectionY,
-      w: f.sectionW,
-      h: sectionH,
-      c: f.color,
-      sub: 1
-    });
-    
-    // Emit each cell as a node (using its label from popupData)
-    for (let r = 0; r < f.rows.length; r++) {
-      const row = f.rows[r];
-      for (let c = 0; c < row.length; c++) {
-        const id = row[c];
-        if (id == null) continue;                     // empty cell
-        if (c >= xs.length) {
-          console.warn(`[layout] cell out of grid: ${id} at family ${f.label} col ${c}`);
-          continue;
-        }
-        nodes.push([id, nodeLabels[id] || id, xs[c], rowYs[r], f.color, iconFlags[id] || 0]);
-      }
-    }
-  }
-  
-  // Standalone nodes (e.g. Legacy Transition has no family sub-boxes)
-  for (const n of L.legacyNodes) {
-    nodes.push([n.id, nodeLabels[n.id] || n.id, n.x, n.y, n.color, iconFlags[n.id] || 0]);
-  }
-  
-  // Nested sub-sub-sections (e.g. inside Prospex)
-  for (const s of L.prospexSubSubs) sections.push(s);
-  
-  return {nodes, sections};
+/* ─── Derived maps (auto-generated from `calibers` — do not edit) ───────
+   The rendering engine still consumes popupData / nodeLabels / iconFlags
+   / techMap / nodeTags, but they are now derived from the single
+   `calibers` source instead of maintained by hand. If `label` is
+   omitted it defaults to the caliber name.                             */
+const popupData = calibers;
+const nodeLabels = {}, iconFlags = {}, techMap = {}, nodeTags = {};
+for (const id in calibers) {
+  const c = calibers[id];
+  nodeLabels[id] = c.label ?? (c.n || id);
+  if (c.icon)    iconFlags[id] = 1;
+  if (c.tech)    techMap[id]   = c.tech;
+  if (c.filters) nodeTags[id]  = c.filters;
 }
 
 
-/* Build nodes and sections from the declarative LAYOUT above */
-LAYOUT.canvas = {NW:124, NH:52, CW:2420, CH:2716};
-const _built = buildLayout(LAYOUT);
-const nodes = _built.nodes;
-const sections = _built.sections;
+/* ═══════════════════════════════════════════════════════════════════════
+   SECTION 4 · DECLARATIVE LAYOUT
+   ═══════════════════════════════════════════════════════════════════════
+   NO PIXEL COORDINATES. You describe WHAT (which calibers belong to
+   which thematic lane, in which factory band); the engine figures out
+   WHERE:
 
+     • x  comes from the caliber's YEAR (first year in its `era` string).
+          Change the year in Section 2 and the node moves on the timeline.
+     • y  is auto-cascaded: lanes stack down their band, bands stack down
+          the canvas, and every box is sized to fit its contents.
+     • Lane background boxes are auto-split at the era boundaries — a lane
+          that runs from 1977 to 2025 automatically gets three segments
+          (vintage / legacy / modern) with the label on the first one.
+
+   TO ADD A CALIBER: put its id in the right lane row, in chronological
+   order. There is no column to count and no `_` padding to align.
+
+   TO ADD A LANE: add an entry to `lanes` with a band, a colour and rows.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+const LAYOUT = {
+
+  /* The time axis. x = xBase + (startYear - yearMin) * pxPerYear.
+     `currentYear` only affects how far open-ended production bars run. */
+  axis: { yearMin:1955, xBase:30, pxPerYear:32, currentYear:2026 },
+
+  /* Era regions across the page. `untilYear` is the last year that falls
+     in the region; lane segments and node placement both use these. */
+  regions: [
+    { key:"vintage", untilYear:1987, laneX:15,   laneW:1059 },
+    { key:"legacy",  untilYear:2000, laneX:1086, laneW:404  },
+    { key:"modern",  untilYear:9999, laneX:1514, laneW:898  },
+  ],
+
+  /* Outer container boxes.
+       kind:"band"   — a factory band; spans the vintage region only,
+                       height auto-computed from the lanes inside it
+       kind:"column" — an era column; spans the full height of all bands */
+  parents: [
+    { key:"suwa",  kind:"band", color:C.suwa,  x:5, w:1073, y:78,
+      label:"SUWA SEIKOSHA · VINTAGE FACTORY · 1956–1988 (becomes Seiko Epson · Shinshu Watch Studio)" },
+    { key:"daini", kind:"band", color:C.daini, x:5, w:1073, stackAfter:"suwa",
+      label:"DAINI SEIKOSHA (KAMEIDO) · VINTAGE FACTORY · 1958–1988 (becomes Seiko Instruments / Morioka · Shizukuishi)" },
+    { key:"legacy", kind:"column", color:C.modern, x:1086, w:412,
+      label:"LEGACY TRANSITION · 1988–2001 · 4S platform · 9S mechanical revival · 7R Spring Drive launch" },
+    { key:"modern", kind:"column", color:C.modern, x:1506, w:910,
+      label:"MODERN ERA · 2001–2025 · 9R Spring Drive in GS · MEMS Hi-Beat · Dual Impulse · UFA" },
+  ],
+
+  /* Thematic lanes. Each row is a list of caliber ids in chronological
+     order — the engine reads each id's year and places it on the axis. */
+  lanes: [
+
+    /* ─── SUWA ─────────────────────────────────────────────────────── */
+
+    { band:"suwa", color:C.suwa,
+      label:"FOUNDATION · MANUAL · Marvel → Crown · Crown Special → first Grand Seiko · Lord Marvel",
+      rows: [
+        ["c_marvel", "c_3180", "c_5740"],      // 1956 · 1960 · 1964
+        ["c_crown", "c_5722"],                  // 1959 · 1963
+        ["c_5760"],                             // 1960
+      ]},
+
+    { band:"suwa", color:C.suwa,
+      label:"VOLUME / BUSINESS · Liner 402 → 83xx Business · everyday 61xx · thin 56xx",
+      rows: [
+        ["c_402", "c_8346"],                    // 1961 · 1965
+        ["c_56xx"],                             // 1968
+        ["c_61xx_v"],                           // 1968
+      ]},
+
+    { band:"suwa", color:C.suwa,
+      label:"SEIKOMATIC / AUTOMATIC FOUNDATION · 603 Magic Lever → 62xx → 62GS → 61GS Hi-Beat",
+      rows: [
+        ["c_603", "c_6206", "c_6145"],          // 1960 · 1964 · 1968
+        ["c_62xx", "c_6245"],                   // 1961 · 1966
+      ]},
+
+    { band:"suwa", color:C.suwa,
+      label:"WOMEN'S HI-BEAT · 19-series (Cal. 1944, world's first ladies' 36,000)",
+      rows: [
+        ["c_1944"],                             // 1967
+      ]},
+
+    { band:"suwa", color:C.diver,
+      label:"⚓ DIVER CALIBERS · 6217 → 6105 / 6159 → 6309",
+      rows: [
+        ["c_6217d", "c_6306"],                  // 1965 · 1976
+        ["c_6105"],                             // 1968
+        ["c_6159"],                             // 1968
+      ]},
+
+    { band:"suwa", color:C.chrono,
+      label:"⏱ CHRONOGRAPH · Crown 5717 (Olympics 1964) → 613x automatic (Suwa)",
+      rows: [
+        ["c_5717", "c_6139"],                   // 1964 · 1969
+        ["c_6138"],                             // 1970
+      ]},
+
+    { band:"suwa", color:C.alarm,
+      label:"🔔 ALARM · Bell-Matic (world's first central-rotor automatic alarm)",
+      rows: [
+        ["c_4006"],                             // 1966
+      ]},
+
+    { band:"suwa", color:C.sd,
+      label:"SPRING DRIVE · Akahane → Credor 7R → Grand Seiko 9R · Seiko 5R",
+      rows: [
+        ["c_sd_concept", "c_7r68", "c_9r65", "c_9r01", "c_9ra5", "c_9rb2"], // 1977·1999·2004·2016·2020·2025
+        ["c_7r88", "c_9r86"],                   // 2002 · 2007
+        ["c_5r65"],                             // 2005
+        ["c_9r66"],                             // 2005
+      ]},
+
+    /* ─── DAINI ────────────────────────────────────────────────────── */
+
+    { band:"daini", color:C.ks,
+      label:"FOUNDATION · KING SEIKO MANUAL · Cronos 54A → 1st KS · Cronos Special → 44/45 · CHAMPION (volume)",
+      rows: [
+        ["c_54a", "c_810", "c_4500"],           // 1958 · 1962 · 1968
+        ["c_ks1"],                              // 1961
+        ["c_4420"],                             // 1964
+        ["c_860"],                              // 1964
+      ]},
+
+    { band:"daini", color:C.ks,
+      label:"DAINI AUTOMATIC · Presmatic 51xx · 52-series (Lord Matic Special · 52KS) → revived 4S · slim 6L35",
+      rows: [
+        ["c_5106", "c_5245", "c_4s", "c_6l35"], // 1967 · 1971 · 1992 · 2018
+        ["c_5206"],                             // 1970
+      ]},
+
+    { band:"daini", color:C.gs,
+      label:"GRAND SEIKO MECHANICAL · 9S (Shizukuishi)",
+      rows: [
+        ["c_9s55", "c_9s65", "c_9sc5"],         // 1998 · 2010 · 2023
+        ["c_9s85", "c_9s86", "c_9sa5"],         // 2009 · 2014 · 2020
+        ["c_9sa4"],                             // 2024
+      ]},
+
+    { band:"daini", color:C.diver,
+      label:"8L · 'SECRET GRAND SEIKO' DIVER (Shizukuishi)",
+      rows: [
+        ["c_8l35", "c_8l55"],                   // 2000 · 2015
+      ]},
+
+    { band:"daini", color:C.seiko5,
+      label:"VOLUME AUTOMATIC · 7002 → 7S → 4R / NH · 6R (Seiko Instruments / Time Module)",
+      rows: [
+        ["c_7002", "c_7s26", "c_6r15", "c_4r36", "c_6r35"], // 1988·1996·2006·2011·2019
+        ["c_7s36", "c_nh3x"],                   // 1996 · 2011
+      ]},
+
+    { band:"daini", color:C.chrono,
+      label:"⏱ CHRONOGRAPH · 70xx → 6S → 8R (Daini / SII)",
+      rows: [
+        ["c_70xx", "c_6s", "c_8r"],             // 1970 · 1998 · 2009
+      ]},
+  ],
+};
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SECTION 5 · RELATIONSHIPS — edges
+   ═══════════════════════════════════════════════════════════════════════
+   Each edge is written as an object with NAMED FIELDS (self-documenting;
+   a typo in a field name is caught by the validator, unlike the old
+   positional-array format):
+
+     { f:"from_id", t:"to_id", w:"strong|medium|weak|collab", d:"…", r:"…" }
+
+   FIELDS:
+     f, t  — caliber ids on either end
+     w     — visual weight of the line:
+             "strong" = solid thick   (direct technical descent)
+             "medium" = thin solid    (sibling variant / platform continuation)
+             "weak"   = dashed        (loose influence / curatorial reading)
+             "collab" = gold dashed   (documented cross-factory sharing)
+     d     — the specific historical claim, shown on hover
+     r     — optional relation refinement (see relationLabels in Section 6)
+   ═══════════════════════════════════════════════════════════════════════ */
+const edges=[
+
+  /* ── Suwa · foundation and manual line ── */
+  {f:"c_marvel",t:"c_crown",w:"strong",d:"The Crown evolved the Marvel into Seiko's first chronometer-grade movement"},
+  {f:"c_crown",t:"c_5760",w:"strong",d:"The Crown Special (5760/341) was the higher-spec sibling of the Crown — Cal. 341 carried fewer barrel jewels but the same architecture"},
+  {f:"c_5760",t:"c_3180",w:"strong",d:"The first Grand Seiko was Cal. 341 from the Crown Special upgraded with a fine-adjustment regulator and two extra barrel jewels"},
+  {f:"c_crown",t:"c_3180",w:"medium",d:"Crown remains the architectural ancestor of the first GS, but the direct lineage runs through the Crown Special"},
+  {f:"c_crown",t:"c_5717",w:"medium",d:"The Crown Chronograph (5717/5719) was Suwa's chronograph derived from the Cal. 560 Crown architecture — for the 1964 Tokyo Olympics"},
+  {f:"c_3180",t:"c_5722",w:"medium",d:"57GS continued the hand-wound chronometer-grade Grand Seiko line"},
+  {f:"c_marvel",t:"c_5740",w:"weak",d:"Lord Marvel 36000 was Suwa's premium hand-wound line pushed to Hi-Beat"},
+  {f:"c_marvel",t:"c_402",w:"medium",d:"Cal. 402 was a thinned, Marvel-derived hand-wound (via the 3140) for the Liner/Skyliner"},
+
+  /* ── Suwa · automatic platform ── */
+  {f:"c_402",t:"c_62xx",w:"strong",d:"Renamed Cal. 6220 in 1964, the 402 folded into the 62xx family"},
+  {f:"c_603",t:"c_62xx",w:"strong",d:"Seikomatic 603 grew into the 62xx automatic platform"},
+  {f:"c_62xx",t:"c_8346",w:"weak",d:"The 83xx Business-A was Suwa's parallel volume-business automatic line"},
+  {f:"c_62xx",t:"c_61xx_v",w:"medium",d:"The 61xx everyday automatic succeeded the 62xx as Suwa's mass-market platform"},
+  {f:"c_62xx",t:"c_6245",w:"strong",d:"The 62xx evolved into the chronometer-grade 6245/6246 (62GS)"},
+  {f:"c_62xx",t:"c_6206",w:"strong",d:"The 6206 Seikomatic Weekdater was the first Japanese auto with day+date — a 62xx variant"},
+  {f:"c_62xx",t:"c_6217d",w:"strong",d:"The 6217 diver caliber is a 62xx variant (62MAS)"},
+  {f:"c_62xx",t:"c_56xx",w:"weak",d:"The thin 56xx succeeded the 62xx as Suwa's volume automatic"},
+  {f:"c_6245",t:"c_6145",w:"strong",d:"62GS advanced into the automatic Hi-Beat 61xx (61GS)"},
+
+  /* ── Suwa · Hi-Beat ── */
+  {f:"c_5740",t:"c_1944",w:"strong",d:"Lord Marvel 36000 (Cal. 5740C) established Suwa's 36,000 vph Hi-Beat manufacturing in 1967; the ladies' Cal. 1944 was announced in the Suwa magazine the same year as a direct platform derivative — the world's first 36,000 vph men's and ladies' calibres, both Suwa, August 1967"},
+  {f:"c_6145",t:"c_1944",w:"medium",d:"The 1944 ladies' 36,000 vph platform paralleled Suwa's automatic Hi-Beat programme"},
+
+  /* ── Suwa · divers ── */
+  {f:"c_6217d",t:"c_6105",w:"strong",d:"The 6105 succeeded the 6217 as Suwa's diver caliber"},
+  {f:"c_6105",t:"c_6306",w:"strong",d:"The 6306/6309 was the cost-down automatic-diver successor to the 6105"},
+  {f:"c_6145",t:"c_6159",w:"medium",d:"The 6159 applied 61xx Hi-Beat to a 300m professional diver"},
+
+  /* ── Suwa · chronographs ── */
+  {f:"c_5717",t:"c_6139",w:"medium",d:"Seiko's Suwa chronograph evolution: the 5717/5719 monopusher (1964) led to the 6139 integrated automatic five years later"},
+  {f:"c_6139",t:"c_6138",w:"strong",d:"The 6138 added a 12-hour register to the 6139, creating the dual-register branch"},
+  {f:"c_6139",t:"c_9r86",w:"weak",d:"Suwa's automatic-chronograph heritage echoes in the Spring Drive chronograph"},
+
+  /* ── Suwa · Spring Drive ── */
+  {f:"c_sd_concept",t:"c_7r68",w:"strong",d:"Akahane's R&D reached production as the manual-wind 7R68"},
+  {f:"c_7r68",t:"c_7r88",w:"strong",d:"The 7R88 was the second Credor Spring Drive caliber — refining the manual-wind platform three years after the 7R68"},
+  {f:"c_7r88",t:"c_9r65",w:"medium",d:"Automatic Spring Drive matured into the Grand Seiko 9R65 platform"},
+  {f:"c_9r65",t:"c_9r66",w:"strong",d:"9R66 added a GMT complication to the 9R65"},
+  {f:"c_9r65",t:"c_9r86",w:"strong",d:"9R86 added a column-wheel chronograph and GMT to the 9R platform"},
+  {f:"c_9r65",t:"c_5r65",w:"strong",d:"5R65 is the Seiko-grade version of the 9R65"},
+  {f:"c_9r65",t:"c_9r01",w:"medium",d:"The 9R01 extended Spring Drive to an 8-day, three-barrel reserve"},
+  {f:"c_9r65",t:"c_9ra5",w:"strong",d:"9RA5 is the next-generation, twin-barrel evolution of the 9R platform"},
+  {f:"c_9ra5",t:"c_9rb2",w:"strong",d:"The U.F.A. 9RB2 refined the Advanced Spring Drive to ±20 sec/year"},
+
+  /* ── Daini · Cronos and King Seiko ── */
+  {f:"c_54a",t:"c_ks1",w:"strong",d:"The first King Seiko caliber was derived directly from the Cronos 54A"},
+  {f:"c_ks1",t:"c_810",w:"strong",d:"The Cronos Special (810) is the 23-jewel popularly-priced sibling of the first King Seiko's 25-jewel Cal. 5440 — same architecture, less finishing"},
+  {f:"c_54a",t:"c_860",w:"weak",d:"The Champion was Daini's volume manual line alongside the Cronos-derived high-grade movements"},
+  {f:"c_ks1",t:"c_4420",w:"strong",d:"King Seiko advanced into the 4420 (44KS / 44GS Grammar of Design)"},
+  {f:"c_4420",t:"c_4500",w:"strong",d:"The 4500 brought 36,000 vph Hi-Beat to the manual King/Grand Seiko"},
+
+  /* ── Daini · automatic 51/52 → 4S ── */
+  {f:"c_ks1",t:"c_5245",w:"medium",d:"The 52KS 52xx was Daini's automatic Hi-Beat King Seiko"},
+  {f:"c_5106",t:"c_5245",w:"medium",d:"The 51-series Presmatic preceded Daini's 52-series automatic — both built on Daini's slim-reverser philosophy"},
+  {f:"c_5206",t:"c_5245",w:"strong",d:"The 5206 Lord Matic Special was the volume pioneer of the 52-series; the 52KS (5245) is its high-grade sibling"},
+  {f:"c_5206",t:"c_4s",w:"strong",d:"The 4S family was re-engineered directly from the 5206-architecture (spring-loaded day/date switch, ultra-compact reverser)"},
+  {f:"c_5245",t:"c_4s",w:"medium",d:"The 52KS architecture also informed the modern 4S revival"},
+  {f:"c_4s",t:"c_9s55",w:"weak",d:"Curatorial: the 4S kept Daini-style mechanical capability alive at SII through the quartz era, before the 1998 9S revival at Shizukuishi"},
+  {f:"c_4s",t:"c_6l35",w:"weak",d:"Curatorial: the 6L35 continues Daini's slim-automatic philosophy in the modern SII catalogue"},
+
+  /* ── Daini / SII · chronographs ── */
+  {f:"c_70xx",t:"c_6s",w:"weak",d:"Daini's automatic-chronograph capability re-emerged in the SII 6S"},
+  {f:"c_6s",t:"c_8r",w:"strong",d:"The 8R is the modern column-wheel + vertical-clutch successor to the 6S"},
+
+  /* ── Daini / SII · volume automatics ── */
+  {f:"c_7002",t:"c_7s26",w:"strong",d:"The 7S26 directly succeeded the 7002 as Seiko's volume automatic"},
+  {f:"c_7s26",t:"c_7s36",w:"strong",d:"The 7S36 is a 7S26 with four extra jewels"},
+  {f:"c_7s26",t:"c_6r15",w:"strong",d:"The 6R15 re-engineered the 7S base with hacking, hand-winding and Spron 510"},
+  {f:"c_7s36",t:"c_4r36",w:"strong",d:"The 4R36 brought the 7S36 up to spec with hacking and hand-winding"},
+  {f:"c_6r15",t:"c_4r36",w:"medium",d:"The 4R took its hacking and hand-winding from the 6R, added to the 7S base"},
+  {f:"c_4r36",t:"c_nh3x",w:"strong",d:"NH35/NH36 are the unbranded Time Module versions of the 4R35/4R36"},
+  {f:"c_6r15",t:"c_6r35",w:"strong",d:"The 6R35 added a jewel and a 70-hour reserve to the 6R15"},
+
+  /* ── Morioka · Grand Seiko 9S and 8L ── */
+  {f:"c_9s55",t:"c_9s65",w:"strong",d:"9S65 extended the 9S55 to a 3-day reserve"},
+  {f:"c_9s55",t:"c_9s85",w:"strong",d:"9S85 brought 36,000 vph Hi-Beat to the 9S family"},
+  {f:"c_9s85",t:"c_9s86",w:"strong",d:"9S86 added GMT to the Hi-Beat 9S85"},
+  {f:"c_9s85",t:"c_9sa5",w:"strong",d:"9SA5 succeeded the 9S85 as GS's core Hi-Beat, with a new escapement"},
+  {f:"c_9sa5",t:"c_9sa4",w:"strong",d:"9SA4 is the hand-wound sister to the 9SA5, sharing the Dual Impulse Escapement"},
+  {f:"c_9sa5",t:"c_9sc5",w:"strong",d:"Tentagraph 9SC5 is the chronograph built on the 9SA5 Dual Impulse platform — Grand Seiko's first mechanical chronograph"},
+  {f:"c_9s55",t:"c_8l35",w:"strong",d:"8L35 is the undecorated, unadjusted diver version of the 9S55"},
+  {f:"c_9s85",t:"c_8l55",w:"strong",d:"8L55 is the diver version of the Hi-Beat 9S85"},
+
+  /* ── Cross-factory collaboration (the exceptions to the rivalry) ── */
+  {f:"c_603",t:"c_70xx",w:"collab",d:"Cross-factory: Magic Lever was developed at Suwa but adopted by Daini in select calibres (e.g. the 70xx chronograph) before Daini moved to its slimmer reverser systems"},
+  {f:"c_4420",t:"c_5740",w:"collab",d:"Cross-factory: some 5740C Lord Marvel movements are documented as Daini-manufactured — Suwa and Daini shared movement production more than the rivalry narrative suggests"},
+  {f:"c_6306",t:"c_7002",w:"collab",d:"Cross-factory handover: when Suwa discontinued the 6309 in 1988, Daini's 7002 took over the volume-diver / affordable-automatic mantle — a milestone in Seiko's consolidation toward Daini (later Seiko Instruments) for volume mechanical work"},
+];
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SECTION 6 · RENDERING & INTERACTION ENGINE
+   ═══════════════════════════════════════════════════════════════════════
+   The diagram's runtime: converts the declarative LAYOUT into positioned
+   nodes and boxes, draws SVG edges, handles zoom/pan/clicks/keyboard,
+   manages the minimap and filters, and renders popups + edge tooltips.
+
+   You usually do NOT need to edit anything below this line. Everything
+   above (Sections 1–5) drives what's shown.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Parse the first year out of an era string ("1968-75" → 1968). This is
+   the single function that ties the data to the timeline. */
+function startYearOf(era){
+  const m=(era||'').match(/^(\d{4})/);
+  return m?parseInt(m[1],10):null;
+}
+
+/* Parse a full production span: returns [startYear, endYear, ongoing].
+   Handles "1968-75", "1992-2005", "1964-70s" and open-ended "2004-". */
+function spanOf(era,currentYear){
+  if(!era)return null;
+  const start=startYearOf(era);
+  if(start==null)return null;
+  const di=era.indexOf('-');
+  if(di<0)return null;
+  const after=era.slice(di+1).trim();
+  let end,ongoing=false;
+  if(!after){end=currentYear;ongoing=true;}
+  else{
+    let m=after.match(/^(\d{4})/);
+    if(m){end=parseInt(m[1],10);}
+    else{
+      m=after.match(/^(\d{2})(s)?$/);
+      if(!m)return null;
+      const yy=parseInt(m[1],10);
+      let cent=Math.floor(start/100)*100;
+      end=cent+yy;
+      if(end<start)end+=100;
+      if(m[2]==='s')end+=9;
+    }
+  }
+  return [start,end,ongoing];
+}
+
+/* ─── LAYOUT ENGINE ────────────────────────────────────────────────────
+   Consumes Section 4's LAYOUT and returns flat `nodes` and `sections`
+   arrays. All geometry is derived:
+     · node x   ← the caliber's start year on the shared time axis
+     · node y   ← its lane's y + row index × row stride
+     · lane y/h ← cascaded down its band, sized to its row count
+     · band h   ← sized to contain its lanes
+     · column h ← spans from the first band's top to the last band's base
+     · CW / CH  ← the aggregate bounds of everything above
+   ──────────────────────────────────────────────────────────────────── */
+function buildLayout(L){
+  const ax=L.axis;
+  const M={NW:124,NH:52,rowStride:65,laneTopPad:20,laneBotPad:14,
+           bandTopPad:22,laneGap:14,bandBotPad:18,bandGap:0,
+           marginX:4,marginY:16};
+  const xOfYear = y => ax.xBase + (y-ax.yearMin)*ax.pxPerYear;
+  const regionOfYear = y => L.regions.find(r=>y<=r.untilYear) ?? L.regions[L.regions.length-1];
+
+  const nodes=[],sections=[],problems=[];
+  const byKey=new Map(L.parents.map(p=>[p.key,p]));
+  const bands=L.parents.filter(p=>p.kind==='band');
+  const columns=L.parents.filter(p=>p.kind==='column');
+
+  /* Group lanes by band, preserving declaration order */
+  const lanesByBand=new Map();
+  for(const lane of L.lanes){
+    if(!byKey.has(lane.band)){problems.push('lane references unknown band "'+lane.band+'": '+lane.label);continue;}
+    if(!lanesByBand.has(lane.band))lanesByBand.set(lane.band,[]);
+    lanesByBand.get(lane.band).push(lane);
+  }
+
+  /* PASS 1 · stack bands vertically and cascade their lanes */
+  for(const band of bands){
+    if(band.stackAfter){
+      const prev=byKey.get(band.stackAfter);
+      band.y=(prev._bottom??0)+M.bandGap;
+    }else{
+      band.y=band.y??78;
+    }
+    const lanes=lanesByBand.get(band.key)??[];
+    let cursor=band.y+M.bandTopPad,lastBottom=cursor;
+    for(const lane of lanes){
+      lane._y=cursor;
+      lane._h=M.laneTopPad+Math.max(0,lane.rows.length-1)*M.rowStride+M.NH+M.laneBotPad;
+      lastBottom=lane._y+lane._h;
+      cursor=lastBottom+M.laneGap;
+    }
+    band.h=lastBottom-band.y+M.bandBotPad;
+    band._bottom=band.y+band.h;
+  }
+
+  /* PASS 2 · era columns span the full height of all bands */
+  const topY=bands.length?bands[0].y:78;
+  const botY=bands.length?bands[bands.length-1]._bottom:topY;
+  for(const col of columns){col.y=topY;col.h=botY-topY;}
+
+  /* PASS 3 · emit the outer container boxes */
+  for(const p of L.parents)sections.push({l:p.label,x:p.x,y:p.y,w:p.w,h:p.h,c:p.color});
+
+  /* PASS 4 · place nodes on the year axis, and emit one lane-background
+     segment per era region that actually contains nodes. The lane label
+     goes on the first (left-most) segment only. */
+  for(const lane of L.lanes){
+    if(lane._y==null)continue;
+    const regionsUsed=new Set();
+    for(let r=0;r<lane.rows.length;r++){
+      for(const id of lane.rows[r]){
+        const cal=calibers[id];
+        if(!cal){problems.push('lane "'+lane.label+'" references unknown caliber id: '+id);continue;}
+        const yr=startYearOf(cal.era);
+        if(yr==null){problems.push('caliber '+id+' has no parsable start year in era "'+cal.era+'"');continue;}
+        const region=regionOfYear(yr);
+        regionsUsed.add(region.key);
+        nodes.push([id,nodeLabels[id]||id,xOfYear(yr),lane._y+M.laneTopPad+r*M.rowStride,lane.color,iconFlags[id]||0]);
+      }
+    }
+    let labelled=false;
+    for(const region of L.regions){
+      if(!regionsUsed.has(region.key))continue;
+      sections.push({l:labelled?'':lane.label,x:region.laneX,y:lane._y,w:region.laneW,h:lane._h,c:lane.color,sub:1});
+      labelled=true;
+    }
+  }
+
+  /* PASS 5 · canvas bounds */
+  let maxX=0;
+  for(const p of L.parents)if(p.x+p.w>maxX)maxX=p.x+p.w;
+  const CW=maxX+M.marginX, CH=botY+M.marginY;
+
+  return {nodes,sections,CW,CH,metrics:M,problems,xOfYear};
+}
+
+const _built=buildLayout(LAYOUT);
+const nodes=_built.nodes;
+const sections=_built.sections;
+const CW=_built.CW, CH=_built.CH;
+const xOfYear=_built.xOfYear;
 
 const popup=document.getElementById('watch-popup');
 const popupImg=document.getElementById('popup-img');
@@ -1029,14 +1120,9 @@ function showPopup(nodeId,e){
 function hidePopup(){
   popupTimer=setTimeout(()=>{popup.classList.remove('visible');popupImg.classList.remove('loaded');},100);
 }
-/* Node dimensions — synced from actual CSS size on resize (mobile uses 110×38) */
+/* Node dimensions — synced from actual CSS size on resize (mobile uses 110×48) */
 let NW=124,NH=52;
-const CW=2420,CH=2716;
 function syncNodeSize(){
-  /* Pick NW/NH to match the CSS breakpoint. The mobile media query at
-     max-width:768px shrinks .node to 110×48; otherwise it's 124×52 (matching
-     the min-height in the base .node rule). Keeping this in sync ensures
-     edge endpoints land on the actual node borders. */
   if(window.innerWidth<=768){NW=110;NH=48;}
   else{NW=124;NH=52;}
 }
@@ -1055,29 +1141,76 @@ function applyTransform(){
 }
 function fitView(){const cw=wrap.clientWidth;scale=(cw/CW)*.95;tx=(cw-CW*scale)/2;ty=10;applyTransform();}
 function view100(){scale=1;tx=0;ty=0;applyTransform();}
-sections.forEach(s=>{const d=document.createElement('div');d.className='section-bg'+(s.sub?' sub':'');d.style.cssText=`left:${s.x}px;top:${s.y}px;width:${s.w}px;height:${s.h}px;border:1px solid ${s.c}${s.sub?'18':'0e'};background:${s.c}${s.sub?'06':'04'}`;d.innerHTML=`<div class="label" style="color:${s.c}99">${s.l}</div>`;canvas.appendChild(d);});
+sections.forEach(s=>{const d=document.createElement('div');d.className='section-bg'+(s.sub?' sub':'');d.style.cssText=`left:${s.x}px;top:${s.y}px;width:${s.w}px;height:${s.h}px;border:1px solid ${s.c}${s.sub?'18':'0e'};background:${s.c}${s.sub?'06':'04'}`;d.innerHTML=s.l?`<div class="label" style="color:${s.c}99">${s.l}</div>`:'';canvas.appendChild(d);});
 const nodeEls={};
-// Production-life bars (rendered before nodes so they sit behind them)
-const CUR_YEAR=2026;const _YEAR_MIN=1955;const _X_BASE=30;const _SCALE=32;
-function _spanRange(era){if(!era)return null;const sm=era.match(/^(\d{4})/);if(!sm)return null;const start=+sm[1];const di=era.indexOf("-");if(di<0)return null;const after=era.slice(di+1).trim();let end,og=false;if(!after){end=CUR_YEAR;og=true;}else{let m=after.match(/^(\d{4})/);if(m){end=+m[1];}else{m=after.match(/^(\d{2})(s)?$/);if(m){const yy=+m[1];let cent=Math.floor(start/100)*100;end=cent+yy;if(end<start)end+=100;if(m[2]==="s")end+=9;}else return null;}}return[start,end,og];}
-nodes.forEach(n=>{const[id,label,nx,ny]=n;const era=(popupData[id]||{}).era;const r=_spanRange(era);if(!r)return;const[sy,ey,og]=r;if(ey-sy<4)return;const endX=_X_BASE+(ey-_YEAR_MIN)*_SCALE;if(endX<=nx+NW)return;const bar=document.createElement("div");bar.className="span-bar"+(og?" ongoing":"");bar.style.cssText=`left:${nx+NW}px;top:${ny+NH/2-2}px;width:${endX-nx-NW}px;height:4px`;if(!og)bar.innerHTML="<div class=\"end-tick\"></div>";canvas.appendChild(bar);});
-nodes.forEach(n=>{const[id,label,x,y,color,isIcon]=n;const d=document.createElement('div');d.className='node'+(isIcon?' icon':'');d.style.cssText=`left:${x}px;top:${y}px;border:${isIcon?2:1}px solid ${isIcon?C.highlight+'88':color+'30'}`;d.dataset.id=id;let inner='';if(isIcon)inner+=`<div class="star-badge">★</div>`;if(inCollection.has(id))inner+=`<div class="coll-badge">In Collection</div>`;const tech=techMap[id];if(tech){const lb={beat10:'10B',beat8:'8B',springdrive:'SD',quartz:'Q',mems:'M'};const tt={beat10:'36,000 vph / 10-beat',beat8:'28,800 vph / 8-beat',springdrive:'Spring Drive',quartz:'Quartz',mems:'MEMS-fabricated escapement (micro-machined wheel & pallet)'};const arr=Array.isArray(tech)?tech:[tech];arr.forEach((tv,i)=>{inner+=`<div class="tech-badge ${tv}" style="right:${4+i*13}px" title="${tt[tv]||tv}">${lb[tv]||tv}</div>`;});}inner+=`<div class="text">${label}</div><div class="year">${(popupData[id]||{}).era||""}</div>`;d.innerHTML=inner;d.setAttribute("aria-label",(popupData[id]||{}).n?((popupData[id].n)+", "+(popupData[id].era||"")):id);d.setAttribute("role","button");d.setAttribute("tabindex","0");d.addEventListener('mouseenter',(e)=>{hovered=id;updateHL();showPopup(id,e);if(typeof edgeTipVisible!=='undefined'&&edgeTipVisible){document.getElementById('edge-tip').classList.remove('show');edgeTipVisible=false;}});d.addEventListener('mousemove',(e)=>{});d.addEventListener('click',(e)=>{e.stopPropagation();locked=(locked===id)?null:id;updateHL();});d.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();locked=(locked===id)?null:id;updateHL();}});d.addEventListener('focus',(e)=>{hovered=id;updateHL();showPopup(id,e);});d.addEventListener('blur',()=>{hovered=null;updateHL();hidePopup();});d.addEventListener('mouseleave',()=>{hovered=null;updateHL();hidePopup();});canvas.appendChild(d);nodeEls[id]=d;});
-/* Sync NW/NH to actual rendered node size (handles mobile breakpoints) */
+/* Production-life bars — drawn before the nodes so they sit behind them.
+   Geometry comes from LAYOUT.axis, so the bars can never drift out of
+   step with the node positions. */
+(function drawSpanBars(){
+  const ax=LAYOUT.axis;
+  nodes.forEach(n=>{
+    const [id,,nx,ny]=n;
+    const sp=spanOf((calibers[id]||{}).era,ax.currentYear);
+    if(!sp)return;
+    const [sy,ey,ongoing]=sp;
+    if(ey-sy<4)return;
+    const endX=xOfYear(ey);
+    if(endX<=nx+NW)return;
+    const bar=document.createElement('div');
+    bar.className='span-bar'+(ongoing?' ongoing':'');
+    bar.style.cssText=`left:${nx+NW}px;top:${ny+NH/2-2}px;width:${endX-nx-NW}px;height:4px`;
+    if(!ongoing)bar.innerHTML='<div class="end-tick"></div>';
+    canvas.appendChild(bar);
+  });
+})();
+const TECH_LABEL={beat10:'10B',beat8:'8B',springdrive:'SD',quartz:'Q',mems:'M'};
+const TECH_TITLE={beat10:'36,000 vph / 10-beat',beat8:'28,800 vph / 8-beat',springdrive:'Spring Drive',quartz:'Quartz',mems:'MEMS-fabricated escapement (micro-machined wheel & pallet)'};
+nodes.forEach(n=>{const[id,label,x,y,color,isIcon]=n;const cal=calibers[id]||{};const d=document.createElement('div');d.className='node'+(isIcon?' icon':'');d.style.cssText=`left:${x}px;top:${y}px;border:${isIcon?2:1}px solid ${isIcon?C.highlight+'88':color+'30'}`;d.dataset.id=id;let inner='';if(isIcon)inner+=`<div class="star-badge">★</div>`;if(inCollection.has(id))inner+=`<div class="coll-badge">In Collection</div>`;const tech=techMap[id];if(tech){const arr=Array.isArray(tech)?tech:[tech];arr.forEach((tv,i)=>{inner+=`<div class="tech-badge ${tv}" style="right:${4+i*13}px" title="${TECH_TITLE[tv]||tv}">${TECH_LABEL[tv]||tv}</div>`;});}inner+=`<div class="text">${label}</div><div class="year">${cal.era||''}</div>`;d.innerHTML=inner;d.setAttribute('aria-label',cal.n?(cal.n+', '+(cal.era||'')):id);d.setAttribute('role','button');d.setAttribute('tabindex','0');d.addEventListener('mouseenter',(e)=>{hovered=id;updateHL();showPopup(id,e);hideEdgeTip();});d.addEventListener('click',(e)=>{e.stopPropagation();locked=(locked===id)?null:id;updateHL();});d.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();locked=(locked===id)?null:id;updateHL();}});d.addEventListener('focus',(e)=>{hovered=id;updateHL();showPopup(id,e);});d.addEventListener('blur',()=>{hovered=null;updateHL();hidePopup();});d.addEventListener('mouseleave',()=>{hovered=null;updateHL();hidePopup();});canvas.appendChild(d);nodeEls[id]=d;});
 syncNodeSize();
 window.addEventListener('resize',()=>{syncNodeSize();renderEdges();});
 function getPath(fn,tn){const fcx=fn[2]+NW/2,fcy=fn[3]+NH/2,tcx=tn[2]+NW/2,tcy=tn[3]+NH/2,dx=tcx-fcx,dy=tcy-fcy;let sx,sy,ex,ey;if(Math.abs(dx)>Math.abs(dy)){sx=dx>0?fn[2]+NW:fn[2];sy=fcy;ex=dx>0?tn[2]:tn[2]+NW;ey=tcy;}else{sx=fcx;sy=dy>0?fn[3]+NH:fn[3];ex=tcx;ey=dy>0?tn[3]:tn[3]+NH;}const mx=(sx+ex)/2,my=(sy+ey)/2;if(Math.abs(dx)>Math.abs(dy)){return`M${sx},${sy} C${mx},${sy} ${mx},${ey} ${ex},${ey}`;}return`M${sx},${sy} C${sx},${my} ${ex},${my} ${ex},${ey}`;}
-function renderEdges(){let h=`<defs><marker id="a" viewBox="0 0 8 6" refX="7" refY="3" markerWidth="5" markerHeight="4" orient="auto-start-reverse"><path d="M0,0 L8,3 L0,6 Z" fill="#aaa"/></marker><marker id="ah" viewBox="0 0 8 6" refX="7" refY="3" markerWidth="5" markerHeight="4" orient="auto-start-reverse"><path d="M0,0 L8,3 L0,6 Z" fill="${C.highlight}"/></marker><marker id="ac" viewBox="0 0 8 6" refX="7" refY="3" markerWidth="5" markerHeight="4" orient="auto-start-reverse"><path d="M0,0 L8,3 L0,6 Z" fill="#b8942e"/></marker></defs>`;edges.forEach(([f,t,type,desc,relation])=>{const fn=nodeMap[f],tn=nodeMap[t];if(!fn||!tn)return;const cls=type==='weak'?'edge-weak':(type==='collab'?'edge-collab':'');const d=getPath(fn,tn);const _col=type==='collab'?'#b8942e':'#aaa';const _sw=type==='strong'?1.5:(type==='collab'?1.1:.8);const _da=type==='weak'?'3,3':(type==='collab'?'5,3':'0');const _op=type==='weak'?.25:(type==='collab'?.55:.45);const _mk=type==='collab'?'url(#ac)':'url(#a)';h+=`<path class="${cls}" data-from="${f}" data-to="${t}" data-type="${type}" data-desc="${desc||''}" data-relation="${relation||''}" d="${d}" fill="none" stroke="${_col}" stroke-width="${_sw}" stroke-dasharray="${_da}" opacity="${_op}" marker-end="${_mk}"/>`;});svg.innerHTML=h;}
+/* Edge visual style per weight — one place to tune line appearance. */
+const EDGE_STYLE={
+  strong:{stroke:'#aaa',width:1.5,dash:'0',   opacity:.45,marker:'url(#a)'},
+  medium:{stroke:'#aaa',width:.8, dash:'0',   opacity:.45,marker:'url(#a)'},
+  weak:  {stroke:'#aaa',width:.8, dash:'3,3', opacity:.25,marker:'url(#a)'},
+  collab:{stroke:C.highlight,width:1.1,dash:'5,3',opacity:.55,marker:'url(#ac)'},
+};
+/* Rendered edge paths, cached for fast hit-testing (bounding box and
+   sampled points computed ONCE per render, not on every mousemove). */
+let edgePaths=[];
+function renderEdges(){
+  let h=`<defs><marker id="a" viewBox="0 0 8 6" refX="7" refY="3" markerWidth="5" markerHeight="4" orient="auto-start-reverse"><path d="M0,0 L8,3 L0,6 Z" fill="#aaa"/></marker><marker id="ah" viewBox="0 0 8 6" refX="7" refY="3" markerWidth="5" markerHeight="4" orient="auto-start-reverse"><path d="M0,0 L8,3 L0,6 Z" fill="${C.highlight}"/></marker><marker id="ac" viewBox="0 0 8 6" refX="7" refY="3" markerWidth="5" markerHeight="4" orient="auto-start-reverse"><path d="M0,0 L8,3 L0,6 Z" fill="${C.highlight}"/></marker></defs>`;
+  edges.forEach(e=>{
+    const fn=nodeMap[e.f],tn=nodeMap[e.t];
+    if(!fn||!tn)return;
+    const st=EDGE_STYLE[e.w]||EDGE_STYLE.medium;
+    const cls=e.w==='weak'?'edge-weak':(e.w==='collab'?'edge-collab':'');
+    h+=`<path class="${cls}" data-from="${e.f}" data-to="${e.t}" data-type="${e.w}" data-desc="${e.d||''}" data-relation="${e.r||''}" d="${getPath(fn,tn)}" fill="none" stroke="${st.stroke}" stroke-width="${st.width}" stroke-dasharray="${st.dash}" opacity="${st.opacity}" marker-end="${st.marker}"/>`;
+  });
+  svg.innerHTML=h;
+  edgePaths=[...svg.querySelectorAll('path[data-desc]')];
+  edgePaths.forEach(p=>{
+    const bb=p.getBBox();
+    p._bx0=bb.x;p._by0=bb.y;p._bx1=bb.x+bb.width;p._by1=bb.y+bb.height;
+    const len=p.getTotalLength();
+    const steps=Math.max(6,Math.floor(len/40));
+    const pts=new Float32Array((steps+1)*2);
+    for(let i=0;i<=steps;i++){const pt=p.getPointAtLength(i*len/steps);pts[i*2]=pt.x;pts[i*2+1]=pt.y;}
+    p._pts=pts;
+  });
+}
 
 function hasTag(id,tag){return nodeTags[id]&&nodeTags[id].includes(tag);}
+function hasTech(id,v){const t=techMap[id];return Array.isArray(t)?t.includes(v):t===v;}
 function isVis(n){
   const id=n[0];
   if(filter.cats.size>0){
     let ok=false;
-    /* Tag-driven filtering: a node shows under a category ONLY if it carries
-       the matching tag in nodeTags (Section 7). Box colour is NOT used —
-       colour groups visual families which don't always align with conceptual
-       categories (e.g. Vintage Suwa GS uses suwa colour; Goldfeather uses gs
-       colour but isn't a Grand Seiko). */
+    /* Tag-driven filtering: a caliber shows under a category ONLY if it
+       carries the matching tag in `filters` (Section 2). Lane colour is
+       NOT used — colour groups thematic lanes, which don't always align
+       with the conceptual categories. */
     if(filter.cats.has('diver')&&hasTag(id,'diver')) ok=true;
     if(filter.cats.has('chrono')&&hasTag(id,'chrono')) ok=true;
     if(filter.cats.has('gs')&&hasTag(id,'gs')) ok=true;
@@ -1086,23 +1219,36 @@ function isVis(n){
   }
   if(filter.mods.has('iconic')&&n[5]!==1)return false;
   if(filter.mods.has('collection')&&!inCollection.has(id))return false;
-  const _tm=techMap[id];const _hasT=(v)=>Array.isArray(_tm)?_tm.includes(v):_tm===v;
-  if(filter.mods.has('hibeat')&&!_hasT('beat10'))return false;
-  if(filter.mods.has('sd')&&!_hasT('springdrive'))return false;
-  if(filter.mods.has('mems')&&!_hasT('mems'))return false;
+  if(filter.mods.has('hibeat')&&!hasTech(id,'beat10'))return false;
+  if(filter.mods.has('sd')&&!hasTech(id,'springdrive'))return false;
+  if(filter.mods.has('mems')&&!hasTech(id,'mems'))return false;
   return true;
 }
 function getLineage(nodeId){
   const ancestors=new Set(),descendants=new Set();
-  function walkDesc(id){edges.forEach(([f,t])=>{if(f===id&&!descendants.has(t)){descendants.add(t);walkDesc(t);}});}
-  function walkAnc(id){edges.forEach(([f,t])=>{if(t===id&&!ancestors.has(f)){ancestors.add(f);walkAnc(f);}});}
+  function walkDesc(id){edges.forEach(e=>{if(e.f===id&&!descendants.has(e.t)){descendants.add(e.t);walkDesc(e.t);}});}
+  function walkAnc(id){edges.forEach(e=>{if(e.t===id&&!ancestors.has(e.f)){ancestors.add(e.f);walkAnc(e.f);}});}
   walkDesc(nodeId);walkAnc(nodeId);
   return new Set([...ancestors,...descendants,nodeId]);
+}
+/* Keep the URL hash in sync with the current lock/tour state. Called from
+   updateHL() (every lock/unlock passes through there) — this replaces the
+   old 300ms polling interval: same behaviour, zero idle work. */
+let _lastHashState='';
+function syncHash(){
+  let want='';
+  if(typeof tour!=='undefined'&&tour.active)want='#tour='+tour.active.id;
+  else if(locked)want='#node='+locked;
+  if(want!==_lastHashState){
+    _lastHashState=want;
+    if(want)history.replaceState(null,'',want);
+    else history.replaceState(null,'',location.pathname+location.search);
+  }
 }
 function updateHL(){
   const lineage=locked?getLineage(locked):null;
   const conn=new Set();
-  if(hovered&&!lineage)edges.forEach(([f,t])=>{if(f===hovered)conn.add(t);if(t===hovered)conn.add(f);});
+  if(hovered&&!lineage)edges.forEach(e=>{if(e.f===hovered)conn.add(e.t);if(e.t===hovered)conn.add(e.f);});
   nodes.forEach(n=>{
     const el=nodeEls[n[0]],vis=isVis(n);
     el.classList.toggle('hidden-filter',!vis);
@@ -1129,6 +1275,7 @@ function updateHL(){
   });
   svg.querySelectorAll('path[data-from]').forEach(p=>{
     const f=p.dataset.from,t=p.dataset.to,type=p.dataset.type;
+    const st=EDGE_STYLE[type]||EDGE_STYLE.medium;
     const inLineagePath=lineage&&lineage.has(f)&&lineage.has(t);
     const inHoverPath=hovered&&!lineage&&(f===hovered||t===hovered);
     if(inLineagePath||inHoverPath){
@@ -1141,19 +1288,20 @@ function updateHL(){
       /* Lock state: hide unrelated edges entirely so the lineage stands alone */
       p.style.display='none';
     }else if(hovered){
-      /* Hover state: dim unrelated edges but keep them visible (lighter touch) */
+      /* Hover state: dim unrelated edges but keep them visible */
       p.setAttribute('stroke','#aaa');
       p.setAttribute('opacity','.06');
       p.setAttribute('stroke-width','.5');
       p.setAttribute('marker-end','url(#a)');
     }else{
       p.style.display='';
-      p.setAttribute('stroke','#aaa');
-      p.setAttribute('opacity',type==='weak'?'.25':'.45');
-      p.setAttribute('stroke-width',type==='strong'?'1.5':'.8');
-      p.setAttribute('marker-end','url(#a)');
+      p.setAttribute('stroke',st.stroke);
+      p.setAttribute('opacity',String(st.opacity));
+      p.setAttribute('stroke-width',String(st.width));
+      p.setAttribute('marker-end',st.marker);
     }
   });
+  syncHash();
 }
 const filterDef=[
   {k:'all',l:'All',type:'clear'},
@@ -1162,7 +1310,7 @@ const filterDef=[
   {k:'gs',l:'Grand Seiko',type:'cat'},
   {k:'ks',l:'King Seiko',type:'cat'},
   {type:'sep'},
-  {k:'iconic',l:'★ Iconic',type:'mod'},
+  {k:'iconic',l:'★ Landmark',type:'mod'},
   {k:'hibeat',l:'10B Hi-Beat',type:'mod'},
   {k:'sd',l:'SD Spring Drive',type:'mod'},
   {k:'mems',l:'M MEMS escapement',type:'mod'}
@@ -1192,9 +1340,9 @@ filterDef.forEach(def=>{
 const legendEl=document.getElementById('legend');
 [[C.highlight,'★ Landmark caliber'],].forEach(([c,l])=>{const d=document.createElement('div');d.className='item';d.innerHTML=`<div class="dot" style="background:${c}"></div><span>${l}</span>`;legendEl.appendChild(d);});
 const sepEl=document.createElement('div');sepEl.className='sep';legendEl.appendChild(sepEl);
-[['var(--hibeat)','10B','36,000 vph / 10-beat'],['#d97706','8B','28,800 vph / 8-beat'],['var(--springdrive)','SD','Spring Drive'],['#7c3aed','M','MEMS-fabricated escapement']].forEach(([bg,ab,tip])=>{const d=document.createElement('div');d.className='item';d.innerHTML=`<div class="dot" style="background:${bg};border-radius:50%;width:8px;height:8px;font-size:5px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700">${ab}</div><span>${tip}</span>`;legendEl.appendChild(d);});
+[['var(--hibeat)','10B','36,000 vph / 10-beat'],['var(--beat8)','8B','28,800 vph / 8-beat'],['var(--springdrive)','SD','Spring Drive'],['var(--mems)','M','MEMS-fabricated escapement']].forEach(([bg,ab,tip])=>{const d=document.createElement('div');d.className='item';d.innerHTML=`<div class="dot" style="background:${bg};border-radius:50%;width:8px;height:8px;font-size:5px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700">${ab}</div><span>${tip}</span>`;legendEl.appendChild(d);});
 const sepEl2=document.createElement('div');sepEl2.className='sep';legendEl.appendChild(sepEl2);
-[['#888','Strong lineage','solid'],['#aaa','Medium','solid-thin'],['#bbb','Weak','dashed'],['#b8942e','Cross-factory collaboration','gold-dashed']].forEach(([c,l,style])=>{const d=document.createElement('div');d.className='item';d.innerHTML=`<svg width="24" height="6" style="margin-right:2px"><line x1="0" y1="3" x2="24" y2="3" stroke="${c}" stroke-width="${style==='solid'?1.8:style==='solid-thin'?1:0.9}" ${style==='dashed'?'stroke-dasharray="3,2"':style==='gold-dashed'?'stroke-dasharray="4,2"':''}/></svg><span>${l}</span>`;legendEl.appendChild(d);});
+[['#888','Strong lineage','solid'],['#aaa','Medium','solid-thin'],['#bbb','Weak','dashed'],[C.highlight,'Cross-factory collaboration','gold-dashed']].forEach(([c,l,style])=>{const d=document.createElement('div');d.className='item';d.innerHTML=`<svg width="24" height="6" style="margin-right:2px"><line x1="0" y1="3" x2="24" y2="3" stroke="${c}" stroke-width="${style==='solid'?1.8:style==='solid-thin'?1:0.9}" ${style==='dashed'?'stroke-dasharray="3,2"':style==='gold-dashed'?'stroke-dasharray="4,2"':''}/></svg><span>${l}</span>`;legendEl.appendChild(d);});
 const mmCanvas=document.getElementById('minimap-canvas'),mmCtx=mmCanvas.getContext('2d'),mmView=document.getElementById('mm-viewport'),mmC=document.getElementById('minimap');
 const MM_W=180,MM_SC=MM_W/CW,MM_H=Math.round(CH*MM_SC);
 mmCanvas.width=MM_W;mmCanvas.height=MM_H;mmCanvas.style.width=MM_W+'px';mmCanvas.style.height=MM_H+'px';mmC.style.width=MM_W+'px';mmC.style.height=MM_H+'px';
@@ -1218,30 +1366,31 @@ const etType=edgeTip.querySelector('.et-type');
 const etDesc=edgeTip.querySelector('.et-desc');
 svg.style.pointerEvents='none';
 let edgeTipVisible=false,edgeThrottle=0;
-/* Edge-tooltip proximity detection — shared logic used by both mouse and touch.
-   Returns the nearest edge path within tolerance, or null. */
+/* Edge-tooltip proximity detection — shared by mouse and touch. Uses the
+   point samples precomputed in renderEdges(), so no SVG geometry calls
+   happen during interaction. */
 function findEdgeAt(clientX,clientY){
   if(!edgeTip||dragging) return null;
   const r=wrap.getBoundingClientRect();
   const cx=(clientX-r.left-tx)/scale;
   const cy=(clientY-r.top-ty)/scale;
   let closest=null,closestDist=22/scale;
-  svg.querySelectorAll('path[data-desc]').forEach(p=>{
-    if(!p.dataset.desc)return;
-    const len=p.getTotalLength();
-    const steps=Math.max(6,Math.floor(len/40));
-    for(let i=0;i<=steps;i++){
-      const pt=p.getPointAtLength(i*len/steps);
-      const dx=pt.x-cx,dy=pt.y-cy;
+  const pad=closestDist;
+  for(const p of edgePaths){
+    if(!p.dataset.desc)continue;
+    if(cx<p._bx0-pad||cx>p._bx1+pad||cy<p._by0-pad||cy>p._by1+pad)continue;
+    const pts=p._pts;
+    for(let i=0;i<pts.length;i+=2){
+      const dx=pts[i]-cx,dy=pts[i+1]-cy;
       const dist=Math.sqrt(dx*dx+dy*dy);
       if(dist<closestDist){closestDist=dist;closest=p;}
     }
-  });
+  }
   return closest;
 }
 function showEdgeTip(path,clientX,clientY){
-  const typeLabels={strong:'Direct lineage',medium:'Platform / influence',weak:'Heritage / stylistic'};
-  const relationLabels={direct_lineage:'Caliber / platform lineage',same_platform:'Same movement or platform family',market_successor:'Product succession / market successor',design_influence:'Design influence',heritage_reinterpretation:'Heritage reinterpretation',brand_revival:'Brand revival',technology_branch:'Technology branch',collection_structure:'Modern collection structure'};
+  const typeLabels={strong:'Direct technical descent',medium:'Sibling variant / platform continuation',weak:'Loose influence / curatorial reading',collab:'Cross-factory collaboration'};
+  const relationLabels={direct_lineage:'Caliber / platform lineage',same_platform:'Same movement or platform family',market_successor:'Product succession / market successor',design_influence:'Design influence',heritage_reinterpretation:'Heritage reinterpretation',brand_revival:'Brand revival',technology_branch:'Technology branch',collection_structure:'Modern collection structure',conceptual:'Conceptual / thematic link'};
   const relation=path.dataset.relation;
   etType.textContent=relationLabels[relation]||typeLabels[path.dataset.type]||path.dataset.type;
   etDesc.textContent=path.dataset.desc;
@@ -1262,16 +1411,11 @@ wrap.addEventListener('mousemove',e=>{
   if(closest) showEdgeTip(closest,e.clientX,e.clientY);
   else hideEdgeTip();
 });
-/* Touch support — tap an empty area near an edge to show its tooltip.
-   We detect a quick stationary tap (not a drag, not a pinch) and check
-   for an edge under the touch point. */
+/* Touch support — tap an empty area near an edge to show its tooltip. */
 let touchStart=null;
 wrap.addEventListener('touchstart',e=>{
-  if(e.touches.length===1){
-    touchStart={x:e.touches[0].clientX,y:e.touches[0].clientY,t:Date.now()};
-  }else{
-    touchStart=null;
-  }
+  if(e.touches.length===1){touchStart={x:e.touches[0].clientX,y:e.touches[0].clientY,t:Date.now()};}
+  else{touchStart=null;}
 },{passive:true});
 wrap.addEventListener('touchend',e=>{
   if(!touchStart||e.changedTouches.length!==1)return;
@@ -1281,43 +1425,33 @@ wrap.addEventListener('touchend',e=>{
   const tooLong=Date.now()-touchStart.t>400;
   touchStart=null;
   if(dragged||tooLong)return;
-  /* If the tap landed on a node, the node's own click handler runs. We only
-     care about taps in the gaps between nodes. */
   if(t.target.closest('.node'))return;
   const closest=findEdgeAt(t.clientX,t.clientY);
-  if(closest){
-    showEdgeTip(closest,t.clientX,t.clientY);
-    e.preventDefault();
-  }else{
-    hideEdgeTip();
-  }
+  if(closest){showEdgeTip(closest,t.clientX,t.clientY);e.preventDefault();}
+  else{hideEdgeTip();}
 },{passive:false});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&locked){locked=null;updateHL();}});
 
 
-
 /* ═══════════════════════════════════════════════════════════════════════
-   SECTION 9 · GUIDED TOURS
+   SECTION 7 · GUIDED TOURS
    ═══════════════════════════════════════════════════════════════════════
-   Curated narrative walk-throughs of the diagram. Each tour pans through
-   a sequence of stops with a paragraph of context for each.
+   Curated narrative walk-throughs. Each tour pans through a sequence of
+   stops with a paragraph of context. Stops are listed in chronological
+   order unless a deliberate side-branch coda is intended.
 
    Format:
-     {
-       id: "short-id",                 // url-safe, unique
-       title: "Tour Title",            // shown in menu and panel
-       sub: "Subtitle / dates",        // shown in menu
-       stops: [
-         {n:"node_id", name:"Stop name · Year", t:"Narration paragraph."},
-         { ... }
-       ]
-     }
+     { id:"short-id", title:"…", sub:"…",
+       stops:[ {n:"caliber_id", name:"Stop name · Year", t:"Narration."} ] }
+
+   Every stop's `n` must be an id that exists in `calibers` AND is placed
+   in the LAYOUT — the validator (Section 8) checks this on every load.
    ═══════════════════════════════════════════════════════════════════════ */
 
 const tours=[
   {id:"sd",title:"Spring Drive — Akahane's Twenty-Year Pursuit",sub:"From 1977 R&D to the 2025 U.F.A.",stops:[
     {n:"c_sd_concept",name:"Spring Drive R&D · 1977",t:"Akahane begins work at Suwa on a mainspring-powered movement with quartz-grade accuracy. Two decades, hundreds of prototypes, and the tri-synchro regulator patent portfolio follow."},
-    {n:"c_7r68",name:"Cal. 7R68 · 1999",t:"The first commercial Spring Drive — manual-wind, launched in December 1999 under Credor. Akahane died in 1998, about a year before the launch he had worked toward for twenty years."},
+    {n:"c_7r68",name:"Cal. 7R68 · 1999",t:"The first commercial Spring Drive — manual-wind, launched in December 1999 in limited editions under both the Seiko and Credor brands. Akahane died in 1998, about a year before the launch he had worked toward for twenty years."},
     {n:"c_7r88",name:"Cal. 7R88 · 2002",t:"A second Credor Spring Drive — still manual-wind, a refinement of the 1999 7R68 platform. The first automatic Spring Drive would come two years later in Grand Seiko with the 9R65."},
     {n:"c_9r65",name:"Cal. 9R65 · 2004",t:"Spring Drive becomes a Grand Seiko movement: 72-hour reserve, ±15 sec/month (≈±0.5 sec/day), the silent glide-motion seconds hand. Made at the Shinshu Watch Studio."},
     {n:"c_9r86",name:"Cal. 9R86 · 2007",t:"A column-wheel Spring Drive chronograph with GMT and power reserve — and still Grand Seiko's only Spring Drive chronograph caliber."},
@@ -1325,28 +1459,29 @@ const tours=[
     {n:"c_9ra5",name:"Cal. 9RA5 · 2020",t:"Advanced Spring Drive: twin barrels, a 5-day reserve, ±10 sec/month, and a slimmer movement — the platform for the GMT and the U.F.A."},
     {n:"c_9rb2",name:"Cal. 9RB2 · 2025",t:"Ultra Fine Accuracy: ±20 seconds per year, the most accurate mainspring-powered Grand Seiko caliber yet."},
   ]},
-  {id:"gs9s",title:"Grand Seiko Mechanical — 9S55 to 9SA5",sub:"The Shizukuishi mechanical line",stops:[
+  {id:"gs9s",title:"Grand Seiko Mechanical — 9S55 to 9SC5",sub:"The Shizukuishi mechanical line",stops:[
     {n:"c_9s55",name:"Cal. 9S55 · 1998",t:"After a 23-year break, mechanical Grand Seiko returns — 28,800 vph, hand-assembled at Shizukuishi. The base of the modern 9S family and of the 8L."},
+    {n:"c_8l35",name:"Cal. 8L35 · 2000 · 'secret GS'",t:"Mechanically a 9S55, hand-built at the same Shizukuishi studio for professional divers. The trade-off: wider Prospex spec (~±15 sec/day) where GS-grade 9S55 holds ±5/−3 across positions and temperatures. 'Secret Grand Seiko' is collector vernacular."},
+    {n:"c_9s85",name:"Cal. 9S85 · 2009",t:"36,000 vph Hi-Beat, 55-hour reserve, +5/−3 sec/day — GS's core Hi-Beat caliber for over a decade, and the movement that introduced MEMS-fabricated escapement parts."},
     {n:"c_9s65",name:"Cal. 9S65 · 2010",t:"A 3-day (72h) reserve standard automatic — the everyday backbone of the modern GS mechanical line."},
-    {n:"c_9s85",name:"Cal. 9S85 · 2009",t:"36,000 vph Hi-Beat, 55-hour reserve, +5/−3 sec/day — GS's core Hi-Beat caliber for over a decade."},
     {n:"c_9sa5",name:"Cal. 9SA5 · 2020",t:"A clean-sheet Hi-Beat: the Dual Impulse Escapement delivers 36,000 vph AND an 80-hour reserve at once, in a slimmer movement. A genuine horological innovation."},
-    {n:"c_9sc5",name:"Cal. 9SC5 Tentagraph · 2023",t:"Grand Seiko's first mechanical chronograph, built on the 9SA5 platform with a chronograph module. The name captures the spec: TEN beats/sec, Three-day reserve (with chrono running), Automatic chronoGRAPH. Ends the era where 9R86 was GS's only chronograph caliber."},
-    {n:"c_8l35",name:"Cal. 8L35 · 'secret GS'",t:"Mechanically a 9S55, hand-built at the same Shizukuishi studio for professional divers. The trade-off: wider Prospex spec (~±15 sec/day) where GS-grade 9S55 holds ±5/−3 across positions and temperatures. 'Secret Grand Seiko' is collector vernacular."},
+    {n:"c_9sc5",name:"Cal. 9SC5 Tentagraph · 2023",t:"Grand Seiko's first mechanical chronograph, built on the 9SA5 platform. The name captures the spec: TEN beats/sec, Three-day reserve (with chrono running), Automatic chronoGRAPH. Ends the era where 9R86 was GS's only chronograph caliber."},
   ]},
   {id:"volume",title:"The People's Mechanicals — 7S to 6R",sub:"Seiko's volume automatic lineage",stops:[
     {n:"c_7002",name:"Cal. 7002 · 1988",t:"The affordable automatic that preceded the 7S — the immediate ancestor of the workhorse to come."},
     {n:"c_7s26",name:"Cal. 7S26 · 1996",t:"Seiko's highest-volume mechanical caliber: 21,600 vph, no hacking or hand-winding, near-indestructible. The heart of the SKX."},
     {n:"c_6r15",name:"Cal. 6R15 · 2006",t:"A re-engineered 7S with hacking, hand-winding and a Spron 510 mainspring (50h) — the mid-grade workhorse of the SARB era."},
     {n:"c_4r36",name:"Cal. 4R36 · 2011",t:"The 7S36 brought up to spec with hacking and hand-winding plus day-date. Powers the modern Seiko 5 Sports and Turtle reissues."},
-    {n:"c_nh3x",name:"Cal. NH35/NH36",t:"The unbranded Time Module versions of the 4R — the backbone of the entire microbrand and modding world."},
+    {n:"c_nh3x",name:"Cal. NH35/NH36 · 2011",t:"The unbranded Time Module versions of the 4R — the backbone of the entire microbrand and modding world."},
     {n:"c_6r35",name:"Cal. 6R35 · 2019",t:"One more jewel and a 70-hour reserve over the 6R15. Its no-date variant powered the 2022 King Seiko relaunch."},
   ]},
   {id:"hibeat",title:"Hi-Beat 36,000 — Two Factories Race",sub:"Suwa vs Daini, 1967–2020",stops:[
     {n:"c_5740",name:"Cal. 5740 · 1967",t:"Suwa's Lord Marvel 36000 — Japan's first 36,000 vph wristwatch movement. The Hi-Beat era begins."},
+    {n:"c_1944",name:"Cal. 1944 · 1967",t:"Announced in the Suwa company magazine weeks before the men's 5740C: the world's first 36,000 vph movement designed for ladies' watches. Both Hi-Beat world-firsts were Suwa, August 1967."},
     {n:"c_4500",name:"Cal. 4500 · 1968",t:"Daini answers with the 45KS/45GS manual Hi-Beat — the ultimate hand-wound King/Grand Seiko."},
     {n:"c_6145",name:"Cal. 6145 · 1968",t:"Suwa combines automatic winding with Hi-Beat in the 61GS — the VFA variant regulated to ±2 sec/day."},
     {n:"c_6159",name:"Cal. 6159 · 1968",t:"Hi-Beat goes underwater: a 36,000 vph 300m professional diver caliber."},
-    {n:"c_9s85",name:"Cal. 9S85 · 2009",t:"The modern Hi-Beat: 36,000 vph in a 9S, the direct descendant of the 1968 hi-beat template."},
+    {n:"c_9s85",name:"Cal. 9S85 · 2009",t:"The modern Hi-Beat: 36,000 vph in a 9S, the direct descendant of the 1968 hi-beat template — now with MEMS-fabricated escapement parts that solve the wear problem the vintage movements suffered."},
     {n:"c_9sa5",name:"Cal. 9SA5 · 2020",t:"The Dual Impulse Escapement finally breaks the old rule — 36,000 vph and an 80-hour reserve together."},
   ]},
 ];
@@ -1368,7 +1503,7 @@ function startTour(id){
   document.getElementById('tp-title').textContent=tour.active.title;
   const dots=document.getElementById('tp-dots');
   dots.innerHTML='';
-  tour.active.stops.forEach((_,i)=>{
+  tour.active.stops.forEach((_s,i)=>{
     const dot=document.createElement('div');dot.className='tp-dot';
     dot.onclick=()=>{tour.stop=i;renderTourStop();};
     dots.appendChild(dot);
@@ -1422,58 +1557,76 @@ document.addEventListener('keydown',e=>{
   else if(e.key==='ArrowLeft'){document.getElementById('tp-prev').click();}
 });
 
+
 /* ═══════════════════════════════════════════════════════════════════════
-   DEV VALIDATOR (?debug=1)
+   SECTION 8 · DATA VALIDATOR (always on)
    ═══════════════════════════════════════════════════════════════════════
-   Console-warns about data-integrity issues. Only runs when the URL
-   contains ?debug=1 to avoid noise for regular users.
+   Console-warns about data-integrity issues. Runs on every load —
+   warnings cost nothing for regular visitors but mean you spot mistakes
+   the moment you open the page, instead of only when you remember to
+   append ?debug=1 (which now only adds a summary line).
+   Checks:
+     a) layout problems reported by the engine (unknown ids, bad bands)
+     b) every caliber is placed in a lane, and vice versa
+     c) every era parses to a start year (this drives the x position!)
+     d) edge endpoints exist, no duplicates, valid weights, known fields
+     e) every guided-tour stop references an existing node
+     f) tech badge values are recognised
+     g) node-label years overlap the era years (typo guard)
    ═══════════════════════════════════════════════════════════════════════ */
-if(location.search.includes('debug=1')){
-  const warn=(m)=>console.warn('[seiko-calibers]',m);
-  const nodeIdSet=new Set(nodes.map(n=>n[0]));
-  /* a) popupData ids should all be rendered */
-  Object.keys(popupData).forEach(id=>{
-    if(!nodeIdSet.has(id))warn('popupData id not rendered: '+id);
-    if(!nodeLabels[id])warn('popupData id missing from nodeLabels: '+id);
-  });
-  /* b) edge endpoints exist */
-  edges.forEach(([f,t])=>{
-    if(!nodeMap[f])warn('edge from-endpoint unknown: '+f);
-    if(!nodeMap[t])warn('edge to-endpoint unknown: '+t);
-  });
-  /* c) techMap and nodeTags ids known */
-  Object.keys(techMap).forEach(id=>{
-    if(!nodeIdSet.has(id))warn('techMap id not a node: '+id);
-  });
-  Object.keys(nodeTags||{}).forEach(id=>{
-    if(!nodeIdSet.has(id))warn('nodeTags id not a node: '+id);
-  });
-  /* d) startår i popupData.era matcher nodens kolonne (forventet = startår - 1955) */
-  const nodeCol={};
-  nodes.forEach(n=>{const[id,,x]=n;nodeCol[id]=Math.round(x/38);});  /* approx col from x */
-  Object.keys(popupData).forEach(id=>{
-    const d=popupData[id];if(!d.era)return;
-    const startYearMatch=d.era.match(/\b(19|20)\d\d\b/);
-    if(!startYearMatch)return;
-    const startYear=parseInt(startYearMatch[0],10);
-    /* Skip node column check — X positions are grid-computed, not linear year mapping */
-  });
-  /* e) years in nodeLabels match popupData.era */
-  Object.keys(nodeLabels).forEach(id=>{
-    const d=popupData[id];if(!d||!d.era)return;
-    const label=nodeLabels[id];
-    const yearsInLabel=(label.match(/\b(19|20)\d\d\b/g)||[]);
-    const yearsInEra=(d.era.match(/\b(19|20)\d\d\b/g)||[]);
-    if(yearsInLabel.length&&yearsInEra.length){
-      const overlap=yearsInLabel.some(y=>yearsInEra.includes(y));
-      if(!overlap)warn('label/era year mismatch: '+id+' label='+JSON.stringify(yearsInLabel)+' era='+JSON.stringify(yearsInEra));
+(function validate(){
+  try{
+    const warn=(m)=>console.warn('[seiko-calibers]',m);
+    /* a) engine-reported problems */
+    (_built.problems||[]).forEach(p=>warn('layout: '+p));
+    /* b) calibers ↔ LAYOUT consistency */
+    const placed=new Set(nodes.map(n=>n[0]));
+    Object.keys(calibers).forEach(id=>{if(!placed.has(id))warn('caliber entry not placed in any lane: '+id);});
+    /* c) era parses */
+    Object.keys(calibers).forEach(id=>{
+      if(startYearOf(calibers[id].era)==null)warn('caliber '+id+' has no parsable start year (era drives the x axis): "'+calibers[id].era+'"');
+    });
+    /* d) edges */
+    const seen=new Set();
+    const knownFields=new Set(['f','t','w','d','r']);
+    const knownWeights=new Set(['strong','medium','weak','collab']);
+    edges.forEach((e,i)=>{
+      if(!nodeMap[e.f])warn('edge #'+i+' from-endpoint unknown: '+e.f);
+      if(!nodeMap[e.t])warn('edge #'+i+' to-endpoint unknown: '+e.t);
+      if(!knownWeights.has(e.w))warn('edge #'+i+' ('+e.f+'→'+e.t+') has invalid weight: '+e.w);
+      Object.keys(e).forEach(k=>{if(!knownFields.has(k))warn('edge #'+i+' ('+e.f+'→'+e.t+') has unknown field: '+k);});
+      const key=e.f+'→'+e.t;
+      if(seen.has(key))warn('duplicate edge: '+key);
+      seen.add(key);
+    });
+    /* e) tour stops */
+    tours.forEach(t=>t.stops.forEach(s=>{
+      if(!nodeMap[s.n])warn('tour "'+t.id+'" stop "'+s.name+'" references unknown node: '+s.n);
+    }));
+    /* f) tech badge values */
+    const knownTech=new Set(['beat10','beat8','springdrive','quartz','mems']);
+    Object.keys(techMap).forEach(id=>{
+      const arr=Array.isArray(techMap[id])?techMap[id]:[techMap[id]];
+      arr.forEach(v=>{if(!knownTech.has(v))warn('caliber '+id+' has unknown tech badge: '+v);});
+    });
+    /* g) label years should overlap era years. Caliber numbers are stripped
+       first, otherwise "Cal. 1944" reads as the year 1944. */
+    Object.keys(nodeLabels).forEach(id=>{
+      const c=calibers[id];if(!c||!c.era)return;
+      const labelNoCalNos=nodeLabels[id].replace(/Cal\.?\s*[\d]+[A-Za-z]?/g,'');
+      const yl=(labelNoCalNos.match(/\b(19|20)\d\d\b/g)||[]);
+      const ye=(c.era.match(/\b(19|20)\d\d\b/g)||[]);
+      if(yl.length&&ye.length&&!yl.some(y=>ye.includes(y)))
+        warn('label/era year mismatch: '+id+' label='+JSON.stringify(yl)+' era='+JSON.stringify(ye));
+    });
+    if(location.search.includes('debug=1')){
+      console.log('[seiko-calibers] validator complete — calibers:'+Object.keys(calibers).length+' nodes:'+nodes.length+' edges:'+edges.length+' tours:'+tours.length+' canvas:'+CW+'×'+CH);
     }
-  });
-  console.log('[seiko-calibers] validator complete — nodes:'+nodes.length+' edges:'+edges.length);
-}
+  }catch(err){console.warn('[seiko-calibers] validator error',err);}
+})();
+
 
 fitView();
-
 
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -1482,13 +1635,14 @@ fitView();
    Lets you share or bookmark a specific node or tour:
      /seiko-calibers/#node=c_9r65  → opens with Cal. 9R65 locked and centred
      /seiko-calibers/#tour=sd      → starts the Spring Drive tour
+   The hash is kept in sync by syncHash() (called from updateHL) — the old
+   300ms polling interval has been removed.
    ═══════════════════════════════════════════════════════════════════════ */
 function panToNode(id){
   const n=nodeMap[id];
   if(!n)return;
   const ww=wrap.clientWidth,wh=wrap.clientHeight;
-  const targetScale=Math.max(scale,0.65);
-  scale=targetScale;
+  scale=Math.max(scale,0.65);
   tx=ww/2-(n[2]+NW/2)*scale;
   ty=wh/2-(n[3]+NH/2)*scale;
   applyTransform();
@@ -1506,30 +1660,15 @@ function applyHash(){
     startTour(m[2]);
   }
 }
-/* Update URL when locking or unlocking a node. We hook into click + key events
-   by polling `locked` and `tour.active` periodically rather than instrumenting
-   every handler — simpler and less invasive. */
-let _lastHashState='';
-setInterval(()=>{
-  let want='';
-  if(tour.active)want='#tour='+tour.active.id;
-  else if(locked)want='#node='+locked;
-  if(want!==_lastHashState){
-    _lastHashState=want;
-    if(want)history.replaceState(null,'',want);
-    else history.replaceState(null,'',location.pathname+location.search);
-  }
-},300);
 window.addEventListener('hashchange',applyHash);
-/* Apply hash after initial render completes */
 setTimeout(applyHash,100);
 
 
 /* ═══════════════════════════════════════════════════════════════════════
    FREETEXT SEARCH
    ═══════════════════════════════════════════════════════════════════════
-   Searches the popup name, label and era fields. Highlights the matching
-   node when selected, pans to it, and locks it for lineage tracing.
+   Searches the caliber name, node label, era and description. Selecting a
+   result pans to the node and locks it for lineage tracing.
    ═══════════════════════════════════════════════════════════════════════ */
 const searchInput=document.getElementById('search-input');
 const searchResults=document.getElementById('search-results');
